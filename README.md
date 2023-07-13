@@ -6,16 +6,29 @@ I always had an urge to develop a typing practice app for practicing and learnin
 
 # Goal:
 
-- Practice Any Natural languages & Programming language
-    - Practice syntax syntax syntax!
-    - Practice your favorite Design Pattern
-    - Practice your favorite Algorithms
-    - Practice your favorite Data Structures, and more
-    - Improve your Tech, Coding interviews :joy
+- Practice Any Natural & Programming language
+    - Syntax syntax syntax!
+    - Favorite Design Pattern
+    - Algorithms, Data Structures, and more
+    - Improve your chance in Tech and Coding interviews :joy
 - Able to Upload you favorite scripts and codes
 - Able to Persist your uploaded codes
 
 I can do this all day.
+
+
+# 🤳 ScreenShots
+
+<video width="320" height="666" controls>
+  <source src="screenshots/userflow.mp4" type="video/mp4">
+</video>
+
+# 🌟 Current Features
+
+- Typing
+- Detecting Errors
+- Uploading new Code and scripts
+- Check your history
 
 # Tech stacks
 
@@ -33,7 +46,7 @@ I can do this all day.
 - [ ] Placeholder string comparison algorithms can be better
 - [ ] Support different types of Keyboard layout, or improving layouts
 - [ ] Few bugs and exceptions thrown in runtime
-- [ ] Add persistance layer
+- [ ] Improve performance?
 - [ ] Add Store functionality to choose stored Programming language syntax, Design Pattern and Algorithms
 - [ ] Add Tests :pray 
 - [ ] Add Localizations :pray
