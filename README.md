@@ -19,9 +19,9 @@ I can do this all day.
 
 # 🤳 ScreenShots
 
-Video 
+Video
 
-<video width="320" height="666" controls>
+<video width="400" height="400" controls>
   <source src="screenshots/userflow.mp4" type="video/mp4">
 </video>
 
@@ -51,7 +51,7 @@ Video
 - [ ] Few bugs and exceptions thrown in runtime
 - [ ] Improve performance?
 - [ ] Add Store functionality to choose stored Programming language syntax, Design Pattern and Algorithms
-- [ ] Add Tests :pray 
+- [ ] Add Tests :pray
 - [ ] Add Localizations :pray
 - [ ] Haptic feedbacks
 - [ ] Any feature request you up for it!!!
