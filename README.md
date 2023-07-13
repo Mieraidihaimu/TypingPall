@@ -19,10 +19,13 @@ I can do this all day.
 
 # 🤳 ScreenShots
 
+Video 
+
 <video width="320" height="666" controls>
-  <source src="screenshots/userflow.mov" type="video/mov">
+  <source src="screenshots/userflow.mp4" type="video/mp4">
 </video>
-/Users/mieraidihaimumieraisan/ExploreGit/TypingMacApp/TypingPall/screenshots/userflow.mov
+
+
 # 🌟 Current Features
 
 - Typing
