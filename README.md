@@ -19,12 +19,11 @@ I can do this all day.
 
 # 🤳 ScreenShots
 
-Video
+Video [video link](screenshots/userflow.mp4)
 
 <video width="400" height="400" controls>
   <source src="screenshots/userflow.mp4" type="video/mp4">
 </video>
-
 
 # 🌟 Current Features
 
