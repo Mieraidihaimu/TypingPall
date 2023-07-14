@@ -1,57 +1,58 @@
-# What
+# Typing Practice App for Programmers
 
-This is a hobby project
+This is a personal project born out of a desire to create a typing practice app specifically designed for programmers. While there are existing solutions like typing.io, the goal here is to create a more personalized and affordable tool that allows users to upload any piece of code or text for practice. This is my first Mac App, and I'm excited to share it with the community. Your feedback and suggestions are always welcome!
 
-I always had an urge to develop a typing practice app for practicing and learning various Code Syntaxes. I know typing.io, however, I want to make it my own (9 dollars a month is alot 🤣🫣), so that I can upload any code or text pieces to practice and drill keyboard typing. I have started a niche small project to achieve MVP, this will be my first Mac App 🙌. If you have any thoughts please share it with me, thanks 🙏
+## 🌟 Project Goals
 
-# Goal:
+The primary aim of this app is to provide a platform for practicing and improving typing speed and accuracy in both natural and programming languages. Here's what you can expect:
 
-- Practice Any Natural & Programming language
-    - Syntax syntax syntax!
-    - Favorite Design Pattern
-    - Algorithms, Data Structures, and more
-    - Improve your chance in Tech and Coding interviews :joy
-- Able to Upload you favorite scripts and codes
-- Able to Persist your uploaded codes
+Practice typing in your favorite programming language syntax.
+Get familiar with your favorite design patterns.
+Improve your understanding of algorithms, data structures, and more.
+Enhance your performance in tech and coding interviews.
+Upload your favorite scripts and codes for practice.
+Save your uploaded codes for future practice sessions.
+Screenshots
 
-I can do this all day.
+Here's a glimpse of the app in action: User Flow Video
 
-
-# 🤳 ScreenShots
+<img src="" width="">
 
 Video [video link](screenshots/userflow.mp4)
 
-<video width="400" height="400" controls>
-  <source src="screenshots/userflow.mp4" type="video/mp4">
-</video>
+## 🌈 Current Features
 
-# 🌟 Current Features
+Typing practice with real-time error detection.
+Upload new code and scripts for practice.
+Review your practice history.
 
-- Typing
-- Detecting Errors
-- Uploading new Code and scripts
-- Check your history
+## 🔮Upcoming Features
 
-# Tech stacks
+- [ ] Enhanced string comparison algorithms.
+- [ ] Support for different keyboard layouts.
+- [ ] Detect code syntax and attribute them, maybe
+- [ ] Split the big text into severage pages
+- [ ] Adding Stats!!!
+- [ ] Adding accomplishment celebrations on each complete tasks.
+- [ ] Bug fixes and performance improvements.
+- [ ] Store functionality to choose stored programming language syntax, design patterns, and algorithms.
+- [ ] Test coverage.
+- [ ] Localization.
+- [ ] Haptic feedback.
+- [ ] Open to feature requests from the community!
 
-- SwiftUI
-- AppKit
+## 📋 Tech Stack
 
-# Features
+SwiftUI
+AppKit
 
-- Able to upload a new script
-- Able to display error in typing
-- Able to high light what key user has been typed
+## ☄️ Authors
 
-# Todos
+### Initial Mieraisan Mieraidihaimu (CallMe: Mier)
+- [LinkedIn](https://www.linkedin.com/in/mier/)
+- Email : mieraisan@gmail.com
 
-- [ ] Placeholder string comparison algorithms can be better
-- [ ] Support different types of Keyboard layout, or improving layouts
-- [ ] Few bugs and exceptions thrown in runtime
-- [ ] Improve performance?
-- [ ] Add Store functionality to choose stored Programming language syntax, Design Pattern and Algorithms
-- [ ] Add Tests :pray
-- [ ] Add Localizations :pray
-- [ ] Haptic feedbacks
-- [ ] Any feature request you up for it!!!
+## 🌝 Contributing
+
+This project is open source and contributions are welcome. If you have any ideas or feature requests, feel free to open an issue or submit a pull request.
 
