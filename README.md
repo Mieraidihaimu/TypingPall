@@ -1,18 +1,20 @@
 # Typing Practice App for Programmers
 
-This is a personal project born out of a desire to create a typing practice app specifically designed for programmers. While there are existing solutions like typing.io, the goal here is to create a more personalized and affordable tool that allows users to upload any piece of code or text for practice. This is my first Mac App, and I'm excited to share it with the community. Your feedback and suggestions are always welcome!
+This is a personal project born out of a desire to create a typing practice app specifically designed for programmers. While there are existing solutions like www.typing.io(feature to upload any code is 9.99$/month), the goal here is to create a more personalized and affordable tool that allows users to upload any piece of code or text for practice. This is my first Mac App, and I'm excited to share it with the community. Your feedback and suggestions are always welcome!
 
 ## 🌟 Project Goals
 
 The primary aim of this app is to provide a platform for practicing and improving typing speed and accuracy in both natural and programming languages. Here's what you can expect:
 
-Practice typing in your favorite programming language syntax.
-Get familiar with your favorite design patterns.
-Improve your understanding of algorithms, data structures, and more.
-Enhance your performance in tech and coding interviews.
-Upload your favorite scripts and codes for practice.
-Save your uploaded codes for future practice sessions.
-Screenshots
+- Practice typing in your favorite programming language syntax.
+- Get familiar with your favorite design patterns.
+- Improve your understanding of algorithms, data structures, and more.
+- Enhance your performance in tech and coding interviews.
+- Upload your favorite scripts and codes for practice.
+- Save your uploaded codes for future practice sessions.
+
+
+### Screenshots
 
 Here's a glimpse of the app in action: User Flow Video
 
@@ -22,9 +24,9 @@ Video [video link](screenshots/userflow.mp4)
 
 ## 🌈 Current Features
 
-Typing practice with real-time error detection.
-Upload new code and scripts for practice.
-Review your practice history.
+- Typing practice with real-time error detection.
+- Upload new code and scripts for practice.
+- Review your practice history.
 
 ## 🔮Upcoming Features
 
@@ -43,8 +45,8 @@ Review your practice history.
 
 ## 📋 Tech Stack
 
-SwiftUI
-AppKit
+- SwiftUI
+- AppKit
 
 ## ☄️ Authors
 
