@@ -48,7 +48,8 @@ AppKit
 
 ## ☄️ Authors
 
-### Initial Mieraisan Mieraidihaimu (CallMe: Mier)
+### 1) Mier
+
 - [LinkedIn](https://www.linkedin.com/in/mier/)
 - Email : mieraisan@gmail.com
 
