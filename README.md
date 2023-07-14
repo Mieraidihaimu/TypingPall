@@ -16,7 +16,7 @@ Screenshots
 
 Here's a glimpse of the app in action: User Flow Video
 
-<img src="" width="">
+<img src="screenshots/s1.png" width="400">
 
 Video [video link](screenshots/userflow.mp4)
 
