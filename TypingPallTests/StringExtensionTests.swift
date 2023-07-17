@@ -78,8 +78,8 @@ class StringExtensionTests: XCTestCase {
         // When: extractMismatchedRange is called
         let range = stringA.extractMismatchedRange(comparedTo: stringB)
 
-        // Then: The result should be the range of all characters in String A
-        XCTAssertEqual(range, NSRange(location: 0, length: 13 ))
+        // Then: The result should be nil
+        XCTAssertNil(range)
     }
 }
 

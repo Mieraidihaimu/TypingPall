@@ -16,7 +16,6 @@
 		7DCAA2982A5F33D700AFC118 /* TypingPallUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2972A5F33D700AFC118 /* TypingPallUITests.swift */; };
 		7DCAA2A82A5F340100AFC118 /* TypingScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */; };
 		7DCAA2AB2A5FEC8800AFC118 /* KeyboardLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */; };
-		7DCAA2AD2A5FF39400AFC118 /* InfoSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2AC2A5FF39400AFC118 /* InfoSectionView.swift */; };
 		7DCAA2AF2A5FF3CE00AFC118 /* TypingEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2AE2A5FF3CE00AFC118 /* TypingEditor.swift */; };
 		7DCAA2B12A5FF5C700AFC118 /* HistoryUploadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */; };
 		7DCAA2B42A60024A00AFC118 /* String+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2B32A60024A00AFC118 /* String+Utils.swift */; };
@@ -54,7 +53,6 @@
 		7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingScreenView.swift; sourceTree = "<group>"; };
 		7DCAA2A92A5FE84600AFC118 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardLayoutView.swift; sourceTree = "<group>"; };
-		7DCAA2AC2A5FF39400AFC118 /* InfoSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSectionView.swift; sourceTree = "<group>"; };
 		7DCAA2AE2A5FF3CE00AFC118 /* TypingEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEditor.swift; sourceTree = "<group>"; };
 		7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryUploadsView.swift; sourceTree = "<group>"; };
 		7DCAA2B32A60024A00AFC118 /* String+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Utils.swift"; sourceTree = "<group>"; };
@@ -150,7 +148,6 @@
 			children = (
 				7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */,
 				7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */,
-				7DCAA2AC2A5FF39400AFC118 /* InfoSectionView.swift */,
 				7DCAA2AE2A5FF3CE00AFC118 /* TypingEditor.swift */,
 				7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */,
 			);
@@ -302,7 +299,6 @@
 				7DCAA2772A5F33D600AFC118 /* TypingPallApp.swift in Sources */,
 				7DCAA2B42A60024A00AFC118 /* String+Utils.swift in Sources */,
 				7DCAA2832A5F33D700AFC118 /* TypingPall.xcdatamodeld in Sources */,
-				7DCAA2AD2A5FF39400AFC118 /* InfoSectionView.swift in Sources */,
 				7DCAA2AB2A5FEC8800AFC118 /* KeyboardLayoutView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

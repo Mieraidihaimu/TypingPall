@@ -7,7 +7,10 @@ struct TypingScreenView: View {
     @State private var isShowingPlaceholderText = false
     @State private var isShowingHistoryUploads = false
     @State private var placeholderText = "This is a placeholder text for typing practice."
+    @State private var temPlaceholderText = "This is a placeholder text for typing practice."
     @State private var lastKeyboardType: String?
+
+    @State private var redraw = false
 
     var body: some View {
         VStack {
@@ -26,25 +29,33 @@ struct TypingScreenView: View {
         .onChange(of: editorText, perform: { newValue in
             lastKeyboardType = newValue.last.flatMap { String($0) }
         })
-        .sheet(isPresented: $isShowingPlaceholderText, onDismiss: {
-            addItem(with: placeholderText)
-            editorText = ""
-        }) {
+        .sheet(isPresented: $isShowingPlaceholderText) {
             VStack {
-                TextEditor(text: $placeholderText)
+                TextEditor(text: $temPlaceholderText)
                     .font(.headline)
                     .frame(minWidth: 600, minHeight: 300)
                     .padding(.vertical)
                     .border(Color.gray, width: 1)
                     .padding(.all)
 
-                Button("Update!", action: { isShowingPlaceholderText.toggle() })
+                HStack {
+                    Button("Update!") {
+                        placeholderText = temPlaceholderText
+                        addItem(with: placeholderText)
+                        editorText = ""
+                        isShowingPlaceholderText.toggle()
+                    }
+
+                    Spacer()
+
+                    Button("Dismiss") {
+                        isShowingPlaceholderText.toggle()
+                    }
+                }
             }
             .padding(.all)
         }
-        .sheet(isPresented: $isShowingHistoryUploads, onDismiss: {
-            print("dismiss")
-        }) {
+        .sheet(isPresented: $isShowingHistoryUploads) {
             HistoryUploadsView(placeholderText: $placeholderText, isShowingHistoryUploads: $isShowingHistoryUploads)
                 .frame(minWidth: 600, minHeight: 300)
         }
@@ -52,6 +63,7 @@ struct TypingScreenView: View {
             ToolbarItem {
                 Button("Add text or code") {
                     isShowingPlaceholderText = true
+                    temPlaceholderText = placeholderText
                 }.disabled(isShowingPlaceholderText)
             }
 
