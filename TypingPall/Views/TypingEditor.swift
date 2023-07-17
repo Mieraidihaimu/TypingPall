@@ -61,11 +61,25 @@ struct TypingEditor: NSViewRepresentable {
 
     func updateNSView(_ nsView: NSView, context: Context) {
         guard let typingTextView = nsView.subviews.first?.subviews.first?.subviews.last as? NSTextView,
-              let placeholderTextView = typingTextView.superview?.subviews[2] as? NSTextView
+              let placeholderTextView = typingTextView.superview?.subviews.first as? NSTextView
         else { return }
 
         typingTextView.string = text
         placeholderTextView.string = placeholder
+
+        changeTypingTextColorIfNeeded(typingTextView, placeholder: placeholder)
+    }
+
+    func changeTypingTextColorIfNeeded(_ textView: NSTextView, placeholder: String) {
+        guard !textView.string.isEmpty else { return }
+
+        guard let range = textView.string.extractMismatchedRange(comparedTo: placeholder) else {
+            textView.setTextColor(.systemGreen, range: NSMakeRange(0, textView.string.count))
+            return
+        }
+
+        textView.setTextColor(.systemGreen, range: NSMakeRange(0,  range.location - 1))
+        textView.setTextColor(.red, range: range)
     }
 }
 
@@ -81,8 +95,6 @@ class Coordinator: NSObject, NSTextViewDelegate {
 
         defer { parent.text = textView.string }
 
-        changeTypingTextColorIfNeeded(textView, placeholder: parent.placeholder)
-
         if let scrollView = textView.superview?.superview as? NSScrollView,
            let cursorPosition = cursorPosition(in: textView),
            !scrollView.visibleRect.contains(cursorPosition) {
@@ -90,19 +102,7 @@ class Coordinator: NSObject, NSTextViewDelegate {
         }
     }
 
-    func changeTypingTextColorIfNeeded(_ textView: NSTextView, placeholder: String) {
-        guard !textView.string.isEmpty else { return }
-
-        guard let range = textView.string.extractMismatchedRange(comparedTo: placeholder) else {
-            textView.setTextColor(.systemGreen, range: NSMakeRange(0, textView.string.count))
-            return
-        }
-
-        textView.setTextColor(.systemGreen, range: NSMakeRange(0,  range.location - 1))
-        textView.setTextColor(.red, range: range)
-    }
-
-    func cursorPosition(in textView: NSTextView) -> NSPoint? {
+    private func cursorPosition(in textView: NSTextView) -> NSPoint? {
         guard let textContainer = textView.textContainer,
               let layoutManager = textView.layoutManager else { return nil }
 
