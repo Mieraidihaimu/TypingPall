@@ -13,15 +13,14 @@ struct TypingEditor: NSViewRepresentable {
     @Binding var placeholder: String
 
     let placeholderTextView = NSTextView()
-    let typingTextView = NSTextView()
+    let typingTextView: NSTextView = {
+        let scrollView = NSTextView.scrollableTextView()
+        let textView = scrollView.documentView as! NSTextView
+        return textView
+    }()
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
-    }
-
-    func updatePlaceholder(_ placeholderText: String) {
-        placeholderTextView.string = placeholderText
-        text = ""
     }
 
     func makeNSView(context: Context) -> NSView {
@@ -35,36 +34,52 @@ struct TypingEditor: NSViewRepresentable {
         typingTextView.delegate = context.coordinator
         typingTextView.backgroundColor = NSColor.clear
         typingTextView.textColor = NSColor.systemGreen
-        typingTextView.isRichText = true
         typingTextView.font = NSFont.monospacedSystemFont(ofSize: 25, weight: .bold)
-        typingTextView.textContainerInset = NSMakeSize(0, containerView.frame.size.height / 2)
 
-        containerView.addSubview(placeholderTextView)
-        containerView.addSubview(typingTextView)
+        guard let typingTextScrollView = typingTextView.superview?.superview else { return containerView }
+
+        containerView.addSubview(typingTextScrollView)
+
+        typingTextScrollView.translatesAutoresizingMaskIntoConstraints = false
+        typingTextScrollView.subviews.first?.subviews.insert(placeholderTextView, at: 0)
 
         placeholderTextView.translatesAutoresizingMaskIntoConstraints = false
-        typingTextView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            placeholderTextView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            placeholderTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            placeholderTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            placeholderTextView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-            typingTextView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            typingTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            typingTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            typingTextView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            placeholderTextView.topAnchor.constraint(equalTo: typingTextView.topAnchor),
+            placeholderTextView.leadingAnchor.constraint(equalTo: typingTextView.leadingAnchor),
+            placeholderTextView.trailingAnchor.constraint(equalTo: typingTextView.trailingAnchor),
+            placeholderTextView.bottomAnchor.constraint(equalTo: typingTextView.bottomAnchor),
+            typingTextScrollView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            typingTextScrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            typingTextScrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            typingTextScrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         ])
 
         return containerView
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {
-        guard let placeholderTextView = nsView.subviews.first as? NSTextView,
-              let typingTextView = nsView.subviews.last as? NSTextView else { return }
+        guard let typingTextView = nsView.subviews.first?.subviews.first?.subviews.last as? NSTextView,
+              let placeholderTextView = typingTextView.superview?.subviews.first as? NSTextView
+        else { return }
 
         typingTextView.string = text
         placeholderTextView.string = placeholder
+
+        changeTypingTextColorIfNeeded(typingTextView, placeholder: placeholder)
+    }
+
+    func changeTypingTextColorIfNeeded(_ textView: NSTextView, placeholder: String) {
+        guard !textView.string.isEmpty else { return }
+
+        guard let range = textView.string.extractMismatchedRange(comparedTo: placeholder) else {
+            textView.setTextColor(.systemGreen, range: NSMakeRange(0, textView.string.count))
+            return
+        }
+
+        textView.setTextColor(.systemGreen, range: NSMakeRange(0,  range.location - 1))
+        textView.setTextColor(.red, range: range)
     }
 }
 
@@ -80,19 +95,24 @@ class Coordinator: NSObject, NSTextViewDelegate {
 
         defer { parent.text = textView.string }
 
-        changeTypingTextColorIfNeeded(textView, placeholder: parent.placeholder)
+        if let scrollView = textView.superview?.superview as? NSScrollView,
+           let cursorPosition = cursorPosition(in: textView),
+           !scrollView.visibleRect.contains(cursorPosition) {
+            scrollView.scroll(cursorPosition)
+        }
     }
 
-    func changeTypingTextColorIfNeeded(_ textView: NSTextView, placeholder: String) {
-        guard !textView.string.isEmpty else { return }
+    private func cursorPosition(in textView: NSTextView) -> NSPoint? {
+        guard let textContainer = textView.textContainer,
+              let layoutManager = textView.layoutManager else { return nil }
 
-        guard let range = textView.string.extractMismatchedRange(comparedTo: placeholder) else {
-            textView.setTextColor(.systemGreen, range: NSMakeRange(0, textView.string.count - 1))
-            return
-        }
+        let glyphRange = layoutManager.glyphRange(forCharacterRange: textView.selectedRange(), actualCharacterRange: nil)
+        var rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
 
-        textView.setTextColor(.red, range: NSMakeRange(range.location, textView.string.count - 1))
-        textView.setTextColor(.systemGreen, range: NSMakeRange(0, range.location - 1))
+        rect.origin.x += textContainer.lineFragmentPadding
+        rect.origin.y += textView.textContainerInset.height
+
+        return rect.origin
     }
 }
 
