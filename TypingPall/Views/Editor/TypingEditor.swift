@@ -1,10 +1,3 @@
-//
-//  TypingEditor.swift
-//  TypingPall
-//
-//  Created by Mieraidihaimu Mieraisan on 13/07/2023.
-//
-
 import AppKit
 import SwiftUI
 
@@ -12,10 +5,21 @@ struct TypingEditor: NSViewRepresentable {
     @Binding var text: String
     @Binding var placeholder: String
 
-    let placeholderTextView = NSTextView()
+    let placeholderTextView: NSTextView = {
+        let textView = NSTextView()
+        textView.textColor = NSColor.placeholderTextColor
+        textView.font = NSFont.monospacedSystemFont(ofSize: 25, weight: .bold)
+        textView.isEditable = false
+        textView.isSelectable = false
+        return textView
+    }()
+
     let typingTextView: NSTextView = {
         let scrollView = NSTextView.scrollableTextView()
         let textView = scrollView.documentView as! NSTextView
+        textView.backgroundColor = NSColor.clear
+        textView.textColor = NSColor.systemGreen
+        textView.font = NSFont.monospacedSystemFont(ofSize: 25, weight: .bold)
         return textView
     }()
 
@@ -25,16 +29,9 @@ struct TypingEditor: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSView {
         let containerView = NSView()
-        placeholderTextView.string = placeholder
-        placeholderTextView.textColor = NSColor.placeholderTextColor
-        placeholderTextView.font = NSFont.monospacedSystemFont(ofSize: 25, weight: .bold)
-        placeholderTextView.isEditable = false
-        placeholderTextView.isSelectable = false
 
+        placeholderTextView.string = placeholder
         typingTextView.delegate = context.coordinator
-        typingTextView.backgroundColor = NSColor.clear
-        typingTextView.textColor = NSColor.systemGreen
-        typingTextView.font = NSFont.monospacedSystemFont(ofSize: 25, weight: .bold)
 
         guard let typingTextScrollView = typingTextView.superview?.superview else { return containerView }
 
@@ -83,39 +80,6 @@ struct TypingEditor: NSViewRepresentable {
         }
 
         textView.setTextColor(.red, range: range)
-    }
-}
-
-class Coordinator: NSObject, NSTextViewDelegate {
-    var parent: TypingEditor
-
-    init(_ parent: TypingEditor) {
-        self.parent = parent
-    }
-
-    func textDidChange(_ notification: Notification) {
-        guard let textView = notification.object as? NSTextView, textView === parent.typingTextView else { return }
-
-        defer { parent.text = textView.string }
-
-        if let scrollView = textView.superview?.superview as? NSScrollView,
-           let cursorPosition = cursorPosition(in: textView),
-           !scrollView.visibleRect.contains(cursorPosition) {
-            scrollView.scroll(cursorPosition)
-        }
-    }
-
-    private func cursorPosition(in textView: NSTextView) -> NSPoint? {
-        guard let textContainer = textView.textContainer,
-              let layoutManager = textView.layoutManager else { return nil }
-
-        let glyphRange = layoutManager.glyphRange(forCharacterRange: textView.selectedRange(), actualCharacterRange: nil)
-        var rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
-
-        rect.origin.x += textContainer.lineFragmentPadding
-        rect.origin.y += textView.textContainerInset.height
-
-        return rect.origin
     }
 }
 

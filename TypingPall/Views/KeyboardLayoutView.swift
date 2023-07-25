@@ -1,10 +1,3 @@
-//
-//  KeyboardLayoutView.swift
-//  TypingPall
-//
-//  Created by Mieraidihaimu Mieraisan on 13/07/2023.
-//
-
 import SwiftUI
 
 struct KeyboardLayoutView: View {

@@ -1,10 +1,3 @@
-//
-//  TypingPallUITests.swift
-//  TypingPallUITests
-//
-//  Created by Mieraidihaimu Mieraisan on 12/07/2023.
-//
-
 import XCTest
 
 final class TypingPallUITests: XCTestCase {

@@ -1,10 +1,3 @@
-//
-//  String+Utils.swift
-//  TypingPall
-//
-//  Created by Mieraidihaimu Mieraisan on 13/07/2023.
-//
-
 import Foundation
 
 extension String {

@@ -1,10 +1,3 @@
-//
-//  TypingPallApp.swift
-//  TypingPall
-//
-//  Created by Mieraidihaimu Mieraisan on 12/07/2023.
-//
-
 import SwiftUI
 
 @main
