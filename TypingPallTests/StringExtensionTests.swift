@@ -78,8 +78,20 @@ class StringExtensionTests: XCTestCase {
         // When: extractMismatchedRange is called
         let range = stringA.extractMismatchedRange(comparedTo: stringB)
 
-        // Then: The result should be nil
-        XCTAssertNil(range)
+        // Then: The result all string A is mismatched
+        XCTAssertEqual(range, NSRange(location: 0, length: 13))
+    }
+
+    func testExtractMismatchedRange_WhenStringBIsTotallyMismatch() {
+        // Given: String B is empty
+        let stringA = "Hello, World!"
+        let stringB = "WFDSFDHSJ"
+
+        // When: extractMismatchedRange is called
+        let range = stringA.extractMismatchedRange(comparedTo: stringB)
+
+        // Then: The result all string A is mismatched compare to String B
+        XCTAssertEqual(range, NSRange(location: 0, length: 13))
     }
 }
 
