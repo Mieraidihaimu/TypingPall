@@ -2,36 +2,28 @@ import SwiftUI
 
 struct TypingScreenView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
-    @State private var editorText = ""
-    @State private var isShowingPlaceholderText = false
-    @State private var isShowingHistoryUploads = false
-    @State private var placeholderText = "This is a placeholder text for typing practice."
-    @State private var temPlaceholderText = "This is a placeholder text for typing practice."
-    @State private var lastKeyboardType: String?
-
-    @State private var redraw = false
+    @StateObject private var viewModel = TypingScreenViewModel()
 
     var body: some View {
         VStack {
             // Section 1: Text Editor
-            TypingEditor(text: $editorText, placeholder: $placeholderText)
+            TypingEditor(text: $viewModel.editorText, placeholder: $viewModel.placeholderText)
                 .frame(minWidth: 500, minHeight: 250)
                 .padding(.vertical)
                 .border(Color.gray, width: 1)
 
             // Section 2: Keyboard Layout
-            KeyboardLayoutView(typedLetter: $lastKeyboardType)
+            KeyboardLayoutView(typedLetter: $viewModel.lastKeyboardType)
                 .frame(minWidth: 500, minHeight: 250)
                 .border(Color.gray, width: 1)
         }
         .frame(minWidth: 500, minHeight: 50)
-        .onChange(of: editorText, perform: { newValue in
-            lastKeyboardType = newValue.last.flatMap { String($0) }
+        .onChange(of: viewModel.editorText, perform: { newValue in
+            viewModel.lastKeyboardType = newValue.last.flatMap { String($0) }
         })
-        .sheet(isPresented: $isShowingPlaceholderText) {
+        .sheet(isPresented: $viewModel.isShowingPlaceholderText) {
             VStack {
-                TextEditor(text: $temPlaceholderText)
+                TextEditor(text: $viewModel.temPlaceholderText)
                     .font(.headline)
                     .frame(minWidth: 600, minHeight: 300)
                     .padding(.vertical)
@@ -40,37 +32,37 @@ struct TypingScreenView: View {
 
                 HStack {
                     Button("Update!") {
-                        placeholderText = temPlaceholderText
-                        addItem(with: placeholderText)
-                        editorText = ""
-                        isShowingPlaceholderText.toggle()
+                        viewModel.placeholderText = viewModel.temPlaceholderText
+                        addItem(with: viewModel.placeholderText)
+                        viewModel.editorText = ""
+                        viewModel.isShowingPlaceholderText.toggle()
                     }
 
                     Spacer()
 
                     Button("Dismiss") {
-                        isShowingPlaceholderText.toggle()
+                        viewModel.isShowingPlaceholderText.toggle()
                     }
                 }
             }
             .padding(.all)
         }
-        .sheet(isPresented: $isShowingHistoryUploads) {
-            HistoryUploadsView(placeholderText: $placeholderText, isShowingHistoryUploads: $isShowingHistoryUploads)
+        .sheet(isPresented: $viewModel.isShowingHistoryUploads) {
+            HistoryUploadsView(placeholderText: $viewModel.placeholderText, isShowingHistoryUploads: $viewModel.isShowingHistoryUploads)
                 .frame(minWidth: 600, minHeight: 300)
         }
         .toolbar {
             ToolbarItem {
                 Button("Add text or code") {
-                    isShowingPlaceholderText = true
-                    temPlaceholderText = placeholderText
-                }.disabled(isShowingPlaceholderText)
+                    viewModel.isShowingPlaceholderText = true
+                    viewModel.temPlaceholderText = viewModel.placeholderText
+                }.disabled(viewModel.isShowingPlaceholderText)
             }
 
             ToolbarItem {
                 Button("History") {
-                    isShowingHistoryUploads = true
-                }.disabled(isShowingHistoryUploads)
+                    viewModel.isShowingHistoryUploads = true
+                }.disabled(viewModel.isShowingHistoryUploads)
             }
         }
     }
