@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7D76E1952A6FBC7F00D76E59 /* TypingScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */; };
 		7DCAA2772A5F33D600AFC118 /* TypingPallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2762A5F33D600AFC118 /* TypingPallApp.swift */; };
 		7DCAA27B2A5F33D700AFC118 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */; };
 		7DCAA27E2A5F33D700AFC118 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DCAA27D2A5F33D700AFC118 /* Preview Assets.xcassets */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingScreenViewModel.swift; sourceTree = "<group>"; };
 		7DCAA2732A5F33D600AFC118 /* TypingPall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TypingPall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DCAA2762A5F33D600AFC118 /* TypingPallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPallApp.swift; sourceTree = "<group>"; };
 		7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -83,6 +85,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7D76E1932A6FBC6E00D76E59 /* TypingScreenView */ = {
+			isa = PBXGroup;
+			children = (
+				7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */,
+				7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */,
+			);
+			path = TypingScreenView;
+			sourceTree = "<group>";
+		};
 		7DCAA26A2A5F33D600AFC118 = {
 			isa = PBXGroup;
 			children = (
@@ -146,7 +157,7 @@
 		7DCAA2A62A5F33EC00AFC118 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */,
+				7D76E1932A6FBC6E00D76E59 /* TypingScreenView */,
 				7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */,
 				7DCAA2AE2A5FF3CE00AFC118 /* TypingEditor.swift */,
 				7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */,
@@ -295,6 +306,7 @@
 				7DCAA2802A5F33D700AFC118 /* Persistence.swift in Sources */,
 				7DCAA2AF2A5FF3CE00AFC118 /* TypingEditor.swift in Sources */,
 				7DCAA2A82A5F340100AFC118 /* TypingScreenView.swift in Sources */,
+				7D76E1952A6FBC7F00D76E59 /* TypingScreenViewModel.swift in Sources */,
 				7DCAA2B12A5FF5C700AFC118 /* HistoryUploadsView.swift in Sources */,
 				7DCAA2772A5F33D600AFC118 /* TypingPallApp.swift in Sources */,
 				7DCAA2B42A60024A00AFC118 /* String+Utils.swift in Sources */,
