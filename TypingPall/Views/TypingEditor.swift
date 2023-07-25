@@ -77,8 +77,11 @@ struct TypingEditor: NSViewRepresentable {
             textView.setTextColor(.systemGreen, range: NSMakeRange(0, textView.string.count))
             return
         }
+        
+        if range.location > 1 {
+            textView.setTextColor(.systemGreen, range: NSMakeRange(0,  range.location - 1))
+        }
 
-        textView.setTextColor(.systemGreen, range: NSMakeRange(0,  range.location - 1))
         textView.setTextColor(.red, range: range)
     }
 }
