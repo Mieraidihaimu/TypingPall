@@ -7,15 +7,17 @@ struct TypingScreenView: View {
     var body: some View {
         VStack {
             // Section 1: Text Editor
-            TypingEditor(text: $viewModel.editorText, placeholder: $viewModel.placeholderText)
+            TypingEditor(text: $viewModel.editorText, placeholder: $viewModel.placeholderText, fontSize: $viewModel.textViewFontSize)
                 .frame(minWidth: 500, minHeight: 250)
                 .padding(.vertical)
                 .border(Color.gray, width: 1)
 
-            // Section 2: Keyboard Layout
-            KeyboardLayoutView(typedLetter: $viewModel.lastKeyboardType)
-                .frame(minWidth: 500, minHeight: 250)
-                .border(Color.gray, width: 1)
+            if viewModel.isShowingKeyboard {
+                // Section 2: Keyboard Layout
+                KeyboardLayoutView(typedLetter: $viewModel.lastKeyboardType)
+                    .frame(minWidth: 500, minHeight: 250)
+                    .border(Color.gray, width: 1)
+            }
         }
         .frame(minWidth: 500, minHeight: 50)
         .onChange(of: viewModel.editorText, perform: { newValue in
@@ -63,6 +65,28 @@ struct TypingScreenView: View {
                 Button("History") {
                     viewModel.isShowingHistoryUploads = true
                 }.disabled(viewModel.isShowingHistoryUploads)
+            }
+
+            ToolbarItem {
+                HStack {
+                    Button(action: { viewModel.textViewFontSize = min(25, viewModel.textViewFontSize + 1) }) {
+                        Text("A")
+                            .font(.system(size: 18))
+                    }
+                    .border(Color.black, width: 1)
+
+                    Button(action: { viewModel.textViewFontSize = max(12, viewModel.textViewFontSize - 1) }) {
+                        Text("A")
+                            .font(.system(size: 8))
+                    }
+                    .border(Color.black, width: 1)
+                }
+            }
+            ToolbarItem {
+                Toggle(
+                    viewModel.isShowingKeyboard ? "Hide Keyboard" : "Show Keyboard",
+                    isOn: $viewModel.isShowingKeyboard
+                )
             }
         }
     }
