@@ -4,11 +4,12 @@ import SwiftUI
 struct TypingEditor: NSViewRepresentable {
     @Binding var text: String
     @Binding var placeholder: String
+    @Binding var fontSize: CGFloat
 
     let placeholderTextView: NSTextView = {
         let textView = NSTextView()
         textView.textColor = NSColor.placeholderTextColor
-        textView.font = NSFont.monospacedSystemFont(ofSize: 25, weight: .bold)
+
         textView.isEditable = false
         textView.isSelectable = false
         return textView
@@ -19,7 +20,6 @@ struct TypingEditor: NSViewRepresentable {
         let textView = scrollView.documentView as! NSTextView
         textView.backgroundColor = NSColor.clear
         textView.textColor = NSColor.systemGreen
-        textView.font = NSFont.monospacedSystemFont(ofSize: 25, weight: .bold)
         return textView
     }()
 
@@ -53,6 +53,9 @@ struct TypingEditor: NSViewRepresentable {
             typingTextScrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         ])
 
+        typingTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
+        placeholderTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
+
         return containerView
     }
 
@@ -65,6 +68,9 @@ struct TypingEditor: NSViewRepresentable {
         placeholderTextView.string = placeholder
 
         changeTypingTextColorIfNeeded(typingTextView, placeholder: placeholder)
+
+        typingTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
+        placeholderTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
     }
 
     func changeTypingTextColorIfNeeded(_ textView: NSTextView, placeholder: String) {
@@ -74,7 +80,7 @@ struct TypingEditor: NSViewRepresentable {
             textView.setTextColor(.systemGreen, range: NSMakeRange(0, textView.string.count))
             return
         }
-        
+
         if range.location > 1 {
             textView.setTextColor(.systemGreen, range: NSMakeRange(0,  range.location - 1))
         }
@@ -85,6 +91,6 @@ struct TypingEditor: NSViewRepresentable {
 
 struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
-        TypingEditor(text: .constant("Hello Wa"), placeholder: .constant("Hello World"))
+        TypingEditor(text: .constant("Hello Wa"), placeholder: .constant("Hello World"), fontSize: .constant(16))
     }
 }
