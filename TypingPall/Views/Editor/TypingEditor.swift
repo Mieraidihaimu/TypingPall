@@ -4,7 +4,7 @@ import SwiftUI
 struct TypingEditor: NSViewRepresentable {
     @Binding var text: String
     @Binding var placeholder: String
-    @Binding var fontSize: CGFloat
+    var fontSize: CGFloat
 
     let placeholderTextView: NSTextView = {
         let textView = NSTextView()
@@ -91,6 +91,6 @@ struct TypingEditor: NSViewRepresentable {
 
 struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
-        TypingEditor(text: .constant("Hello Wa"), placeholder: .constant("Hello World"), fontSize: .constant(16))
+        TypingEditor(text: .constant("Hello Wa"), placeholder: .constant("Hello World"), fontSize: 16)
     }
 }
