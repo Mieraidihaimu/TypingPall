@@ -9,7 +9,8 @@ struct TypingScreenView: View {
             // Section 1: Text Editor
             TypingEditor(text: $viewModel.editorText, placeholder: $viewModel.placeholderText, fontSize: viewModel.textViewFontSize)
                 .frame(minWidth: 500, minHeight: 250)
-                .padding(.vertical)
+                .cornerRadius(16)
+                .padding()
                 .border(Color.gray, width: 1)
 
             if viewModel.isShowingKeyboard {
