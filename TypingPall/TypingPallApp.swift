@@ -9,5 +9,9 @@ struct TypingPallApp: App {
                 TypingScreenView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
+
+        Settings {
+            SettingsView()
+        }
     }
 }
