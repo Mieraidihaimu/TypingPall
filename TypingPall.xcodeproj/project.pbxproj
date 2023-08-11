@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		7D76E1952A6FBC7F00D76E59 /* TypingScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */; };
 		7D76E1982A6FBE6300D76E59 /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D76E1972A6FBE6300D76E59 /* Context.swift */; };
+		7DC150902A7D3D2F00AE7358 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC1508F2A7D3D2F00AE7358 /* SettingView.swift */; };
+		7DC150922A8657E200AE7358 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC150912A8657E200AE7358 /* AppearanceSettingsView.swift */; };
+		7DC150942A86583200AE7358 /* PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC150932A86583200AE7358 /* PrivacySettingsView.swift */; };
 		7DCAA2772A5F33D600AFC118 /* TypingPallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2762A5F33D600AFC118 /* TypingPallApp.swift */; };
 		7DCAA27B2A5F33D700AFC118 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */; };
 		7DCAA27E2A5F33D700AFC118 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DCAA27D2A5F33D700AFC118 /* Preview Assets.xcassets */; };
@@ -43,6 +46,9 @@
 /* Begin PBXFileReference section */
 		7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingScreenViewModel.swift; sourceTree = "<group>"; };
 		7D76E1972A6FBE6300D76E59 /* Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
+		7DC1508F2A7D3D2F00AE7358 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
+		7DC150912A8657E200AE7358 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
+		7DC150932A86583200AE7358 /* PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacySettingsView.swift; sourceTree = "<group>"; };
 		7DCAA2732A5F33D600AFC118 /* TypingPall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TypingPall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DCAA2762A5F33D600AFC118 /* TypingPallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPallApp.swift; sourceTree = "<group>"; };
 		7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -103,6 +109,16 @@
 				7D76E1972A6FBE6300D76E59 /* Context.swift */,
 			);
 			path = Editor;
+			sourceTree = "<group>";
+		};
+		7DC1508E2A7D3D2700AE7358 /* Setting */ = {
+			isa = PBXGroup;
+			children = (
+				7DC150912A8657E200AE7358 /* AppearanceSettingsView.swift */,
+				7DC150932A86583200AE7358 /* PrivacySettingsView.swift */,
+				7DC1508F2A7D3D2F00AE7358 /* SettingView.swift */,
+			);
+			path = Setting;
 			sourceTree = "<group>";
 		};
 		7DCAA26A2A5F33D600AFC118 = {
@@ -168,6 +184,7 @@
 		7DCAA2A62A5F33EC00AFC118 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				7DC1508E2A7D3D2700AE7358 /* Setting */,
 				7D76E1962A6FBE4F00D76E59 /* Editor */,
 				7D76E1932A6FBC6E00D76E59 /* TypingScreenView */,
 				7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */,
@@ -324,6 +341,9 @@
 				7DCAA2B42A60024A00AFC118 /* String+Utils.swift in Sources */,
 				7DCAA2832A5F33D700AFC118 /* TypingPall.xcdatamodeld in Sources */,
 				7DCAA2AB2A5FEC8800AFC118 /* KeyboardLayoutView.swift in Sources */,
+				7DC150902A7D3D2F00AE7358 /* SettingView.swift in Sources */,
+				7DC150922A8657E200AE7358 /* AppearanceSettingsView.swift in Sources */,
+				7DC150942A86583200AE7358 /* PrivacySettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
