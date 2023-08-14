@@ -64,28 +64,10 @@ struct TypingEditor: NSViewRepresentable {
               let placeholderTextView = typingTextView.superview?.subviews.first as? NSTextView
         else { return }
 
-        typingTextView.string = text
         placeholderTextView.string = placeholder
-
-        changeTypingTextColorIfNeeded(typingTextView, placeholder: placeholder)
 
         typingTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
         placeholderTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
-    }
-
-    func changeTypingTextColorIfNeeded(_ textView: NSTextView, placeholder: String) {
-        guard !textView.string.isEmpty else { return }
-
-        guard let range = textView.string.extractMismatchedRange(comparedTo: placeholder) else {
-            textView.setTextColor(.systemGreen, range: NSMakeRange(0, textView.string.count))
-            return
-        }
-
-        if range.location > 1 {
-            textView.setTextColor(.systemGreen, range: NSMakeRange(0,  range.location - 1))
-        }
-
-        textView.setTextColor(.red, range: range)
     }
 }
 
