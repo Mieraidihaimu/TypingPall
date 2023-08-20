@@ -64,7 +64,12 @@ struct TypingEditor: NSViewRepresentable {
               let placeholderTextView = typingTextView.superview?.subviews.first as? NSTextView
         else { return }
 
-        placeholderTextView.string = placeholder
+        if placeholderTextView.string != placeholder {
+            // Reset the input text after updating the placeholder
+            placeholderTextView.textColor = .placeholderTextColor
+            placeholderTextView.string = placeholder
+            typingTextView.string = ""
+        }
 
         typingTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
         placeholderTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)

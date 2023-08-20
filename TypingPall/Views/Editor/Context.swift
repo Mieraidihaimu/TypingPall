@@ -38,9 +38,19 @@ final class Coordinator: NSObject, NSTextViewDelegate {
     }
 
     func changeTextColorIfNeeded() {
-        guard !textView.string.isEmpty else { return }
+        guard !textView.string.isEmpty else {
+            placeholderTextView.textColor = .placeholderTextColor
+            return
+        }
 
         let numberOfTypedCharacters = textView.string.count
+        let numberOfRemainingCharacters = placeholderTextView.string.count - numberOfTypedCharacters
+
+        if numberOfRemainingCharacters >= 0 {
+            // Hide the placeholder behind the typed characters
+            placeholderTextView.setTextColor(.clear, range: NSMakeRange(0, numberOfTypedCharacters))
+            placeholderTextView.setTextColor(.placeholderTextColor, range: NSMakeRange(numberOfTypedCharacters, numberOfRemainingCharacters))
+        }
 
         guard let mismatchedRange = textView.string.extractMismatchedRange(comparedTo: placeholderTextView.string) else {
             textView.setTextColor(.systemGreen, range: NSMakeRange(0, numberOfTypedCharacters))
