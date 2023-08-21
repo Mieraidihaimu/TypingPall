@@ -10,4 +10,10 @@ final class TypingScreenViewModel: ObservableObject {
 
     @AppStorage("typingFontSize") var textViewFontSize: Double = 25
     @AppStorage("isShowingKeyboard") var isShowingKeyboard = false
+    @AppStorage("tabEqualsToSpaces") private var spaces: Double = 4
+
+    func updatePlacholder(with text: String) {
+        placeholderText = text.replacingOccurrences(of: "\t", with: Array(repeating: " ", count: Int(spaces)).joined())
+        editorText = ""
+    }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct AppearanceSettingsView: View {
     @AppStorage("typingFontSize") var typingFontSize: Double = 25.0
     @AppStorage("isShowingKeyboard") var isShowingKeyboard = false
+    @AppStorage("tabEqualsToSpaces") var spaces: Double = 4
 
     var body: some View {
         Form {
@@ -15,6 +16,13 @@ struct AppearanceSettingsView: View {
                     Text("Typing Font size")
                 }
             })
+
+            Slider(value: $spaces, in: 2...4, step: 2.0) {
+                VStack {
+                    Text("\(Int(spaces))")
+                    Text("Tabs equal to \(Int(spaces)) Spaces")
+                }
+            }
 
             Spacer()
         }

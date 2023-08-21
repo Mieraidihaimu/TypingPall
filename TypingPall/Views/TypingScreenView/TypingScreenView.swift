@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TypingScreenView: View {
     @Environment(\.managedObjectContext) private var viewContext
+
     @StateObject private var viewModel = TypingScreenViewModel()
 
     var body: some View {
@@ -42,9 +43,8 @@ struct TypingScreenView: View {
                     .keyboardShortcut(.cancelAction)
 
                     Button("Done") {
-                        viewModel.placeholderText = viewModel.temPlaceholderText
+                        viewModel.updatePlacholder(with: viewModel.temPlaceholderText)
                         addItem(with: viewModel.placeholderText)
-                        viewModel.editorText = ""
                         viewModel.isShowingPlaceholderText.toggle()
                     }
                     .keyboardShortcut(.return, modifiers: [.command])
