@@ -34,18 +34,20 @@ struct TypingScreenView: View {
                     .padding(.all)
 
                 HStack {
-                    Button("Update!") {
+                    Spacer()
+
+                    Button("Cancel") {
+                        viewModel.isShowingPlaceholderText = false
+                    }
+                    .keyboardShortcut(.cancelAction)
+
+                    Button("Done") {
                         viewModel.placeholderText = viewModel.temPlaceholderText
                         addItem(with: viewModel.placeholderText)
                         viewModel.editorText = ""
                         viewModel.isShowingPlaceholderText.toggle()
                     }
-
-                    Spacer()
-
-                    Button("Dismiss") {
-                        viewModel.isShowingPlaceholderText.toggle()
-                    }
+                    .keyboardShortcut(.return, modifiers: [.command])
                 }
             }
             .padding(.all)
