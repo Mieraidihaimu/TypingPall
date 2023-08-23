@@ -24,6 +24,15 @@ final class Coordinator: NSObject, NSTextViewDelegate {
         changeTextColorIfNeeded()
     }
 
+    func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+        if replacementString == "\t" {
+            textView.insertText(Array(repeating: " ", count: Int(parent.spaces)).joined(), replacementRange: affectedCharRange)
+            return false
+        }
+
+        return true
+    }
+
     private func cursorPosition(in textView: NSTextView) -> NSPoint? {
         guard let textContainer = textView.textContainer,
               let layoutManager = textView.layoutManager else { return nil }

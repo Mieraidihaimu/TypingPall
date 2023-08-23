@@ -6,6 +6,8 @@ struct TypingEditor: NSViewRepresentable {
     @Binding var placeholder: String
     var fontSize: CGFloat
 
+    @AppStorage("tabEqualsToSpaces") var spaces: Double = 4
+
     let placeholderTextView: NSTextView = {
         let textView = NSTextView()
         textView.textColor = NSColor.placeholderTextColor
