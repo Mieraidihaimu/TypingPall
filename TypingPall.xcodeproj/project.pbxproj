@@ -66,6 +66,7 @@
 		7DCAA2AE2A5FF3CE00AFC118 /* TypingEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingEditor.swift; sourceTree = "<group>"; };
 		7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryUploadsView.swift; sourceTree = "<group>"; };
 		7DCAA2B32A60024A00AFC118 /* String+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Utils.swift"; sourceTree = "<group>"; };
+		B5CE24732A9780D100383369 /* TypingPall.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TypingPall.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +153,7 @@
 				7DCAA27F2A5F33D700AFC118 /* Persistence.swift */,
 				7DCAA2842A5F33D700AFC118 /* TypingPall.entitlements */,
 				7DCAA2812A5F33D700AFC118 /* TypingPall.xcdatamodeld */,
+				B5CE24732A9780D100383369 /* TypingPall.xctestplan */,
 				7DCAA27C2A5F33D700AFC118 /* Preview Content */,
 			);
 			path = TypingPall;
