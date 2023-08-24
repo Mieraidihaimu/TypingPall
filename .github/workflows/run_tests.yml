@@ -1,0 +1,23 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Environment
+        run: |
+          xcodebuild -version
+          swift -version
+
+      - name: Run tests
+        run: |
+          bundle install
+          bundle exec fastlane test
