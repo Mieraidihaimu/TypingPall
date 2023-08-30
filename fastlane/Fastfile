@@ -1,0 +1,8 @@
+default_platform(:mac)
+
+platform :mac do
+  desc "Run tests"
+  lane :test do
+    run_tests(clean: true, project: "TypingPall.xcodeproj", scheme: "TypingPall")
+  end
+end

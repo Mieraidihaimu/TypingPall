@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "1E392AB2-4C58-47B7-A467-883EC1098187",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:TypingPall.xcodeproj",
+      "identifier" : "7DCAA2722A5F33D600AFC118",
+      "name" : "TypingPall"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:TypingPall.xcodeproj",
+        "identifier" : "7DCAA2882A5F33D700AFC118",
+        "name" : "TypingPallTests"
+      }
+    },
+    {
+      "enabled" : false,
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:TypingPall.xcodeproj",
+        "identifier" : "7DCAA2922A5F33D700AFC118",
+        "name" : "TypingPallUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
