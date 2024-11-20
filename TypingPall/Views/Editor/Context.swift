@@ -13,7 +13,14 @@ final class Coordinator: NSObject, NSTextViewDelegate {
     func textDidChange(_ notification: Notification) {
         guard let textView = notification.object as? NSTextView, textView === parent.typingTextView else { return }
 
-        defer { parent.text = textView.string }
+        defer {
+            // Map visible markers back to original characters
+            let rawText = textView.string
+                .replacingOccurrences(of: "·", with: " ") // Convert middle dots back to spaces
+                .replacingOccurrences(of: "→", with: "\t") // Convert arrows back to tabs
+
+            parent.text = rawText
+        }
 
         if let scrollView = textView.superview?.superview as? NSScrollView,
            let cursorPosition = cursorPosition(in: textView),
@@ -22,6 +29,8 @@ final class Coordinator: NSObject, NSTextViewDelegate {
         }
 
         changeTextColorIfNeeded()
+        
+        
     }
 
     func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
