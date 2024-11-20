@@ -66,20 +66,37 @@ struct TypingEditor: NSViewRepresentable {
               let placeholderTextView = typingTextView.superview?.subviews.first as? NSTextView
         else { return }
 
-        if placeholderTextView.string != placeholder {
-            // Reset the input text after updating the placeholder
+        // Display placeholder with special character markers
+        let transformedPlaceholder = visualizeSpecialCharacters(in: placeholder)
+        if placeholderTextView.string != transformedPlaceholder {
             placeholderTextView.textColor = .placeholderTextColor
-            placeholderTextView.string = placeholder
-            typingTextView.string = ""
+            placeholderTextView.string = transformedPlaceholder
+        }
+        
+        // Display typed text with special character markers
+        let transformedText = visualizeSpecialCharacters(in: text)
+        if typingTextView.string != transformedText {
+            typingTextView.string = transformedText
         }
 
         typingTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
         placeholderTextView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
     }
+    
+    private func visualizeSpecialCharacters(in text: String) -> String {
+        return text
+            .replacingOccurrences(of: " ", with: "·") // Space becomes a middle dot
+            .replacingOccurrences(of: "\t", with: "→") // Tab becomes an arrow
+    }
 }
 
 struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
-        TypingEditor(text: .constant("Hello Wa"), placeholder: .constant("Hello World"), fontSize: 16)
+        TypingEditor(
+            text: .constant("Hello\tWorld"),
+            placeholder: .constant("Type·here"),
+            fontSize: 16
+        )
+        .frame(width: 400, height: 200)
     }
 }
