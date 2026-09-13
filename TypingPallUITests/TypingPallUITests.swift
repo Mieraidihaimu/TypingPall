@@ -1,34 +1,73 @@
 import XCTest
 
 final class TypingPallUITests: XCTestCase {
+    override func setUpWithError() throws { continueAfterFailure = false }
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testLinePracticeCorrectionRepetitionCompletionAndLibrary() {
         let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        app.buttons["Add Script"].click()
+        let script = app.textViews["scriptText"]
+        XCTAssertTrue(script.waitForExistence(timeout: 5))
+        script.click()
+        script.typeText("abc\n    def")
+        app.buttons["Save & Practice"].click()
+        let input = app.textViews["practiceInput"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5))
+        input.click()
+        input.typeText("abx")
+        XCTAssertEqual(input.value as? String, "abx")
+        input.typeText(XCUIKeyboardKey.delete.rawValue + "c")
+        XCTAssertTrue(app.buttons["nextLine"].isEnabled)
+        input.typeText(XCUIKeyboardKey.return.rawValue)
+        XCTAssertEqual(input.value as? String, "")
+        input.typeText("de")
+        app.buttons["repeatLine"].click()
+        XCTAssertEqual(input.value as? String, "")
+        input.click()
+        input.typeText("def" + XCUIKeyboardKey.return.rawValue)
+        XCTAssertTrue(app.staticTexts["Pattern complete"].waitForExistence(timeout: 5))
+        app.buttons["restartPractice"].click()
+        XCTAssertEqual(app.textViews["practiceInput"].value as? String, "")
+        app.buttons["Library"].click()
+        app.buttons["My scripts"].click()
+        app.buttons["Practice"].click()
+        XCTAssertEqual(app.textViews["practiceInput"].value as? String, "")
     }
 
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+    func testEmptyScriptCannotBeSaved() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        app.buttons["Add Script"].click()
+        XCTAssertFalse(app.buttons["Save & Practice"].isEnabled)
+        app.buttons["Cancel"].click()
+        XCTAssertTrue(app.textViews["practiceInput"].exists)
     }
+    func testBuiltInLessonSearchLoadAndCommentSkipping() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        app.buttons["Library"].click()
+        let search = app.textFields["lessonSearch"]
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.click()
+        search.typeText("Sliding window")
+        app.staticTexts["Sliding window"].firstMatch.click()
+        app.buttons["practiceLesson"].click()
+        let input = app.textViews["practiceInput"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5))
+        let skip = app.checkBoxes["skipComments"]
+        if (skip.value as? String) == "0" { skip.click() }
+        input.click()
+        input.typeText("def longest_unique(text):")
+        XCTAssertTrue(app.buttons["nextLine"].isEnabled)
+        skip.click()
+        XCTAssertEqual(input.value as? String, "")
+        input.click()
+        input.typeText("# Keep a window with no repeated characters.")
+        XCTAssertTrue(app.buttons["nextLine"].isEnabled)
+    }
+
 }

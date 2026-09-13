@@ -88,3 +88,8 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+# macOS metadata and local release outputs
+.DS_Store
+*.xcarchive
+*.xcresult

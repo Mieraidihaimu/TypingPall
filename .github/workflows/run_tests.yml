@@ -1,23 +1,29 @@
-name: CI
-on: [push, pull_request]
-
+name: macOS checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
-    name: Run tests
-    runs-on: macOS-latest
+    runs-on: macos-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@v4
         with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      - name: Environment
-        run: |
-          xcodebuild -version
-          swift -version
-
-      - name: Run tests
-        run: |
-          bundle install
-          bundle exec fastlane test
+          persist-credentials: false
+      - name: Toolchain
+        run: xcodebuild -version
+      - name: Unit tests, UI tests and universal Release build
+        run: ./scripts/check.sh
+      - name: Test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/DerivedData/Logs/Test/*.xcresult
+          if-no-files-found: ignore
+          retention-days: 7

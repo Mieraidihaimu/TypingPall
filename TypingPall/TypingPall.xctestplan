@@ -25,8 +25,8 @@
       }
     },
     {
-      "enabled" : false,
-      "parallelizable" : true,
+      "enabled" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:TypingPall.xcodeproj",
         "identifier" : "7DCAA2922A5F33D700AFC118",

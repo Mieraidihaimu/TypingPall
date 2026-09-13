@@ -1,10 +1,52 @@
 import Foundation
 
 extension String {
+    /// The mismatching suffix in AppKit's UTF-16 coordinate space.
     func extractMismatchedRange(comparedTo placeholder: String) -> NSRange? {
-        guard !isEmpty else { return nil }
-        let commonPrefix = self.commonPrefix(with: placeholder, options: .literal)
-        guard commonPrefix.count < self.count else { return nil }
-        return NSRange(location: commonPrefix.count, length: self.count - commonPrefix.count)
+        var other = placeholder.makeIterator()
+        var offset = 0
+        for character in self {
+            guard character == other.next() else {
+                return NSRange(location: offset, length: utf16.count - offset)
+            }
+            offset += String(character).utf16.count
+        }
+        return nil
+    }
+}
+
+enum PracticeText {
+    static let maximumCharacters = 20_000
+    static let maximumFileBytes = 1_000_000
+
+    static func tabWidth(_ value: Double) -> Int {
+        value.isFinite ? Int(min(8, max(1, value))) : 4
+    }
+
+    static func normalize(_ text: String, tabSpaces: Int) -> String {
+        text.replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+            .replacingOccurrences(of: "\t", with: String(repeating: " ", count: min(8, max(1, tabSpaces))))
+    }
+
+    static func validated(_ text: String, tabSpaces: Int) throws -> String {
+        let normalized = normalize(text, tabSpaces: tabSpaces)
+        guard !normalized.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw ValidationError.empty
+        }
+        guard normalized.count <= maximumCharacters else { throw ValidationError.tooLarge }
+        guard !normalized.contains("\0") else { throw ValidationError.binary }
+        return normalized
+    }
+
+    enum ValidationError: LocalizedError {
+        case empty, tooLarge, binary
+        var errorDescription: String? {
+            switch self {
+            case .empty: return "Add some text before starting a practice session."
+            case .tooLarge: return "Choose a shorter excerpt (up to 20,000 characters and a file under 1 MB)."
+            case .binary: return "Choose a plain-text or source-code file saved as UTF-8."
+            }
+        }
     }
 }

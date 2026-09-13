@@ -29,8 +29,8 @@ final class Coordinator: NSObject, NSTextViewDelegate {
         }
 
         changeTextColorIfNeeded()
-        
-        
+
+
     }
 
     func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
@@ -61,6 +61,15 @@ final class Coordinator: NSObject, NSTextViewDelegate {
             return
         }
 
+        // Convert displayed text back to raw for comparison
+        let rawTypedText = textView.string
+            .replacingOccurrences(of: "·", with: " ")
+            .replacingOccurrences(of: "→", with: "\t")
+
+        let rawPlaceholder = placeholderTextView.string
+            .replacingOccurrences(of: "·", with: " ")
+            .replacingOccurrences(of: "→", with: "\t")
+
         let numberOfTypedCharacters = textView.string.count
         let numberOfRemainingCharacters = placeholderTextView.string.count - numberOfTypedCharacters
 
@@ -70,13 +79,14 @@ final class Coordinator: NSObject, NSTextViewDelegate {
             placeholderTextView.setTextColor(.placeholderTextColor, range: NSMakeRange(numberOfTypedCharacters, numberOfRemainingCharacters))
         }
 
-        guard let mismatchedRange = textView.string.extractMismatchedRange(comparedTo: placeholderTextView.string) else {
+        // Compare raw strings to find mismatches
+        guard let mismatchedRange = rawTypedText.extractMismatchedRange(comparedTo: rawPlaceholder) else {
             textView.setTextColor(.systemGreen, range: NSMakeRange(0, numberOfTypedCharacters))
             return
         }
 
-        if mismatchedRange.location > 1 {
-            textView.setTextColor(.systemGreen, range: NSMakeRange(0,  mismatchedRange.location - 1))
+        if mismatchedRange.location > 0 {
+            textView.setTextColor(.systemGreen, range: NSMakeRange(0, mismatchedRange.location))
         }
 
         textView.setTextColor(.red, range: mismatchedRange)

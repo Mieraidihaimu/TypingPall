@@ -1,0 +1,298 @@
+[
+  {
+    "id": "py-sliding-window",
+    "title": "Sliding window",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Longest substring without repeats. Move the left boundary past a repeated character. O(n) time.",
+    "code": "# Keep a window with no repeated characters.\ndef longest_unique(text):\n    last_seen = {}\n    left = 0\n    best = 0\n    for right, char in enumerate(text):\n        if char in last_seen:\n            left = max(left, last_seen[char] + 1)\n        last_seen[char] = right\n        best = max(best, right - left + 1)\n    return best"
+  },
+  {
+    "id": "py-two-pointers",
+    "title": "Two pointers",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Find two values summing to a target in a sorted list. Return their indices or None. O(n) time.",
+    "code": "# Move inward using the sorted order.\ndef pair_sum(values, target):\n    left, right = 0, len(values) - 1\n    while left < right:\n        total = values[left] + values[right]\n        if total == target:\n            return left, right\n        if total < target:\n            left += 1\n        else:\n            right -= 1\n    return None"
+  },
+  {
+    "id": "py-fast-slow",
+    "title": "Fast and slow pointers",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Detect a cycle in a linked list using constant extra space. The fast pointer takes two steps.",
+    "code": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\n# A meeting means a cycle exists.\ndef has_cycle(head):\n    slow = fast = head\n    while fast is not None and fast.next is not None:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False"
+  },
+  {
+    "id": "py-intervals",
+    "title": "Merge intervals",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Merge overlapping closed intervals. Assume each start is at most its end. O(n log n) time.",
+    "code": "# Sort first, then compare with the last merged interval.\ndef merge_intervals(intervals):\n    merged = []\n    for start, end in sorted(intervals):\n        if not merged or start > merged[-1][1]:\n            merged.append([start, end])\n        else:\n            merged[-1][1] = max(merged[-1][1], end)\n    return merged"
+  },
+  {
+    "id": "py-binary-search",
+    "title": "Binary search",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Find the first index whose value is at least target in a sorted list. The search interval is [left, right).",
+    "code": "# Exclude mid only when its value is too small.\ndef lower_bound(values, target):\n    left, right = 0, len(values)\n    while left < right:\n        mid = left + (right - left) // 2\n        if values[mid] < target:\n            left = mid + 1\n        else:\n            right = mid\n    return left"
+  },
+  {
+    "id": "py-prefix-sum",
+    "title": "Prefix sums and a hash map",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Count subarrays summing to a target, including when values are negative. Seed the empty prefix once.",
+    "code": "# A previous prefix equal to prefix - target starts a match.\ndef count_subarrays(values, target):\n    counts = {0: 1}\n    prefix = 0\n    result = 0\n    for value in values:\n        prefix += value\n        result += counts.get(prefix - target, 0)\n        counts[prefix] = counts.get(prefix, 0) + 1\n    return result"
+  },
+  {
+    "id": "py-monotonic-stack",
+    "title": "Monotonic stack",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "For each temperature, count days until a warmer day. Store unresolved indices in decreasing temperature order.",
+    "code": "# Resolve earlier days when a warmer temperature arrives.\ndef days_until_warmer(temperatures):\n    answer = [0] * len(temperatures)\n    stack = []\n    for day, temperature in enumerate(temperatures):\n        while stack and temperatures[stack[-1]] < temperature:\n            previous = stack.pop()\n            answer[previous] = day - previous\n        stack.append(day)\n    return answer"
+  },
+  {
+    "id": "py-bfs",
+    "title": "Breadth-first search",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Shortest edge distances in an unweighted adjacency map. Mark a node when enqueuing it, not when removing it.",
+    "code": "from collections import deque\n\n# The queue explores one distance layer at a time.\ndef shortest_distances(graph, start):\n    distances = {start: 0}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbor in graph.get(node, []):\n            if neighbor not in distances:\n                distances[neighbor] = distances[node] + 1\n                queue.append(neighbor)\n    return distances"
+  },
+  {
+    "id": "py-dfs",
+    "title": "Depth-first search",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Visit reachable nodes in an adjacency map. An explicit stack avoids recursion-depth limits.",
+    "code": "# Track visited nodes so cycles cannot cause an infinite traversal.\ndef reachable_nodes(graph, start):\n    visited = set()\n    stack = [start]\n    while stack:\n        node = stack.pop()\n        if node in visited:\n            continue\n        visited.add(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                stack.append(neighbor)\n    return visited"
+  },
+  {
+    "id": "py-backtracking",
+    "title": "Backtracking",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Generate all subsets of a list of distinct values. Choose, explore, undo; copy the current path before saving it.",
+    "code": "# Each recursive call extends a choice made so far.\ndef subsets(values):\n    result = []\n    path = []\n    def visit(start):\n        result.append(path.copy())\n        for index in range(start, len(values)):\n            path.append(values[index])\n            visit(index + 1)\n            path.pop()\n    visit(0)\n    return result"
+  },
+  {
+    "id": "py-top-k",
+    "title": "Top K with a heap",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Keep only the k largest values using a min-heap. Returns up to k values in descending order. O(n log k) for 1 ≤ k ≤ n.",
+    "code": "import heapq\n\n# The smallest retained value stays at the heap root.\ndef largest_k(values, k):\n    if k <= 0:\n        return []\n    heap = []\n    for value in values:\n        heapq.heappush(heap, value)\n        if len(heap) > k:\n            heapq.heappop(heap)\n    return sorted(heap, reverse=True)"
+  },
+  {
+    "id": "py-union-find",
+    "title": "Union-find",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Track connected components among nodes 0 through n-1. Use path compression and union by size.",
+    "code": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.size = [1] * n\n\n    def find(self, node):\n        while node != self.parent[node]:\n            self.parent[node] = self.parent[self.parent[node]]\n            node = self.parent[node]\n        return node\n\n    def union(self, first, second):\n        first, second = self.find(first), self.find(second)\n        if first == second:\n            return False\n        if self.size[first] < self.size[second]:\n            first, second = second, first\n        self.parent[second] = first\n        self.size[first] += self.size[second]\n        return True"
+  },
+  {
+    "id": "py-dp",
+    "title": "Dynamic programming",
+    "category": "13 Python patterns",
+    "language": "python",
+    "summary": "Maximum sum of nonadjacent nonnegative values. Keep only the previous two optimal states. O(n) time, O(1) extra space.",
+    "code": "# Choose between skipping this value and taking it.\ndef max_nonadjacent_sum(values):\n    previous_two = 0\n    previous_one = 0\n    for value in values:\n        current = max(previous_one, previous_two + value)\n        previous_two = previous_one\n        previous_one = current\n    return previous_one"
+  },
+  {
+    "id": "py-comprehensions",
+    "title": "Comprehensions and enumeration",
+    "category": "Python fundamentals",
+    "language": "python",
+    "summary": "Transform and filter sequences; enumerate pairs an index with its value.",
+    "code": "def describe_even_squares(values):\n    squares = [value * value for value in values if value % 2 == 0]\n    positions = {index: value for index, value in enumerate(squares)}\n    unique = {value for value in squares}\n    return squares, positions, unique"
+  },
+  {
+    "id": "py-collections",
+    "title": "Counting and grouping",
+    "category": "Python fundamentals",
+    "language": "python",
+    "summary": "Use Counter for frequencies and defaultdict for grouping by a derived key.",
+    "code": "from collections import Counter, defaultdict\n\ndef summarize_words(words):\n    counts = Counter(words)\n    groups = defaultdict(list)\n    for word in words:\n        groups[len(word)].append(word)\n    return counts, dict(groups)"
+  },
+  {
+    "id": "py-generators",
+    "title": "Generators and iteration",
+    "category": "Python fundamentals",
+    "language": "python",
+    "summary": "Yield bounded batches without materializing the entire input. Validate batch size before iterating.",
+    "code": "def batches(items, size):\n    if size <= 0:\n        raise ValueError(\"size must be positive\")\n    batch = []\n    for item in items:\n        batch.append(item)\n        if len(batch) == size:\n            yield batch\n            batch = []\n    if batch:\n        yield batch"
+  },
+  {
+    "id": "py-dataclasses",
+    "title": "Dataclasses and sorting",
+    "category": "Python fundamentals",
+    "language": "python",
+    "summary": "Represent structured data and sort by a tuple of keys. A fresh sorted list leaves the input unchanged.",
+    "code": "from dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Task:\n    name: str\n    priority: int\n\ndef prioritize(tasks):\n    return sorted(tasks, key=lambda task: (-task.priority, task.name))"
+  },
+  {
+    "id": "cpp-vectors",
+    "title": "Vectors, references and range loops",
+    "category": "C++ fundamentals",
+    "language": "cpp",
+    "summary": "C++17. Borrow a vector through a const reference and produce a new vector. Practice bounds-free range iteration.",
+    "code": "#include <iostream>\n#include <vector>\n\nstd::vector<int> positiveValues(const std::vector<int>& values) {\n    std::vector<int> result;\n    for (int value : values) {\n        if (value > 0) {\n            result.push_back(value);\n        }\n    }\n    return result;\n}\n\nint main() {\n    for (int value : positiveValues({-1, 2, 0, 3})) {\n        std::cout << value << ' ';\n    }\n}"
+  },
+  {
+    "id": "cpp-map",
+    "title": "Hash maps and structured bindings",
+    "category": "C++ fundamentals",
+    "language": "cpp",
+    "summary": "C++17. Count values with unordered_map. operator[] inserts a zero-initialized count for a new key.",
+    "code": "#include <iostream>\n#include <string>\n#include <unordered_map>\n#include <vector>\n\nint main() {\n    std::vector<std::string> words = {\"go\", \"rust\", \"go\"};\n    std::unordered_map<std::string, int> counts;\n    for (const auto& word : words) {\n        ++counts[word];\n    }\n    auto [position, inserted] = counts.try_emplace(\"cpp\", 1);\n    std::cout << counts.at(\"go\") << ' ' << position->second;\n}"
+  },
+  {
+    "id": "cpp-raii",
+    "title": "Ownership with unique_ptr",
+    "category": "C++ fundamentals",
+    "language": "cpp",
+    "summary": "C++17. A unique_ptr owns an object and releases it automatically. Move transfers ownership explicitly.",
+    "code": "#include <iostream>\n#include <memory>\n#include <utility>\n\nstruct Node {\n    int value;\n    std::unique_ptr<Node> next;\n    explicit Node(int value) : value(value) {}\n};\n\nint main() {\n    auto head = std::make_unique<Node>(10);\n    head->next = std::make_unique<Node>(20);\n    auto owner = std::move(head);\n    std::cout << owner->value << ' ' << owner->next->value;\n}"
+  },
+  {
+    "id": "cpp-lambda",
+    "title": "Sorting with a lambda",
+    "category": "C++ fundamentals",
+    "language": "cpp",
+    "summary": "C++17. Define a strict ordering by score, then name. Comparator parameters borrow their arguments.",
+    "code": "#include <algorithm>\n#include <iostream>\n#include <string>\n#include <vector>\n\nstruct Entry {\n    std::string name;\n    int score;\n};\n\nint main() {\n    std::vector<Entry> entries = {{\"b\", 3}, {\"a\", 3}, {\"c\", 1}};\n    std::sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) {\n        if (a.score != b.score) return a.score > b.score;\n        return a.name < b.name;\n    });\n    for (const auto& entry : entries) std::cout << entry.name << ' ';\n}"
+  },
+  {
+    "id": "rust-borrow",
+    "title": "Ownership and borrowing",
+    "category": "Rust fundamentals",
+    "language": "rust",
+    "summary": "Borrow a str to inspect it and a mutable String to change it. A borrow ends before the next conflicting use.",
+    "code": "fn first_word(text: &str) -> &str {\n    text.split_whitespace().next().unwrap_or(\"\")\n}\n\nfn add_suffix(text: &mut String) {\n    text.push_str(\" patterns\");\n}\n\nfn main() {\n    let mut text = String::from(\"practice\");\n    println!(\"{}\", first_word(&text));\n    add_suffix(&mut text);\n    println!(\"{}\", text);\n}"
+  },
+  {
+    "id": "rust-result",
+    "title": "Result and error propagation",
+    "category": "Rust fundamentals",
+    "language": "rust",
+    "summary": "Return parse failures through Result. The question-mark operator propagates an error to the caller.",
+    "code": "use std::num::ParseIntError;\n\nfn parse_numbers(text: &str) -> Result<Vec<i32>, ParseIntError> {\n    let mut values = Vec::new();\n    for word in text.split_whitespace() {\n        values.push(word.parse::<i32>()?);\n    }\n    Ok(values)\n}\n\nfn main() {\n    match parse_numbers(\"1 2 3\") {\n        Ok(values) => println!(\"{:?}\", values),\n        Err(error) => eprintln!(\"{}\", error),\n    }\n}"
+  },
+  {
+    "id": "rust-iterators",
+    "title": "Iterators and collection",
+    "category": "Rust fundamentals",
+    "language": "rust",
+    "summary": "Borrow a slice, copy its integers, filter, transform and collect into a vector.",
+    "code": "fn even_squares(values: &[i32]) -> Vec<i32> {\n    values.iter()\n        .copied()\n        .filter(|value| value % 2 == 0)\n        .map(|value| value * value)\n        .collect()\n}\n\nfn main() {\n    let values = [1, 2, 3, 4];\n    println!(\"{:?}\", even_squares(&values));\n}"
+  },
+  {
+    "id": "rust-enums",
+    "title": "Enums and pattern matching",
+    "category": "Rust fundamentals",
+    "language": "rust",
+    "summary": "Model distinct events with an enum and handle every variant with match.",
+    "code": "enum Event {\n    Insert(String),\n    Remove(usize),\n    Clear,\n}\n\nfn apply(event: Event, items: &mut Vec<String>) {\n    match event {\n        Event::Insert(value) => items.push(value),\n        Event::Remove(index) if index < items.len() => { items.remove(index); }\n        Event::Remove(_) => {}\n        Event::Clear => items.clear(),\n    }\n}\n\nfn main() {\n    let mut items = Vec::new();\n    apply(Event::Insert(String::from(\"pattern\")), &mut items);\n    apply(Event::Remove(0), &mut items);\n    apply(Event::Clear, &mut items);\n    println!(\"{}\", items.len());\n}"
+  },
+  {
+    "id": "go-slices",
+    "title": "Slices, maps and range",
+    "category": "Go fundamentals",
+    "language": "go",
+    "summary": "Grow a slice with append and count strings in a map. Map lookup returns the zero value for a missing key.",
+    "code": "package main\n\nimport \"fmt\"\n\nfunc counts(words []string) map[string]int {\n    result := make(map[string]int)\n    for _, word := range words {\n        result[word]++\n    }\n    return result\n}\n\nfunc main() {\n    words := []string{\"go\", \"rust\"}\n    words = append(words, \"go\")\n    fmt.Println(counts(words)[\"go\"])\n}"
+  },
+  {
+    "id": "go-errors",
+    "title": "Errors and multiple returns",
+    "category": "Go fundamentals",
+    "language": "go",
+    "summary": "Check an error before using the accompanying value. fmt.Errorf with %w preserves the underlying error.",
+    "code": "package main\n\nimport (\n    \"fmt\"\n    \"strconv\"\n)\n\nfunc parsePort(text string) (int, error) {\n    port, err := strconv.Atoi(text)\n    if err != nil {\n        return 0, fmt.Errorf(\"parse port: %w\", err)\n    }\n    if port < 1 || port > 65535 {\n        return 0, fmt.Errorf(\"port out of range\")\n    }\n    return port, nil\n}\n\nfunc main() {\n    port, err := parsePort(\"8080\")\n    if err != nil {\n        fmt.Println(err)\n        return\n    }\n    fmt.Println(port)\n}"
+  },
+  {
+    "id": "go-methods",
+    "title": "Structs and pointer receivers",
+    "category": "Go fundamentals",
+    "language": "go",
+    "summary": "A pointer receiver mutates the original struct. A value receiver can inspect a copy.",
+    "code": "package main\n\nimport \"fmt\"\n\ntype Counter struct {\n    value int\n}\n\nfunc (counter *Counter) Add(delta int) {\n    counter.value += delta\n}\n\nfunc (counter Counter) Value() int {\n    return counter.value\n}\n\nfunc main() {\n    counter := Counter{}\n    counter.Add(3)\n    fmt.Println(counter.Value())\n}"
+  },
+  {
+    "id": "go-interfaces",
+    "title": "Small interfaces",
+    "category": "Go fundamentals",
+    "language": "go",
+    "summary": "Types satisfy interfaces implicitly. Accept the behavior you need as a small interface.",
+    "code": "package main\n\nimport \"fmt\"\n\ntype Describer interface {\n    Describe() string\n}\n\ntype Task struct {\n    Name string\n}\n\nfunc (task Task) Describe() string {\n    return \"task: \" + task.Name\n}\n\nfunc printDescription(value Describer) {\n    fmt.Println(value.Describe())\n}\n\nfunc main() {\n    printDescription(Task{Name: \"practice\"})\n}"
+  },
+  {
+    "id": "py-thread-pool",
+    "title": "Thread pool and futures",
+    "category": "Python concurrency",
+    "language": "python",
+    "summary": "Submit independent tasks and retrieve results in input order. Threads commonly suit blocking I/O; this arithmetic task only demonstrates the API.",
+    "code": "from concurrent.futures import ThreadPoolExecutor\n\ndef square(value):\n    return value * value\n\ndef parallel_squares(values):\n    with ThreadPoolExecutor(max_workers=4) as executor:\n        futures = [executor.submit(square, value) for value in values]\n        return [future.result() for future in futures]"
+  },
+  {
+    "id": "py-lock",
+    "title": "Protecting shared state",
+    "category": "Python concurrency",
+    "language": "python",
+    "summary": "A lock protects the complete read-modify-write operation. Join every worker before observing the final result.",
+    "code": "from threading import Lock, Thread\n\ndef shared_counter():\n    lock = Lock()\n    count = 0\n    def increment():\n        nonlocal count\n        for _ in range(100):\n            with lock:\n                count += 1\n    workers = [Thread(target=increment) for _ in range(4)]\n    for worker in workers:\n        worker.start()\n    for worker in workers:\n        worker.join()\n    return count"
+  },
+  {
+    "id": "py-asyncio",
+    "title": "Async tasks with gather",
+    "category": "Python concurrency",
+    "language": "python",
+    "summary": "Await cooperative work without blocking the event loop. gather returns results in argument order. Run the demo from a normal Python script.",
+    "code": "import asyncio\n\nasync def work(value):\n    await asyncio.sleep(0)\n    return value * 2\n\nasync def run_batch(values):\n    tasks = [work(value) for value in values]\n    return await asyncio.gather(*tasks)\n\nif __name__ == \"__main__\":\n    print(asyncio.run(run_batch([1, 2, 3])))"
+  },
+  {
+    "id": "cpp-lock",
+    "title": "Mutex and lock_guard",
+    "category": "C++ concurrency",
+    "language": "cpp",
+    "summary": "C++17. Hold a scoped mutex guard around shared state. Join both threads before reading the counter.",
+    "code": "#include <iostream>\n#include <mutex>\n#include <thread>\n\nint main() {\n    std::mutex mutex;\n    int count = 0;\n    auto increment = [&] {\n        for (int i = 0; i < 100; ++i) {\n            std::lock_guard<std::mutex> lock(mutex);\n            ++count;\n        }\n    };\n    std::thread first(increment);\n    std::thread second(increment);\n    first.join();\n    second.join();\n    std::cout << count;\n}"
+  },
+  {
+    "id": "cpp-condition",
+    "title": "Condition variable and a predicate",
+    "category": "C++ concurrency",
+    "language": "cpp",
+    "summary": "C++17. The predicate handles notifications that arrive early and spurious wakeups. Both data and readiness are protected by the same mutex.",
+    "code": "#include <condition_variable>\n#include <iostream>\n#include <mutex>\n#include <thread>\n\nint main() {\n    std::mutex mutex;\n    std::condition_variable ready;\n    bool hasValue = false;\n    int value = 0;\n    std::thread producer([&] {\n        {\n            std::lock_guard<std::mutex> lock(mutex);\n            value = 42;\n            hasValue = true;\n        }\n        ready.notify_one();\n    });\n    std::unique_lock<std::mutex> lock(mutex);\n    ready.wait(lock, [&] { return hasValue; });\n    std::cout << value;\n    lock.unlock();\n    producer.join();\n}"
+  },
+  {
+    "id": "cpp-future",
+    "title": "Async and future",
+    "category": "C++ concurrency",
+    "language": "cpp",
+    "summary": "C++17. Request asynchronous execution explicitly, retain the future and collect its value with get.",
+    "code": "#include <future>\n#include <iostream>\n\nint main() {\n    auto result = std::async(std::launch::async, [] {\n        int total = 0;\n        for (int value = 1; value <= 10; ++value) {\n            total += value;\n        }\n        return total;\n    });\n    std::cout << result.get();\n}"
+  },
+  {
+    "id": "go-channels",
+    "title": "Goroutines, channels and closing",
+    "category": "Go concurrency",
+    "language": "go",
+    "summary": "The sender closes the channel after producing all values. range receives until the channel is closed and drained.",
+    "code": "package main\n\nimport \"fmt\"\n\nfunc squares(values []int) <-chan int {\n    results := make(chan int)\n    go func() {\n        defer close(results)\n        for _, value := range values {\n            results <- value * value\n        }\n    }()\n    return results\n}\n\nfunc main() {\n    for result := range squares([]int{1, 2, 3}) {\n        fmt.Println(result)\n    }\n}"
+  },
+  {
+    "id": "rust-shared-state",
+    "title": "Arc, Mutex and thread joining",
+    "category": "Rust concurrency",
+    "language": "rust",
+    "summary": "Arc shares ownership across threads; Mutex serializes mutation. This small demo treats a panicked worker or poisoned mutex as fatal.",
+    "code": "use std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn main() {\n    let counter = Arc::new(Mutex::new(0));\n    let mut workers = Vec::new();\n    for _ in 0..4 {\n        let counter = Arc::clone(&counter);\n        workers.push(thread::spawn(move || {\n            let mut value = counter.lock().expect(\"poisoned mutex\");\n            *value += 1;\n        }));\n    }\n    for worker in workers {\n        worker.join().expect(\"worker panicked\");\n    }\n    println!(\"{}\", *counter.lock().expect(\"poisoned mutex\"));\n}"
+  }
+]

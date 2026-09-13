@@ -23,7 +23,11 @@ struct PrivacySettingsView: View {
 
             Text("App Version: \(appVersion)")
 
-            Text("Original Created by Mier (Mieraidihaim Mieraisan)")
+            Text("Created by Mier")
+            Text("Your scripts stay on this Mac. TypingPall has no analytics, accounts, or network requests. Delete saved scripts from the Library.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
         }
         .padding()
     }
