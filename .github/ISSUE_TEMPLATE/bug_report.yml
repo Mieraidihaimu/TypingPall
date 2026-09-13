@@ -1,0 +1,30 @@
+name: Bug report
+description: Help reproduce a problem with typing, lessons, or saved scripts.
+title: "[Bug]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include a short sample pattern and relevant options, such as language and Skip comments.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "macOS version, Apple silicon or Intel, app version or commit"
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or logs
+      description: Optional. Remove private code and personal information before sharing.

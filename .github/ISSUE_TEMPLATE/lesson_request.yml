@@ -1,0 +1,23 @@
+name: Lesson idea
+description: Suggest a useful code pattern or improve an existing lesson.
+title: "[Lesson]: "
+body:
+  - type: input
+    id: pattern
+    attributes:
+      label: Pattern and language
+      placeholder: "For example, Go context cancellation"
+    validations:
+      required: true
+  - type: textarea
+    id: learning
+    attributes:
+      label: What should someone learn?
+      description: Explain the core idea and how a short typing exercise would help practice it.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example or references
+      description: Optional. Share original code or links that explain the idea.
