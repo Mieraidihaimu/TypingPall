@@ -93,3 +93,6 @@ iOSInjectionProject/
 .DS_Store
 *.xcarchive
 *.xcresult
+
+# Cloudflare Pages / Wrangler cache
+.wrangler/

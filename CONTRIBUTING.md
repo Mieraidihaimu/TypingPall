@@ -27,11 +27,20 @@ Earlier editor and statistics experiments remain outside the app's Sources phase
 
 ## Add or improve a lesson
 
-Each entry in `lessons.json` has a unique `id`, a short `title`, a `category`, a supported `language` (`python`, `cpp`, `rust`, or `go`), a `summary`, and `code`.
+Each entry in `lessons.json` has a unique `id`, a short `title`, a `category`, a `track` (`leetcode`, `lowLevelDesign`, or `languages`), a supported `language` (`python`, `cpp`, `rust`, or `go`), a `summary`, and `code`. The library groups lessons by track, then by category, so a category belongs to exactly one track.
 
 Write original examples that focus on one idea and fit comfortably into a practice session. Explain non-obvious behavior in comments and state complexity only when it is accurate. Avoid copying proprietary problem statements or solutions. C++, Rust, and Go examples should be runnable programs; Python examples should be safe to import.
 
-Add meaningful behavior checks in `scripts/check_lessons.py`. When adding a lesson, update the catalog count assertions, affected README totals, and tests in `TypingPallTests/StringExtensionTests.swift`.
+LeetCode and low-level design lessons also carry optional recall metadata: `family`, `triggers`, `prompts`, `invariant`, `mantra`, `pitfalls`, `anchors` (`name`, `trick`), `keyLineIndices`, `scaffoldLineIndices`, `contrastWith`, `complexity` (`time`, `space`) and `mutations` (`line`, `replacement`, `explanation`). Omit a field rather than leaving it empty.
+
+- Prompts are original scenarios: no problem statements, examples or constraints. Anchors name public problems only.
+- Line indices are 0-based into `code`. `keyLineIndices` and mutation lines must be typed lines: not blank, not a comment, not scaffold. Scaffold lines are shown but never typed.
+- Each `mutations` entry keeps the line's indentation and must fail the lesson's check; `check_lessons.py` runs every planted bug.
+- `contrastWith` links must be mutual.
+- Keep the file in the form `json.dumps(lessons, indent=2, ensure_ascii=False)` writes, plus a final newline.
+- UI tests rely on the "Sliding window" title and code, and on the monotonic-stack lesson's "next greater" trigger.
+
+Add a check in `scripts/check_lessons.py` (Python) or an `EXPECTED` output (C++/Rust/Go). Counts are derived, so nothing else needs updating.
 
 ```sh
 python3 scripts/check_lessons.py --require-all

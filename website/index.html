@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="TypingPall is a native, offline macOS app for making code patterns familiar one line at a time.">
+    <meta property="og:title" content="TypingPall — make code patterns familiar">
+    <meta property="og:description" content="AI writes code. You should still understand it. A calm, open-source macOS practice app for algorithms, design patterns, and concurrency.">
+    <meta property="og:image" content="https://typingpall.pages.dev/media/practice.jpg">
+    <meta property="og:url" content="https://typingpall.pages.dev/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0c0f14">
+    <title>TypingPall — Make code patterns familiar</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="TypingPall home">Typing<span>Pall</span></a>
+      <nav aria-label="Primary navigation">
+        <a href="#how-it-works">How it works</a>
+        <a href="#contribute">Contribute</a>
+        <a class="nav-cta" href="https://github.com/Mieraidihaimu/TypingPall">View on GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Open source · Native macOS · Offline-first</p>
+          <h1>Make code patterns<br><em>familiar.</em></h1>
+          <p class="hero-subtitle">AI writes code. You should still understand it.</p>
+          <p class="lede">TypingPall is a focused practice app for algorithms, design patterns, language idioms, and concurrency—one line at a time.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://github.com/Mieraidihaimu/TypingPall">Get the source <span aria-hidden="true">→</span></a>
+            <a class="button button-quiet" href="#watch">Watch the flow <span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="fine-print">Runs on macOS 12+ · GPL-3.0 · No account, analytics, or third-party runtime dependencies</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="code-window">
+            <div class="window-bar"><i></i><i></i><i></i><b>TypingPall</b></div>
+            <p class="line muted">// Binary search: narrow a half-open interval</p>
+            <p class="line"><span>int</span> left = <strong>0</strong>;</p>
+            <p class="line muted">int right = values.size();</p>
+            <p class="line muted">while (left &lt; right) {</p>
+            <p class="line typed">&nbsp;&nbsp;&nbsp;&nbsp;int mid = left + (right - left) / 2;</p>
+            <div class="cursor"></div>
+            <div class="status">Line matched. Press Return to continue.</div>
+          </div>
+          <div class="green-orb"></div>
+        </div>
+      </section>
+
+      <section class="philosophy" aria-label="Why practice still matters">
+        <div class="philosophy-inner">
+          <p class="eyebrow">Why practice in the age of AI?</p>
+          <blockquote>
+            <p>Fast trains exist, but runners still use treadmills.</p>
+            <p>AI generates code, but engineers still need the muscle memory of <em>how</em> a binary search narrows, <em>why</em> a mutex guards shared state, and <em>where</em> an off-by-one hides.</p>
+            <p>Understanding is a skill that atrophies without practice. TypingPall is the treadmill.</p>
+          </blockquote>
+        </div>
+      </section>
+
+      <section class="proof" aria-label="TypingPall principles">
+        <div><strong>01</strong><span>Small, repeatable<br>practice loops</span></div>
+        <div><strong>02</strong><span>Your code stays<br>on your Mac</span></div>
+        <div><strong>03</strong><span>Learn details,<br>not just answers</span></div>
+      </section>
+
+      <section class="watch section" id="watch">
+        <div class="section-heading">
+          <p class="eyebrow">See the practice loop</p>
+          <h2>Less passive review.<br>More recall.</h2>
+          <p>Choose a pattern, keep the full reference in view, reproduce one line, and repeat the parts that deserve another pass.</p>
+        </div>
+        <figure class="product-video">
+          <video controls playsinline preload="metadata" poster="media/practice.png">
+            <source src="media/userflow.mp4" type="video/mp4">
+            Your browser does not support the product video. See the <a href="https://github.com/Mieraidihaimu/TypingPall">project on GitHub</a> instead.
+          </video>
+          <figcaption>A real walkthrough of TypingPall’s native practice flow.</figcaption>
+        </figure>
+      </section>
+
+      <section class="how section" id="how-it-works">
+        <div class="section-heading">
+          <p class="eyebrow">A deliberately calm loop</p>
+          <h2>Practice the shape<br>of a solution.</h2>
+        </div>
+        <ol class="steps">
+          <li>
+            <span>01</span>
+            <h3>Choose a pattern</h3>
+            <p>Start with a built-in lesson, paste a snippet, or import a UTF-8 source file.</p>
+          </li>
+          <li>
+            <span>02</span>
+            <h3>Type one line</h3>
+            <p>The reference stays visible. Leading indentation is handled, and the first mismatch is easy to spot.</p>
+          </li>
+          <li>
+            <span>03</span>
+            <h3>Recall and repeat</h3>
+            <p>Hide the code when you are ready, get a small hint, and repeat the line or the whole pattern without a timer.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="tracks section">
+        <div class="section-heading">
+          <p class="eyebrow">Practice material included</p>
+          <h2>Patterns worth<br>remembering.</h2>
+        </div>
+        <div class="track-grid">
+          <article class="track-card track-card-blue">
+            <p>Algorithms</p>
+            <h3>Interview patterns</h3>
+            <ul><li>Sliding window</li><li>Graphs and traversal</li><li>Dynamic programming</li></ul>
+          </article>
+          <article class="track-card">
+            <p>Design</p>
+            <h3>Building blocks</h3>
+            <ul><li>Factory and strategy</li><li>LRU cache</li><li>Token-bucket rate limiter</li></ul>
+          </article>
+          <article class="track-card track-card-green">
+            <p>Languages</p>
+            <h3>Idioms and concurrency</h3>
+            <ul><li>Python, C++, Rust, and Go</li><li>Ownership and errors</li><li>Channels, tasks, and mutexes</li></ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="contributors section" id="contribute">
+        <div class="contributor-copy">
+          <p class="eyebrow">A useful first contribution</p>
+          <h2>Help make practice<br>more memorable.</h2>
+          <p>TypingPall is intentionally small, native, and uncomplicated. We welcome focused improvements that make its practice loop clearer, more accessible, or more useful.</p>
+          <a class="button button-primary" href="https://github.com/Mieraidihaimu/TypingPall/blob/main/CONTRIBUTING.md">Read the contribution guide <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="contribution-list">
+          <a href="https://github.com/Mieraidihaimu/TypingPall/issues/new?template=lesson_request.yml"><span>01</span><div><b>Write a better lesson</b><small>Original examples, helpful recall cues, and strong checks.</small></div><i aria-hidden="true">↗</i></a>
+          <a href="https://github.com/Mieraidihaimu/TypingPall/issues/new?template=bug_report.yml"><span>02</span><div><b>Report a reproducible bug</b><small>Especially input, accessibility, and practice-flow details.</small></div><i aria-hidden="true">↗</i></a>
+          <a href="https://github.com/Mieraidihaimu/TypingPall"><span>03</span><div><b>Pick up a focused fix</b><small>SwiftUI, AppKit, tests, docs, and lesson validation all matter.</small></div><i aria-hidden="true">↗</i></a>
+        </div>
+      </section>
+
+      <section class="closing">
+        <p class="eyebrow">Build it. Practice with it. Improve it.</p>
+        <h2>Give code patterns<br>another way to stick.</h2>
+        <a class="button button-light" href="https://github.com/Mieraidihaimu/TypingPall">Explore TypingPall on GitHub <span aria-hidden="true">→</span></a>
+      </section>
+    </main>
+
+    <footer>
+      <a class="brand" href="#top">Typing<span>Pall</span></a>
+      <p>Made for deliberate practice. Licensed GPL-3.0.</p>
+      <a href="https://github.com/Mieraidihaimu/TypingPall">GitHub <span aria-hidden="true">↗</span></a>
+    </footer>
+  </body>
+</html>
