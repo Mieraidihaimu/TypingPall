@@ -3,15 +3,7 @@ import Foundation
 extension String {
     /// The mismatching suffix in AppKit's UTF-16 coordinate space.
     func extractMismatchedRange(comparedTo placeholder: String) -> NSRange? {
-        var other = placeholder.makeIterator()
-        var offset = 0
-        for character in self {
-            guard character == other.next() else {
-                return NSRange(location: offset, length: utf16.count - offset)
-            }
-            offset += String(character).utf16.count
-        }
-        return nil
+        LineDiff(typed: self, target: placeholder).mismatchRange
     }
 }
 
@@ -46,6 +38,17 @@ enum PracticeText {
             case .empty: return "Add some text before starting a practice session."
             case .tooLarge: return "Choose a shorter excerpt (up to 20,000 characters and a file under 1 MB)."
             case .binary: return "Choose a plain-text or source-code file saved as UTF-8."
+            }
+        }
+    }
+
+    enum InputRejection: Equatable {
+        case invalidRange, multipleLines, tooLong
+        var message: String? {
+            switch self {
+            case .invalidRange: return nil
+            case .multipleLines: return "Type one line at a time. Paste whole snippets into Add Script."
+            case .tooLong: return "That line would pass the 20,000-character limit."
             }
         }
     }

@@ -23,17 +23,48 @@ enum CodeLanguage: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-struct PracticeLesson: Codable, Identifiable {
+enum LessonTrack: String, Codable, CaseIterable, Identifiable {
+    case leetcode, lowLevelDesign, languages
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .leetcode: return "LeetCode"
+        case .lowLevelDesign: return "Low-level design"
+        case .languages: return "Languages & syntax"
+        }
+    }
+}
+
+struct PracticeLesson: Codable, Identifiable, Hashable {
     let id: String
     let title: String
     let category: String
+    let track: LessonTrack
     let language: CodeLanguage
     let summary: String
     let code: String
+    var family: String? = nil
+    var triggers: [String]? = nil
+    var prompts: [String]? = nil
+    var invariant: String? = nil
+    var mantra: String? = nil
+    var pitfalls: [String]? = nil
+    var anchors: [LessonAnchor]? = nil
+    var keyLineIndices: [Int]? = nil
+    var scaffoldLineIndices: [Int]? = nil
+    var contrastWith: [String]? = nil
+    var complexity: LessonComplexity? = nil
+    var mutations: [LessonMutation]? = nil
 }
 
 enum PracticeCatalog {
-    static let lessons: [PracticeLesson] = (try? load()) ?? []
+    private static let loaded = loadResult()
+    static var lessons: [PracticeLesson] { loaded.lessons }
+    static var loadError: Error? { loaded.error }
+
+    static func loadResult(bundle: Bundle = .main) -> (lessons: [PracticeLesson], error: Error?) {
+        do { return (try load(bundle: bundle), nil) } catch { return ([], error) }
+    }
 
     static func load(bundle: Bundle = .main) throws -> [PracticeLesson] {
         guard let url = bundle.url(forResource: "lessons", withExtension: "json") else {
@@ -42,11 +73,27 @@ enum PracticeCatalog {
         return try JSONDecoder().decode([PracticeLesson].self, from: Data(contentsOf: url))
     }
 
-    static var categories: [String] {
+    /// Categories in catalog order, optionally limited to one track.
+    static func categories(of lessons: [PracticeLesson], in track: LessonTrack? = nil) -> [String] {
         lessons.reduce(into: []) { result, lesson in
-            if !result.contains(lesson.category) { result.append(lesson.category) }
+            if (track == nil || lesson.track == track) && !result.contains(lesson.category) { result.append(lesson.category) }
         }
     }
+
+    /// The lessons that pass every filter, grouped by category in catalog order.
+    static func sections(of lessons: [PracticeLesson], track: LessonTrack?, category: String?, search: String) -> [LessonSection] {
+        let matching = lessons.filter {
+            (track == nil || $0.track == track) && (category == nil || $0.category == category) &&
+                (search.isEmpty || $0.searchableText.localizedCaseInsensitiveContains(search))
+        }
+        return categories(of: matching).map { title in LessonSection(title: title, lessons: matching.filter { $0.category == title }) }
+    }
+}
+
+struct LessonSection: Identifiable, Equatable {
+    let title: String
+    let lessons: [PracticeLesson]
+    var id: String { title }
 }
 
 struct PracticeLine: Equatable {

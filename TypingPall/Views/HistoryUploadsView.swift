@@ -2,6 +2,8 @@ import SwiftUI
 import CoreData
 
 struct HistoryUploadsView: View {
+    private enum Shelf: Hashable { case lessons(LessonTrack?), scripts }
+
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
     @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: false)], animation: .default)
@@ -9,19 +11,24 @@ struct HistoryUploadsView: View {
     @State private var errorMessage: String?
     @State private var pendingDeletion: Item?
     @State private var search = ""
-    @State private var category = "All topics"
+    @State private var shelf = Shelf.lessons(nil)
+    @State private var category: String?
     @State private var selection: String?
-    @State private var showingSaved = false
     var onSelect: (String, CodeLanguage) -> Void
     var onSelectLesson: (PracticeLesson) -> Void
+    var onAddScript: () -> Void = {}
+    var onImport: () -> Void = {}
+    var onSelectBugHunt: (PracticeLesson) -> Void = { _ in }
+    var onSelectContrast: (ContrastPair) -> Void = { _ in }
 
-    private var lessons: [PracticeLesson] {
-        PracticeCatalog.lessons.filter {
-            (category == "All topics" || $0.category == category) &&
-            (search.isEmpty || "\($0.title) \($0.category) \($0.summary) \($0.language.title)".localizedCaseInsensitiveContains(search))
-        }
+    private var track: LessonTrack? {
+        if case .lessons(let track) = shelf { return track }
+        return nil
     }
-    private var selectedLesson: PracticeLesson? { lessons.first { $0.id == selection } }
+    private var sections: [LessonSection] {
+        PracticeCatalog.sections(of: PracticeCatalog.lessons, track: track, category: category, search: search)
+    }
+    private var selectedLesson: PracticeLesson? { sections.lazy.flatMap(\.lessons).first { $0.id == selection } }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -30,11 +37,16 @@ struct HistoryUploadsView: View {
                 Spacer()
                 Button("Done") { dismiss() }.keyboardShortcut(.cancelAction)
             }
-            Picker("Library", selection: $showingSaved) {
-                Text("Built-in lessons (\(PracticeCatalog.lessons.count))").tag(false)
-                Text("My scripts").tag(true)
-            }.pickerStyle(.segmented)
-            if showingSaved { savedScripts } else { builtInLessons }
+            Picker("Library", selection: $shelf) {
+                Text("All lessons").tag(Shelf.lessons(nil))
+                ForEach(LessonTrack.allCases.filter { track in PracticeCatalog.lessons.contains { $0.track == track } }) {
+                    Text($0.title).tag(Shelf.lessons($0))
+                }
+                Text("My scripts").tag(Shelf.scripts)
+            }
+            .pickerStyle(.segmented).labelsHidden()
+            .onChange(of: shelf) { _ in category = nil }
+            if shelf == .scripts { savedScripts } else { builtInLessons }
         }.padding(24)
         .alert("Delete this script?", isPresented: Binding(get: { pendingDeletion != nil }, set: { if !$0 { pendingDeletion = nil } })) {
             Button("Cancel", role: .cancel) { pendingDeletion = nil }
@@ -54,23 +66,27 @@ struct HistoryUploadsView: View {
     private var builtInLessons: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                TextField("Search patterns, languages, concurrency…", text: $search)
+                TextField("Search patterns, cues, languages…", text: $search)
                     .textFieldStyle(.roundedBorder)
                     .accessibilityIdentifier("lessonSearch")
                 Picker("Topic", selection: $category) {
-                    Text("All topics").tag("All topics")
-                    ForEach(PracticeCatalog.categories, id: \.self) { Text($0).tag($0) }
+                    Text("All topics").tag(String?.none)
+                    ForEach(PracticeCatalog.categories(of: PracticeCatalog.lessons, in: track), id: \.self) { Text($0).tag(String?.some($0)) }
                 }.frame(width: 260)
             }
             HStack(spacing: 16) {
                 List(selection: $selection) {
-                    ForEach(lessons) { lesson in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(lesson.title).fontWeight(.medium)
-                            Text(lesson.category).font(.caption).foregroundColor(.secondary)
+                    ForEach(sections) { section in
+                        Section(header: Text(section.title)) {
+                            ForEach(section.lessons) { lesson in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(lesson.title).fontWeight(.medium)
+                                    Text(lesson.language.title).font(.caption).foregroundColor(.secondary)
+                                }
+                                .padding(.vertical, 4)
+                                .tag(lesson.id)
+                            }
                         }
-                        .padding(.vertical, 4)
-                        .tag(lesson.id)
                     }
                 }.frame(width: 250)
                 if let lesson = selectedLesson {
@@ -78,22 +94,36 @@ struct HistoryUploadsView: View {
                         Text(lesson.title).font(.title3).fontWeight(.semibold)
                         Text(lesson.summary).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                         ScrollView {
-                            Text(lesson.code)
-                                .font(.system(.body, design: .monospaced))
-                                .textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            LessonNotesView(lesson: lesson, onContrast: { onSelectContrast($0); dismiss() })
                         }
-                        Button("Practice Lesson") { onSelectLesson(lesson); dismiss() }
-                            .accessibilityIdentifier("practiceLesson")
+                        HStack {
+                            Button("Practice Lesson") { onSelectLesson(lesson); dismiss() }
+                                .keyboardShortcut(.defaultAction)
+                                .accessibilityIdentifier("practiceLesson")
+                            if !(lesson.mutations ?? []).isEmpty {
+                                Button("Find the Bug") { onSelectBugHunt(lesson); dismiss() }
+                                    .accessibilityIdentifier("findBug")
+                            }
+                        }
                     }
+                } else if PracticeCatalog.lessons.isEmpty {
+                    VStack(spacing: 8) {
+                        Text("Built-in lessons couldn't be loaded.").font(.headline)
+                        if let error = PracticeCatalog.loadError {
+                            Text(error.localizedDescription).foregroundColor(.secondary).textSelection(.enabled)
+                        }
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if sections.isEmpty {
+                    VStack(spacing: 12) {
+                        Text("No lessons match “\(search)”.").foregroundColor(.secondary)
+                        Button("Clear Search") { search = "" }.accessibilityIdentifier("clearSearch")
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    Text(lessons.isEmpty ? "No lessons match your search." : "Choose a lesson to preview its code and learning focus.")
+                    Text("Choose a lesson to preview its code and learning focus.")
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            Text("Original practice examples · 13 curated interview patterns, language fundamentals and concurrency")
-                .font(.caption).foregroundColor(.secondary)
         }
     }
 
@@ -105,6 +135,10 @@ struct HistoryUploadsView: View {
                     Text("Save your own patterns here").font(.headline)
                     Text("Add a script or import a text file. Built-in lessons are ready in the other tab.")
                         .foregroundColor(.secondary)
+                    HStack {
+                        Button("Add Script…") { onAddScript(); dismiss() }
+                        Button("Import File…") { onImport(); dismiss() }
+                    }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {

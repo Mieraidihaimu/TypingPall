@@ -2,111 +2,2548 @@
   {
     "id": "py-sliding-window",
     "title": "Sliding window",
-    "category": "13 Python patterns",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Longest substring without repeats. Move the left boundary past a repeated character. O(n) time.",
-    "code": "# Keep a window with no repeated characters.\ndef longest_unique(text):\n    last_seen = {}\n    left = 0\n    best = 0\n    for right, char in enumerate(text):\n        if char in last_seen:\n            left = max(left, last_seen[char] + 1)\n        last_seen[char] = right\n        best = max(best, right - left + 1)\n    return best"
+    "summary": "Longest run of text with no repeated character. On a repeat, jump left past that character's last index; max() ignores sightings already left of the window. O(n).",
+    "code": "# Keep a window with no repeated characters.\ndef longest_unique(text):\n    last_seen = {}\n    left = 0\n    best = 0\n    for right, char in enumerate(text):\n        if char in last_seen:\n            left = max(left, last_seen[char] + 1)\n        last_seen[char] = right\n        best = max(best, right - left + 1)\n    return best",
+    "family": "sliding-window",
+    "triggers": [
+      "longest or shortest contiguous substring or subarray under a constraint",
+      "'no repeats', 'at most k distinct', 'at most k changes'"
+    ],
+    "prompts": [
+      "A badge reader logs door codes in order. Find the longest stretch of consecutive swipes in which no code appears twice.",
+      "A radio station never repeats a song within one block. Given the play history, how long is the longest block that already obeys that rule?"
+    ],
+    "invariant": "text[left:right + 1] has no repeated character, and last_seen maps each character to its latest index so far.",
+    "mantra": "Expand right; on a repeat, jump left past its last sighting, never backwards.",
+    "pitfalls": [
+      "Without max(left, ...), a sighting from before the window drags left backwards ('abba').",
+      "Record last_seen[char] after moving left, or every character collides with itself.",
+      "The window holds right - left + 1 characters."
+    ],
+    "anchors": [
+      {
+        "name": "Longest Substring Without Repeating Characters",
+        "trick": "Exactly this: last-seen map plus jump."
+      },
+      {
+        "name": "Longest Repeating Character Replacement",
+        "trick": "Shrink variant: valid while window length - top count <= k."
+      }
+    ],
+    "keyLineIndices": [
+      7,
+      8,
+      9
+    ],
+    "contrastWith": [
+      "py-two-pointers",
+      "py-prefix-sum",
+      "py-sliding-window-shrink"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(min(n, alphabet))"
+    },
+    "mutations": [
+      {
+        "line": 7,
+        "replacement": "            left = last_seen[char] + 1",
+        "explanation": "Without max(), a repeat seen before the window moves left backwards and admits duplicates: 'abba' gives 3."
+      },
+      {
+        "line": 9,
+        "replacement": "        best = max(best, right - left)",
+        "explanation": "Off by one: the window from left to right holds right - left + 1 characters."
+      }
+    ]
+  },
+  {
+    "id": "py-sliding-window-shrink",
+    "title": "Sliding window: shrink loop",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Longest substring with at most k distinct characters. Add text[right]; while the window breaks the rule, remove text[left] and step left. O(n).",
+    "code": "# Grow on the right; shrink from the left until the window is valid again.\ndef longest_with_k_distinct(text, k):\n    counts = {}\n    left = 0\n    best = 0\n    for right, char in enumerate(text):\n        counts[char] = counts.get(char, 0) + 1\n        while len(counts) > k:\n            counts[text[left]] -= 1\n            if counts[text[left]] == 0:\n                del counts[text[left]]\n            left += 1\n        best = max(best, right - left + 1)\n    return best",
+    "family": "sliding-window",
+    "triggers": [
+      "longest or shortest window whose count-based rule can break and be restored",
+      "'at most k distinct', 'at most k replacements', 'contains every required character'"
+    ],
+    "prompts": [
+      "A sensor stream tags each reading with a device id. Find the longest run of consecutive readings that involves at most two devices.",
+      "Books on a shelf are in arrival order. What is the longest run of neighbouring books that spans at most three genres?"
+    ],
+    "invariant": "After the while loop, text[left:right + 1] has at most k distinct characters and counts holds exactly its character counts.",
+    "mantra": "Expand to explore, shrink to restore.",
+    "pitfalls": [
+      "Delete a character when its count reaches 0, or len(counts) never drops.",
+      "For longest-window problems 'if' instead of 'while' still passes (the window slides at its best size); minimum-window problems need the 'while'.",
+      "Update best after the shrink, once the window is valid again."
+    ],
+    "anchors": [
+      {
+        "name": "Longest Substring with At Most K Distinct Characters",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Fruit Into Baskets",
+        "trick": "k = 2."
+      },
+      {
+        "name": "Longest Repeating Character Replacement",
+        "trick": "Invalid when window - top count > k; shrink until valid."
+      },
+      {
+        "name": "Minimum Window Substring",
+        "trick": "Shrink while valid and record the smallest window."
+      }
+    ],
+    "keyLineIndices": [
+      7,
+      8,
+      10,
+      11
+    ],
+    "contrastWith": [
+      "py-sliding-window",
+      "py-prefix-sum"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(k)"
+    },
+    "mutations": [
+      {
+        "line": 10,
+        "replacement": "                counts[text[left]] = 0",
+        "explanation": "A key left at count 0 still counts as distinct, so the loop shrinks past the window."
+      },
+      {
+        "line": 12,
+        "replacement": "        best = max(best, right - left)",
+        "explanation": "Off by one: the window holds right - left + 1 characters."
+      }
+    ]
   },
   {
     "id": "py-two-pointers",
-    "title": "Two pointers",
-    "category": "13 Python patterns",
+    "title": "Two pointers: sorted pair sum",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Find two values summing to a target in a sorted list. Return their indices or None. O(n) time.",
-    "code": "# Move inward using the sorted order.\ndef pair_sum(values, target):\n    left, right = 0, len(values) - 1\n    while left < right:\n        total = values[left] + values[right]\n        if total == target:\n            return left, right\n        if total < target:\n            left += 1\n        else:\n            right -= 1\n    return None"
+    "summary": "Indices of two values in a sorted list that sum to target, or None. Too small: values[left] can't pair with anything left, so drop it; too big: drop values[right]. O(n), O(1) space.",
+    "code": "# Move inward using the sorted order.\ndef pair_sum(values, target):\n    left, right = 0, len(values) - 1\n    while left < right:\n        total = values[left] + values[right]\n        if total == target:\n            return left, right\n        if total < target:\n            left += 1\n        else:\n            right -= 1\n    return None",
+    "family": "two-pointers",
+    "triggers": [
+      "sorted input and a pair or triple with a target sum or difference",
+      "discard candidates from both ends in O(1) extra space"
+    ],
+    "prompts": [
+      "Gift cards come in sorted denominations. Find two different cards that together cover a bill exactly.",
+      "Package weights are listed in increasing order. Pick two different packages whose weights exactly fill the space left on a truck."
+    ],
+    "invariant": "Every pair that can still reach target lies inside values[left..right]; everything outside has been ruled out.",
+    "mantra": "Sum too small: move left up. Too big: move right down.",
+    "pitfalls": [
+      "Only valid on sorted input; sorting first loses the original indices.",
+      "while left < right, not <=: an element can't pair with itself.",
+      "3Sum: sort, fix one value, run this on the rest, and skip equal neighbours."
+    ],
+    "anchors": [
+      {
+        "name": "Two Sum II - Input Array Is Sorted",
+        "trick": "Exactly this; the answer uses 1-based indices."
+      },
+      {
+        "name": "3Sum",
+        "trick": "Fix i, two-pointer the rest, skip duplicates of i and of left."
+      },
+      {
+        "name": "Container With Most Water",
+        "trick": "Move the shorter side inward: the taller one can't help a narrower container."
+      }
+    ],
+    "keyLineIndices": [
+      3,
+      7,
+      8,
+      10
+    ],
+    "contrastWith": [
+      "py-sliding-window",
+      "py-binary-search",
+      "py-fast-slow"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 3,
+        "replacement": "    while left <= right:",
+        "explanation": "Lets left meet right, so one element pairs with itself when twice its value equals target."
+      },
+      {
+        "line": 7,
+        "replacement": "        if total > target:",
+        "explanation": "Moves the wrong pointer: a sum that is too small drops the largest value and misses real pairs."
+      }
+    ]
   },
   {
     "id": "py-fast-slow",
     "title": "Fast and slow pointers",
-    "category": "13 Python patterns",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Detect a cycle in a linked list using constant extra space. The fast pointer takes two steps.",
-    "code": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\n# A meeting means a cycle exists.\ndef has_cycle(head):\n    slow = fast = head\n    while fast is not None and fast.next is not None:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False"
+    "summary": "Detect a cycle in a linked list in O(1) space. Slow moves one node, fast moves two; inside a cycle fast gains a node per step, so they meet. The Node class is shown, not typed.",
+    "code": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\n# A meeting means a cycle exists.\ndef has_cycle(head):\n    slow = fast = head\n    while fast is not None and fast.next is not None:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False",
+    "family": "fast-slow-pointers",
+    "triggers": [
+      "cycle, middle or kth-from-end of a linked list in O(1) space",
+      "a sequence where next = f(current) might loop forever"
+    ],
+    "prompts": [
+      "Each kiosk in a museum points visitors to the next kiosk. Starting at the entrance, could someone who follows the signs walk in circles forever?",
+      "Each short link redirects to another link. Using constant memory, decide whether following redirects from one link ever loops."
+    ],
+    "invariant": "Once both pointers are inside a cycle, the gap between them shrinks by one node per step.",
+    "mantra": "Slow one, fast two; meeting means a loop.",
+    "pitfalls": [
+      "Check fast and fast.next before reading fast.next.next.",
+      "Compare nodes with 'is': equal values are not the same node.",
+      "Cycle start: after they meet, restart one pointer at head and move both one step at a time."
+    ],
+    "anchors": [
+      {
+        "name": "Linked List Cycle",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Linked List Cycle II",
+        "trick": "After meeting, reset one pointer to head; they meet again at the cycle start."
+      },
+      {
+        "name": "Middle of the Linked List",
+        "trick": "When fast runs out, slow is at the middle."
+      },
+      {
+        "name": "Happy Number",
+        "trick": "The list is n -> sum of squared digits; detect the loop the same way."
+      }
+    ],
+    "keyLineIndices": [
+      8,
+      10,
+      11
+    ],
+    "scaffoldLineIndices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "contrastWith": [
+      "py-two-pointers",
+      "py-reverse-list"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 10,
+        "replacement": "        fast = fast.next",
+        "explanation": "Fast no longer gains on slow: both land on the second node together, so every list of two or more nodes looks cyclic."
+      },
+      {
+        "line": 8,
+        "replacement": "    while fast is not None:",
+        "explanation": "On a list with an odd number of nodes fast.next is None, so fast.next.next crashes."
+      }
+    ]
+  },
+  {
+    "id": "py-reverse-list",
+    "title": "Linked list: reverse a sublist",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Reverse positions left..right (1-based) of a linked list in one pass. A dummy head covers left = 1; flip next pointers inside the range, then reconnect both ends. O(n), O(1) space. The Node class is shown, not typed.",
+    "code": "class Node:\n    def __init__(self, value, next_node=None):\n        self.value = value\n        self.next = next_node\n\n# Flip next pointers inside the range, then reconnect both ends.\ndef reverse_between(head, left, right):\n    dummy = Node(0, head)\n    before = dummy\n    for _ in range(left - 1):\n        before = before.next\n    previous, current = None, before.next\n    for _ in range(right - left + 1):\n        following = current.next\n        current.next = previous\n        previous, current = current, following\n    before.next.next = current\n    before.next = previous\n    return dummy.next",
+    "family": "linked-list",
+    "triggers": [
+      "reverse all or part of a linked list in place",
+      "reorder nodes by rewiring next pointers, without copying values"
+    ],
+    "prompts": [
+      "A playlist is stored as a chain of tracks, each pointing to the next. Reverse the order of tracks 3 through 7 in place.",
+      "A train's carriages are coupled one to the next. Turn around a run of consecutive carriages in the middle while the rest of the train stays attached."
+    ],
+    "invariant": "previous heads the already-reversed part of the range, current is the next node to flip, and before.next is still the range's original first node.",
+    "mantra": "Save next, point back, step forward; then reconnect both ends.",
+    "pitfalls": [
+      "Save current.next before overwriting it, or the rest of the list is lost.",
+      "Without a dummy head, reversing from position 1 needs a special case.",
+      "After the loop, before.next is the range's old first node and now its last: point it at current."
+    ],
+    "anchors": [
+      {
+        "name": "Reverse Linked List",
+        "trick": "left = 1 and right = n: only the three-line flip remains."
+      },
+      {
+        "name": "Reverse Linked List II",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Reverse Nodes in k-Group",
+        "trick": "Reverse each full block of k, then move before to the block's new tail."
+      },
+      {
+        "name": "Palindrome Linked List",
+        "trick": "Find the middle with fast and slow pointers, reverse the second half, compare."
+      }
+    ],
+    "keyLineIndices": [
+      7,
+      14,
+      16,
+      17
+    ],
+    "scaffoldLineIndices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "contrastWith": [
+      "py-fast-slow"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 8,
+        "replacement": "    before = head",
+        "explanation": "Starts one node too far along: the range shifts right by one, so the head can never be reversed."
+      },
+      {
+        "line": 16,
+        "replacement": "    before.next.next = None",
+        "explanation": "Cuts the list after the reversed range: every node after position right is dropped."
+      }
+    ]
   },
   {
     "id": "py-intervals",
-    "title": "Merge intervals",
-    "category": "13 Python patterns",
+    "title": "Intervals: merge by start",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Merge overlapping closed intervals. Assume each start is at most its end. O(n log n) time.",
-    "code": "# Sort first, then compare with the last merged interval.\ndef merge_intervals(intervals):\n    merged = []\n    for start, end in sorted(intervals):\n        if not merged or start > merged[-1][1]:\n            merged.append([start, end])\n        else:\n            merged[-1][1] = max(merged[-1][1], end)\n    return merged"
+    "summary": "Merge overlapping closed intervals. Sort by start; a start past the last merged end opens a new interval, otherwise extend that end. Touching intervals merge, hence '>'. O(n log n).",
+    "code": "# Sort first, then compare with the last merged interval.\ndef merge_intervals(intervals):\n    merged = []\n    for start, end in sorted(intervals):\n        if not merged or start > merged[-1][1]:\n            merged.append([start, end])\n        else:\n            merged[-1][1] = max(merged[-1][1], end)\n    return merged",
+    "family": "intervals",
+    "triggers": [
+      "overlapping ranges, bookings or time blocks",
+      "merge, insert into, or find conflicts among intervals"
+    ],
+    "prompts": [
+      "A calendar export lists busy blocks in random order, some overlapping. Produce the fewest blocks that cover exactly the same busy time.",
+      "Several edits highlighted overlapping character ranges in a document. Collapse them into separate, non-overlapping ranges before drawing."
+    ],
+    "invariant": "merged is sorted, pairwise disjoint, and covers exactly the intervals seen so far.",
+    "mantra": "Sort by start; an overlap stretches the last end, a gap opens a new interval.",
+    "pitfalls": [
+      "Closed intervals that touch ([1, 2] and [2, 3]) merge, so the test is start > end, not >=.",
+      "Extend with max(): an interval inside the last one must not shrink it.",
+      "Append a fresh [start, end]; editing an input list changes the caller's data."
+    ],
+    "anchors": [
+      {
+        "name": "Merge Intervals",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Insert Interval",
+        "trick": "Already sorted: copy the ones before, merge the overlaps, copy the rest."
+      },
+      {
+        "name": "Meeting Rooms",
+        "trick": "Sort by start; any start before the previous end is a conflict."
+      },
+      {
+        "name": "Non-overlapping Intervals",
+        "trick": "Different rule: sort by end and keep the earliest finisher."
+      }
+    ],
+    "keyLineIndices": [
+      3,
+      4,
+      7
+    ],
+    "contrastWith": [
+      "py-intervals-by-end"
+    ],
+    "complexity": {
+      "time": "O(n log n)",
+      "space": "O(n)"
+    },
+    "mutations": [
+      {
+        "line": 4,
+        "replacement": "        if not merged or start >= merged[-1][1]:",
+        "explanation": "Touching closed intervals such as [8, 10] and [10, 12] stay separate."
+      },
+      {
+        "line": 7,
+        "replacement": "            merged[-1][1] = end",
+        "explanation": "An interval inside the last one shrinks it: [1, 6] then [2, 3] becomes [1, 3]."
+      }
+    ]
+  },
+  {
+    "id": "py-intervals-by-end",
+    "title": "Intervals: sort by end",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Fewest intervals to remove so the rest don't overlap; touching ends are fine. Sort by end and keep each interval that starts at or after the last kept end. O(n log n).",
+    "code": "# Keep the interval that ends first; it leaves the most room for the rest.\ndef min_removals(intervals):\n    kept = 0\n    last_end = float('-inf')\n    for start, end in sorted(intervals, key=lambda interval: interval[1]):\n        if start >= last_end:\n            kept += 1\n            last_end = end\n    return len(intervals) - kept",
+    "family": "intervals",
+    "triggers": [
+      "the most non-overlapping intervals, or the fewest removals to get there",
+      "schedule as many activities as possible on one shared resource"
+    ],
+    "prompts": [
+      "A single meeting room has many booking requests, some overlapping. Accept as many as possible; how many must be turned down?",
+      "A festival stage receives set requests with start and end times. Back-to-back sets are fine, overlaps are not. Keep the largest number of sets."
+    ],
+    "invariant": "The kept intervals don't overlap, and no compatible choice of the same number of intervals ends earlier than last_end.",
+    "mantra": "Sort by end; keep what fits after the last kept end.",
+    "pitfalls": [
+      "Sort by end, not start: an early-starting long interval can block many short ones.",
+      "Half-open intervals may touch, so keep when start >= last_end.",
+      "Count the kept intervals and subtract; removing while scanning is error-prone."
+    ],
+    "anchors": [
+      {
+        "name": "Non-overlapping Intervals",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Minimum Number of Arrows to Burst Balloons",
+        "trick": "Same greedy on closed intervals: a new arrow only when start > last_end."
+      },
+      {
+        "name": "Maximum Length of Pair Chain",
+        "trick": "Count the kept pairs; a chain needs start > last_end."
+      },
+      {
+        "name": "Merge Intervals",
+        "trick": "Different rule: sort by start and extend the last end."
+      }
+    ],
+    "keyLineIndices": [
+      4,
+      5,
+      7
+    ],
+    "contrastWith": [
+      "py-intervals"
+    ],
+    "complexity": {
+      "time": "O(n log n)",
+      "space": "O(n)"
+    },
+    "mutations": [
+      {
+        "line": 4,
+        "replacement": "    for start, end in sorted(intervals):",
+        "explanation": "Sorting by start keeps an early, long interval that blocks shorter ones: [[1, 10], [2, 3], [4, 5]] removes 2 instead of 1."
+      },
+      {
+        "line": 5,
+        "replacement": "        if start > last_end:",
+        "explanation": "Treats touching intervals as overlapping: [[1, 2], [2, 3]] removes 1 instead of 0."
+      }
+    ]
   },
   {
     "id": "py-binary-search",
-    "title": "Binary search",
-    "category": "13 Python patterns",
+    "title": "Binary search: lower bound",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Find the first index whose value is at least target in a sorted list. The search interval is [left, right).",
-    "code": "# Exclude mid only when its value is too small.\ndef lower_bound(values, target):\n    left, right = 0, len(values)\n    while left < right:\n        mid = left + (right - left) // 2\n        if values[mid] < target:\n            left = mid + 1\n        else:\n            right = mid\n    return left"
+    "summary": "First index with value >= target, or len(values) if none. Half-open [left, right): too small → left = mid + 1, else right = mid. O(log n).",
+    "code": "# Exclude mid only when its value is too small.\ndef lower_bound(values, target):\n    left, right = 0, len(values)\n    while left < right:\n        mid = left + (right - left) // 2\n        if values[mid] < target:\n            left = mid + 1\n        else:\n            right = mid\n    return left",
+    "family": "binary-search",
+    "triggers": [
+      "sorted input + a position, count or insertion point",
+      "first index where a yes/no condition flips to yes",
+      "O(log n) expected on ordered data"
+    ],
+    "prompts": [
+      "Log timestamps are stored in ascending order. Count the entries strictly before a given moment.",
+      "Release versions are kept sorted. Find where a new version goes so the order holds.",
+      "Exam scores are sorted low to high. Find the first position that reaches the pass mark."
+    ],
+    "invariant": "values[:left] < target <= values[right:]; [left, right) is undecided. When it is empty, left is the answer.",
+    "mantra": "Too small: step past mid. Otherwise keep mid.",
+    "pitfalls": [
+      "right starts at len(values), not len(values) - 1, so 'absent' can return len(values).",
+      "Half-open pairs 'while left < right' with 'right = mid'; mixing in <= or mid - 1 reads past the end or skips the answer.",
+      "left = mid (no + 1) stops shrinking once right == left + 1.",
+      "Comparing with <= yields upper bound: first value > target.",
+      "Python ints don't overflow, so (left + right) // 2 is fine; bisect.bisect_left is the built-in."
+    ],
+    "anchors": [
+      {
+        "name": "Search Insert Position",
+        "trick": "Exactly lower_bound; return left."
+      },
+      {
+        "name": "Find First and Last Position of Element in Sorted Array",
+        "trick": "first = lower_bound(t), last = upper_bound(t) - 1; absent if first == n or values[first] != t."
+      },
+      {
+        "name": "Koko Eating Bananas",
+        "trick": "Same loop over speeds [1, max(piles)]; 'values[mid] < target' becomes 'not feasible(mid)'."
+      },
+      {
+        "name": "Time Based Key-Value Store",
+        "trick": "upper_bound on timestamps, then step back one."
+      }
+    ],
+    "keyLineIndices": [
+      2,
+      3,
+      5,
+      8
+    ],
+    "contrastWith": [
+      "py-two-pointers",
+      "py-upper-bound",
+      "py-binary-search-closed",
+      "py-binary-search-answer"
+    ],
+    "complexity": {
+      "time": "O(log n)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 2,
+        "replacement": "    left, right = 0, len(values) - 1",
+        "explanation": "When every value is below target it returns the last index instead of len(values)."
+      },
+      {
+        "line": 3,
+        "replacement": "    while left <= right:",
+        "explanation": "mid can reach len(values) (IndexError), and right = mid can stop shrinking (infinite loop)."
+      },
+      {
+        "line": 5,
+        "replacement": "        if values[mid] <= target:",
+        "explanation": "Becomes upper bound: skips values equal to target."
+      },
+      {
+        "line": 6,
+        "replacement": "            left = mid",
+        "explanation": "No progress when right == left + 1 and values[mid] < target: infinite loop."
+      },
+      {
+        "line": 8,
+        "replacement": "            right = mid - 1",
+        "explanation": "Discards mid even when it is the first match."
+      }
+    ]
+  },
+  {
+    "id": "py-upper-bound",
+    "title": "Binary search: upper bound",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "First index with value > target, or len(values) if none. The lower-bound loop with one change: step past mid while its value is at most target. O(log n).",
+    "code": "# Step past mid while its value is at most target.\ndef upper_bound(values, target):\n    left, right = 0, len(values)\n    while left < right:\n        mid = left + (right - left) // 2\n        if values[mid] <= target:\n            left = mid + 1\n        else:\n            right = mid\n    return left",
+    "family": "binary-search",
+    "triggers": [
+      "first position after every copy of a value",
+      "how many values are at most x, or where to insert after equal keys"
+    ],
+    "prompts": [
+      "A catalogue lists prices from cheapest to dearest. Count how many items a shopper can afford with a fixed budget.",
+      "Train departure times are sorted. A passenger reaches the platform at a given time; find the first train that leaves strictly later."
+    ],
+    "invariant": "values[:left] <= target < values[right:]; [left, right) is undecided. When it is empty, left is the answer.",
+    "mantra": "At most target: step past mid. Otherwise keep mid.",
+    "pitfalls": [
+      "upper_bound(t) - lower_bound(t) counts the copies of t.",
+      "The last copy of t sits at upper_bound(t) - 1, if that index is valid and holds t.",
+      "bisect.bisect_right is the built-in."
+    ],
+    "anchors": [
+      {
+        "name": "Find First and Last Position of Element in Sorted Array",
+        "trick": "last = upper_bound(t) - 1; check that it holds t."
+      },
+      {
+        "name": "Time Based Key-Value Store",
+        "trick": "upper_bound on timestamps, then step back one."
+      },
+      {
+        "name": "Find Smallest Letter Greater Than Target",
+        "trick": "upper_bound over the letters; wrap to index 0 when it returns len(letters)."
+      }
+    ],
+    "keyLineIndices": [
+      2,
+      5,
+      6,
+      8
+    ],
+    "contrastWith": [
+      "py-binary-search",
+      "py-binary-search-closed",
+      "py-binary-search-answer"
+    ],
+    "complexity": {
+      "time": "O(log n)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 5,
+        "replacement": "        if values[mid] < target:",
+        "explanation": "Becomes lower bound: stops at the first copy of target instead of stepping past every copy."
+      }
+    ]
+  },
+  {
+    "id": "py-binary-search-closed",
+    "title": "Binary search: closed interval",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Index of target in a sorted list, or -1. Closed [left, right]: return on a match, otherwise discard mid with mid + 1 or mid - 1. O(log n).",
+    "code": "# Search a closed interval [left, right]; check mid, then exclude it.\ndef find_index(values, target):\n    left, right = 0, len(values) - 1\n    while left <= right:\n        mid = left + (right - left) // 2\n        if values[mid] == target:\n            return mid\n        if values[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1",
+    "family": "binary-search",
+    "triggers": [
+      "does this exact value exist in sorted data, and where",
+      "any matching index will do, and a miss returns a sentinel"
+    ],
+    "prompts": [
+      "Issued ticket numbers are kept in sorted order. Check whether a presented ticket was really issued, and report its position.",
+      "A sorted list of employee badge IDs: find where a scanned badge appears, or report that it is unknown."
+    ],
+    "invariant": "If target is present, it lies in values[left..right] inclusive; everything outside has been ruled out.",
+    "mantra": "Closed interval: check mid, then step past it on both sides.",
+    "pitfalls": [
+      "Closed [left, right] pairs 'while left <= right' with mid + 1 and mid - 1; half-open pairs '<' with right = mid.",
+      "With duplicates it returns some matching index, not the first; use lower bound for the first.",
+      "right starts at len(values) - 1 because right itself is still a candidate."
+    ],
+    "anchors": [
+      {
+        "name": "Binary Search",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Search a 2D Matrix",
+        "trick": "Treat the rows as one sorted list: index i is row i // cols, column i % cols."
+      },
+      {
+        "name": "Search in Rotated Sorted Array",
+        "trick": "Same closed loop; first decide which half is sorted, then whether target lies in it."
+      }
+    ],
+    "keyLineIndices": [
+      2,
+      3,
+      8,
+      10
+    ],
+    "contrastWith": [
+      "py-binary-search",
+      "py-upper-bound",
+      "py-binary-search-answer"
+    ],
+    "complexity": {
+      "time": "O(log n)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 3,
+        "replacement": "    while left < right:",
+        "explanation": "Stops before checking the last candidate: [3] with target 3 returns -1."
+      },
+      {
+        "line": 10,
+        "replacement": "            right = mid",
+        "explanation": "When left == right and values[mid] > target, nothing changes and the loop never ends."
+      }
+    ]
+  },
+  {
+    "id": "py-binary-search-answer",
+    "title": "Binary search: search on answer",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Slowest speed that finishes every load within hours (one load per hour, partial hours count). feasible(speed) flips once from no to yes, so binary search the speed. O(n log m).",
+    "code": "# Feasibility only improves as speed grows, so search for the first feasible speed.\ndef min_speed(loads, hours):\n    def feasible(speed):\n        return sum((load + speed - 1) // speed for load in loads) <= hours\n    left, right = 1, max(loads)\n    while left < right:\n        mid = (left + right) // 2\n        if feasible(mid):\n            right = mid\n        else:\n            left = mid + 1\n    return left",
+    "family": "binary-search",
+    "triggers": [
+      "'smallest capacity, speed or days such that...' or 'minimize the maximum'",
+      "a yes/no feasibility test that flips once as the answer grows"
+    ],
+    "prompts": [
+      "A print shop must finish all orders within a fixed number of hours. Each hour the press works on a single order at one pages-per-hour rate, and a partial hour counts as a full one. What is the slowest rate that meets the deadline?",
+      "Parcels leave in their original order over a fixed number of days, each day's truck carrying as many as fit. What is the smallest truck capacity that finishes on time?"
+    ],
+    "invariant": "Every speed below left is infeasible and right is feasible; when they meet, left is the smallest feasible speed.",
+    "mantra": "If feasibility is monotonic, binary search the answer, not the array.",
+    "pitfalls": [
+      "Search the answer range [1, max(loads)], not the input indices.",
+      "Ceiling division: (load + speed - 1) // speed; floor loses the partial hour.",
+      "feasible(mid) keeps mid (right = mid); otherwise left = mid + 1."
+    ],
+    "anchors": [
+      {
+        "name": "Koko Eating Bananas",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Capacity To Ship Packages Within D Days",
+        "trick": "Range [max(weights), sum(weights)]; feasible = greedy day count."
+      },
+      {
+        "name": "Split Array Largest Sum",
+        "trick": "Minimize the largest part with the same greedy feasibility."
+      }
+    ],
+    "keyLineIndices": [
+      3,
+      4,
+      7,
+      8
+    ],
+    "contrastWith": [
+      "py-binary-search",
+      "py-upper-bound",
+      "py-binary-search-closed"
+    ],
+    "complexity": {
+      "time": "O(n log m), m = max(loads)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 3,
+        "replacement": "        return sum(load // speed for load in loads) <= hours",
+        "explanation": "Floor division drops the partial hour a leftover load still costs, so too slow a speed looks feasible."
+      },
+      {
+        "line": 4,
+        "replacement": "    left, right = 0, max(loads)",
+        "explanation": "Speed 0 is not a speed: mid can be 0 and feasible() divides by it."
+      },
+      {
+        "line": 8,
+        "replacement": "            right = mid - 1",
+        "explanation": "Throws away mid even when it is the smallest feasible speed."
+      }
+    ]
   },
   {
     "id": "py-prefix-sum",
     "title": "Prefix sums and a hash map",
-    "category": "13 Python patterns",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Count subarrays summing to a target, including when values are negative. Seed the empty prefix once.",
-    "code": "# A previous prefix equal to prefix - target starts a match.\ndef count_subarrays(values, target):\n    counts = {0: 1}\n    prefix = 0\n    result = 0\n    for value in values:\n        prefix += value\n        result += counts.get(prefix - target, 0)\n        counts[prefix] = counts.get(prefix, 0) + 1\n    return result"
+    "summary": "Count subarrays summing to target, negatives allowed. Seed the empty prefix {0: 1}; look up prefix - target before recording prefix. O(n).",
+    "code": "# A previous prefix equal to prefix - target starts a match.\ndef count_subarrays(values, target):\n    counts = {0: 1}\n    prefix = 0\n    result = 0\n    for value in values:\n        prefix += value\n        result += counts.get(prefix - target, 0)\n        counts[prefix] = counts.get(prefix, 0) + 1\n    return result",
+    "family": "prefix-sum",
+    "triggers": [
+      "count (or longest) subarrays whose sum or xor is exactly k",
+      "negative numbers, so a sliding window can't tell when to shrink"
+    ],
+    "prompts": [
+      "Daily balance changes can be positive or negative. Count the runs of consecutive days whose changes net to exactly zero.",
+      "A sensor reports signed adjustments. How many contiguous stretches of readings add up to a given drift?"
+    ],
+    "invariant": "When a value is read, counts[p] is how many earlier prefixes, the empty one included, sum to p.",
+    "mantra": "Look up prefix - target, then record prefix.",
+    "pitfalls": [
+      "Seed {0: 1}, or subarrays that start at index 0 are missed.",
+      "Look up before recording: the other order counts the empty subarray when target is 0.",
+      "Negative values break sliding windows; that's why this uses a map."
+    ],
+    "anchors": [
+      {
+        "name": "Subarray Sum Equals K",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Contiguous Array",
+        "trick": "Treat 0 as -1, store each prefix's first index, find the longest zero-sum span."
+      },
+      {
+        "name": "Continuous Subarray Sum",
+        "trick": "Store prefix % k with its first index; a repeat two or more apart is a hit."
+      },
+      {
+        "name": "Range Sum Query - Immutable",
+        "trick": "prefix[j] - prefix[i] answers each query in O(1)."
+      }
+    ],
+    "keyLineIndices": [
+      2,
+      7,
+      8
+    ],
+    "contrastWith": [
+      "py-sliding-window",
+      "py-sliding-window-shrink"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+    },
+    "mutations": [
+      {
+        "line": 2,
+        "replacement": "    counts = {}",
+        "explanation": "Without the empty prefix, subarrays that start at index 0 are never counted."
+      },
+      {
+        "line": 7,
+        "replacement": "        result += counts.get(target - prefix, 0)",
+        "explanation": "Wrong complement: prefix - earlier == target means earlier == prefix - target."
+      }
+    ]
   },
   {
     "id": "py-monotonic-stack",
-    "title": "Monotonic stack",
-    "category": "13 Python patterns",
+    "title": "Monotonic stack: next warmer day",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "For each temperature, count days until a warmer day. Store unresolved indices in decreasing temperature order.",
-    "code": "# Resolve earlier days when a warmer temperature arrives.\ndef days_until_warmer(temperatures):\n    answer = [0] * len(temperatures)\n    stack = []\n    for day, temperature in enumerate(temperatures):\n        while stack and temperatures[stack[-1]] < temperature:\n            previous = stack.pop()\n            answer[previous] = day - previous\n        stack.append(day)\n    return answer"
+    "summary": "Days until a warmer temperature, or 0. The stack keeps unresolved days with non-increasing temperatures; a warmer day pops and answers them. Pops only on '<', so equal days keep waiting. O(n).",
+    "code": "# Resolve earlier days when a warmer temperature arrives.\ndef days_until_warmer(temperatures):\n    answer = [0] * len(temperatures)\n    stack = []\n    for day, temperature in enumerate(temperatures):\n        while stack and temperatures[stack[-1]] < temperature:\n            previous = stack.pop()\n            answer[previous] = day - previous\n        stack.append(day)\n    return answer",
+    "family": "monotonic-stack",
+    "triggers": [
+      "next greater or next smaller element for every position",
+      "'how many days until', 'first taller to the right'"
+    ],
+    "prompts": [
+      "For each day's share price, report how many days pass until a strictly higher price, or 0 if none comes.",
+      "People stand in a queue facing forward. For each person, how many places ahead is the first taller person?"
+    ],
+    "invariant": "stack holds the days still waiting for a warmer day, temperatures non-increasing from bottom to top.",
+    "mantra": "A warmer day pops and answers every colder day below it.",
+    "pitfalls": [
+      "Store indices, not temperatures: the answer is a distance.",
+      "'<' answers strictly warmer; '<=' also resolves equal days (next greater-or-equal).",
+      "Days still on the stack at the end keep their default 0."
+    ],
+    "anchors": [
+      {
+        "name": "Daily Temperatures",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Next Greater Element II",
+        "trick": "Circular: loop over 2n indices with i % n and push only in the first pass."
+      },
+      {
+        "name": "Largest Rectangle in Histogram",
+        "trick": "Increasing stack; pop on a shorter bar, width = i - stack[-1] - 1."
+      }
+    ],
+    "keyLineIndices": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "contrastWith": [
+      "py-monotonic-increasing"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+    },
+    "mutations": [
+      {
+        "line": 5,
+        "replacement": "        while stack and temperatures[stack[-1]] <= temperature:",
+        "explanation": "An equal temperature now counts as warmer: this answers next greater-or-equal."
+      },
+      {
+        "line": 7,
+        "replacement": "            answer[previous] = day",
+        "explanation": "Stores the warmer day's index instead of the distance to it."
+      }
+    ]
+  },
+  {
+    "id": "py-monotonic-increasing",
+    "title": "Monotonic stack: largest rectangle",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Largest rectangle under a histogram. Keep bar indices with rising heights; a shorter bar pops each taller one and measures how far it spans. A trailing 0 flushes the stack. O(n).",
+    "code": "# Heights rise up the stack; a shorter bar closes every taller one.\ndef largest_rectangle(heights):\n    stack = []\n    best = 0\n    for index, height in enumerate(heights + [0]):\n        while stack and heights[stack[-1]] >= height:\n            top = heights[stack.pop()]\n            width = index if not stack else index - stack[-1] - 1\n            best = max(best, top * width)\n        stack.append(index)\n    return best",
+    "family": "monotonic-stack",
+    "triggers": [
+      "for each bar, how far it extends left and right before something shorter",
+      "largest area or score limited by the smallest value in a range"
+    ],
+    "prompts": [
+      "A street of equal-width buildings is given as their heights. What is the largest rectangular banner that fits entirely within the buildings' outline?",
+      "Books of equal thickness but different heights stand side by side. What is the largest rectangular label you could stick across their spines without any of it rising above a book?"
+    ],
+    "invariant": "Heights at the stack's indices rise from bottom to top, and a popped bar spans from just after the bar below it to just before index.",
+    "mantra": "A shorter bar pops and measures every taller one.",
+    "pitfalls": [
+      "After a pop, width is index - stack[-1] - 1, or index when the stack is empty.",
+      "Append a sentinel 0 so every bar is popped and measured at the end.",
+      "Store indices: the width comes from positions, the height from heights[index]."
+    ],
+    "anchors": [
+      {
+        "name": "Largest Rectangle in Histogram",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Maximal Rectangle",
+        "trick": "Build each row's histogram of consecutive 1s above it, then run this per row."
+      },
+      {
+        "name": "Sum of Subarray Minimums",
+        "trick": "The same pops count how many subarrays each value is the minimum of."
+      },
+      {
+        "name": "Trapping Rain Water",
+        "trick": "Decreasing stack instead: a taller bar pops and fills the dip between it and the new top."
+      }
+    ],
+    "keyLineIndices": [
+      4,
+      5,
+      7,
+      9
+    ],
+    "contrastWith": [
+      "py-monotonic-stack"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+    },
+    "mutations": [
+      {
+        "line": 7,
+        "replacement": "            width = index if not stack else index - stack[-1]",
+        "explanation": "Counts the shorter bar below as part of the span, so every width after a pop is one too wide."
+      },
+      {
+        "line": 4,
+        "replacement": "    for index, height in enumerate(heights):",
+        "explanation": "Without the trailing 0, bars still on the stack are never measured: [1, 2, 3] gives 0 instead of 4."
+      }
+    ]
   },
   {
     "id": "py-bfs",
-    "title": "Breadth-first search",
-    "category": "13 Python patterns",
+    "title": "Graph BFS: shortest hops",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Shortest edge distances in an unweighted adjacency map. Mark a node when enqueuing it, not when removing it.",
-    "code": "from collections import deque\n\n# The queue explores one distance layer at a time.\ndef shortest_distances(graph, start):\n    distances = {start: 0}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbor in graph.get(node, []):\n            if neighbor not in distances:\n                distances[neighbor] = distances[node] + 1\n                queue.append(neighbor)\n    return distances"
+    "summary": "Fewest edges from start to every reachable node. Mark a node when you enqueue it, not when you dequeue it; distances[node] + 1 carries the level, so no per-level loop is needed. O(V + E).",
+    "code": "from collections import deque\n\n# FIFO order reaches nodes in order of distance.\ndef shortest_distances(graph, start):\n    distances = {start: 0}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbor in graph.get(node, []):\n            if neighbor not in distances:\n                distances[neighbor] = distances[node] + 1\n                queue.append(neighbor)\n    return distances",
+    "family": "bfs",
+    "triggers": [
+      "fewest steps, hops or moves when every edge costs the same",
+      "spread outward level by level from one or many sources"
+    ],
+    "prompts": [
+      "A subway map lists which stations connect directly. Report the fewest rides from your station to each station you can reach.",
+      "In a professional network, list everyone within three introductions of you, with how many introductions each one needs."
+    ],
+    "invariant": "Nodes leave the queue in nondecreasing distance, so the first distance recorded for a node is final.",
+    "mantra": "Mark when you enqueue, not when you dequeue.",
+    "pitfalls": [
+      "Marking on dequeue lets a node enter the queue many times.",
+      "list.pop(0) is O(n); use deque.popleft().",
+      "Per-level work needs for _ in range(len(queue)) inside while queue.",
+      "Weighted edges need Dijkstra, not BFS."
+    ],
+    "anchors": [
+      {
+        "name": "Binary Tree Level Order Traversal",
+        "trick": "Level loop: for _ in range(len(queue)) collects one level."
+      },
+      {
+        "name": "Rotting Oranges",
+        "trick": "Multi-source: enqueue every rotten cell first; minutes = levels."
+      },
+      {
+        "name": "Word Ladder",
+        "trick": "Words are nodes, one-letter changes are edges; BFS gives the fewest steps."
+      }
+    ],
+    "keyLineIndices": [
+      7,
+      9,
+      10
+    ],
+    "contrastWith": [
+      "py-dfs",
+      "py-union-find",
+      "py-tree-bfs",
+      "py-grid-traversal",
+      "py-topological-sort"
+    ],
+    "complexity": {
+      "time": "O(V + E)",
+      "space": "O(V)"
+    },
+    "mutations": [
+      {
+        "line": 7,
+        "replacement": "        node = queue.pop()",
+        "explanation": "LIFO order is depth-first: a node reached first along a longer path keeps that longer distance."
+      }
+    ]
+  },
+  {
+    "id": "py-tree-bfs",
+    "title": "Tree BFS: level by level",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Node values grouped by depth, left to right. Read len(queue) once at the start of each pass, so the inner loop handles exactly one level. O(n). The TreeNode class is shown, not typed.",
+    "code": "from collections import deque\n\nclass TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n# Read len(queue) once per pass, so each pass handles exactly one level.\ndef level_order(root):\n    if root is None:\n        return []\n    levels = []\n    queue = deque([root])\n    while queue:\n        level = []\n        for _ in range(len(queue)):\n            node = queue.popleft()\n            level.append(node.value)\n            if node.left is not None:\n                queue.append(node.left)\n            if node.right is not None:\n                queue.append(node.right)\n        levels.append(level)\n    return levels",
+    "family": "bfs",
+    "triggers": [
+      "per-level answers in a tree: each level's values, average, maximum or rightmost node",
+      "the shallowest node, or the minimum depth, that meets a condition"
+    ],
+    "prompts": [
+      "An org chart is a binary tree. Print everyone grouped by how many levels below the CEO they sit, left to right within each row.",
+      "A knockout tournament is stored as a binary tree with the final at the root. List the matches round by round, starting from the final."
+    ],
+    "invariant": "At the start of each pass, queue holds exactly the nodes of one level, in left-to-right order.",
+    "mantra": "Freeze the queue length: one pass, one level.",
+    "pitfalls": [
+      "Read len(queue) once before the inner loop; the loop appends the next level as it goes.",
+      "popleft(), not pop(): a stack mixes levels and order.",
+      "Handle an empty tree before seeding the queue."
+    ],
+    "anchors": [
+      {
+        "name": "Binary Tree Level Order Traversal",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Binary Tree Right Side View",
+        "trick": "Keep the last value of each level."
+      },
+      {
+        "name": "Minimum Depth of Binary Tree",
+        "trick": "Return the level number of the first leaf you dequeue."
+      },
+      {
+        "name": "Binary Tree Zigzag Level Order Traversal",
+        "trick": "Reverse every other level before saving it."
+      }
+    ],
+    "keyLineIndices": [
+      15,
+      16,
+      17,
+      23
+    ],
+    "scaffoldLineIndices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "contrastWith": [
+      "py-bfs",
+      "py-tree-dfs"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+    },
+    "mutations": [
+      {
+        "line": 17,
+        "replacement": "            node = queue.pop()",
+        "explanation": "Takes the newest node, which can belong to the next level: levels mix and lose their left-to-right order."
+      }
+    ]
+  },
+  {
+    "id": "py-grid-traversal",
+    "title": "Grid BFS: many sources",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Steps from every open cell to its nearest exit, or -1 for walls and unreachable cells. Seed every exit at distance 0, then expand in four directions; a cell's first visit is final. O(rows × cols).",
+    "code": "from collections import deque\n\nDIRECTIONS = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n# All exits start in the queue, so a cell's first visit gives its nearest exit.\ndef distances_to_exit(grid):\n    rows, cols = len(grid), len(grid[0])\n    distance = [[-1] * cols for _ in range(rows)]\n    queue = deque()\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 'E':\n                distance[r][c] = 0\n                queue.append((r, c))\n    while queue:\n        r, c = queue.popleft()\n        for dr, dc in DIRECTIONS:\n            nr, nc = r + dr, c + dc\n            inside = 0 <= nr < rows and 0 <= nc < cols\n            if inside and grid[nr][nc] != '#' and distance[nr][nc] == -1:\n                distance[nr][nc] = distance[r][c] + 1\n                queue.append((nr, nc))\n    return distance",
+    "family": "bfs",
+    "triggers": [
+      "distance to the nearest of many sources on a grid",
+      "something spreads one cell per step from several starting cells at once"
+    ],
+    "prompts": [
+      "A warehouse floor plan marks shelves, open aisles and loading docks. For each open spot, how many steps is it to the closest dock?",
+      "A fire starts in several rooms of a floor plan at once and spreads to neighbouring rooms each minute, never through walls. When does each room catch fire?"
+    ],
+    "invariant": "The queue holds cells in nondecreasing distance, starting with every exit at 0, so the first distance written to a cell is its shortest.",
+    "mantra": "Seed every source, then expand one ring at a time.",
+    "pitfalls": [
+      "Seed all sources before the loop; one BFS per source multiplies the work by the number of sources.",
+      "Check bounds before indexing: 0 <= nr < rows and 0 <= nc < cols.",
+      "Mark a cell when you enqueue it, as in graph BFS.",
+      "Walls and unreachable cells keep -1."
+    ],
+    "anchors": [
+      {
+        "name": "Rotting Oranges",
+        "trick": "Seed every rotten orange; the answer is the largest distance, or -1 if a fresh orange is never reached."
+      },
+      {
+        "name": "01 Matrix",
+        "trick": "Seed every 0 cell; each 1 gets its distance to the nearest 0."
+      },
+      {
+        "name": "Walls and Gates",
+        "trick": "Exactly this, with gates as exits."
+      },
+      {
+        "name": "Shortest Path in Binary Matrix",
+        "trick": "One source and eight directions."
+      }
+    ],
+    "keyLineIndices": [
+      12,
+      13,
+      18,
+      19,
+      20
+    ],
+    "contrastWith": [
+      "py-bfs",
+      "py-dfs"
+    ],
+    "complexity": {
+      "time": "O(rows × cols)",
+      "space": "O(rows × cols)"
+    },
+    "mutations": [
+      {
+        "line": 11,
+        "replacement": "            if grid[r][c] == 'E' and not queue:",
+        "explanation": "Seeds only the first exit. The others count as open cells, so every distance is measured from that one exit."
+      },
+      {
+        "line": 18,
+        "replacement": "            inside = 0 <= nr <= rows and 0 <= nc < cols",
+        "explanation": "Lets nr equal rows, one past the last row, so grid[nr] raises IndexError."
+      }
+    ]
+  },
+  {
+    "id": "py-topological-sort",
+    "title": "Topological sort: Kahn's algorithm",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "An order of courses 0..n-1 that respects every (before, after) prerequisite, or [] if there is a cycle. Start with the courses that have none; finishing one lowers each dependent's in-degree, and a dependent at 0 is ready. O(V + E).",
+    "code": "from collections import deque\n\n# Take any course with no unmet prerequisites; leftovers sit on a cycle.\ndef course_order(n, prerequisites):\n    graph = [[] for _ in range(n)]\n    indegree = [0] * n\n    for before, after in prerequisites:\n        graph[before].append(after)\n        indegree[after] += 1\n    queue = deque(node for node in range(n) if indegree[node] == 0)\n    order = []\n    while queue:\n        before = queue.popleft()\n        order.append(before)\n        for after in graph[before]:\n            indegree[after] -= 1\n            if indegree[after] == 0:\n                queue.append(after)\n    return order if len(order) == n else []",
+    "family": "topological-sort",
+    "triggers": [
+      "order tasks so every dependency comes first",
+      "decide whether dependencies contain a cycle"
+    ],
+    "prompts": [
+      "A build system knows which modules need which others compiled first. Produce a compile order, or report that none exists.",
+      "A recipe lists steps and which steps must finish before others can start. Find an order to do them all, or show that the recipe is impossible."
+    ],
+    "invariant": "Every course in the queue or in order has all of its prerequisites earlier in order.",
+    "mantra": "Start with no prerequisites; a course is ready when its in-degree hits 0.",
+    "pitfalls": [
+      "Count every in-degree before seeding the queue.",
+      "Fewer than n courses in order means the rest sit on a cycle: return [].",
+      "Edges point from prerequisite to dependent; reversing them reverses the order.",
+      "Many valid orders can exist; check the edges rather than one expected list."
+    ],
+    "anchors": [
+      {
+        "name": "Course Schedule",
+        "trick": "Only ask whether len(order) == n."
+      },
+      {
+        "name": "Course Schedule II",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Alien Dictionary",
+        "trick": "The first differing letters of adjacent words give the edges; then sort."
+      },
+      {
+        "name": "Parallel Courses",
+        "trick": "Process the queue level by level; the number of levels is the number of semesters."
+      }
+    ],
+    "keyLineIndices": [
+      8,
+      9,
+      15,
+      16,
+      18
+    ],
+    "contrastWith": [
+      "py-bfs",
+      "py-dfs"
+    ],
+    "complexity": {
+      "time": "O(V + E)",
+      "space": "O(V + E)"
+    },
+    "mutations": [
+      {
+        "line": 18,
+        "replacement": "    return order",
+        "explanation": "On a cycle it returns a partial order instead of [], hiding the courses that can never be taken."
+      },
+      {
+        "line": 15,
+        "replacement": "            indegree[before] -= 1",
+        "explanation": "Decrements the finished course instead of its dependent, so dependents never reach 0 and valid schedules come back empty."
+      }
+    ]
   },
   {
     "id": "py-dfs",
-    "title": "Depth-first search",
-    "category": "13 Python patterns",
+    "title": "Graph DFS: iterative reachability",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Visit reachable nodes in an adjacency map. An explicit stack avoids recursion-depth limits.",
-    "code": "# Track visited nodes so cycles cannot cause an infinite traversal.\ndef reachable_nodes(graph, start):\n    visited = set()\n    stack = [start]\n    while stack:\n        node = stack.pop()\n        if node in visited:\n            continue\n        visited.add(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                stack.append(neighbor)\n    return visited"
+    "summary": "Every node reachable from start, using an explicit stack instead of recursion. A node is marked when popped, so it may be pushed twice; BFS marks on enqueue instead. O(V + E).",
+    "code": "# Track visited nodes so cycles cannot cause an infinite traversal.\ndef reachable_nodes(graph, start):\n    visited = set()\n    stack = [start]\n    while stack:\n        node = stack.pop()\n        if node in visited:\n            continue\n        visited.add(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                stack.append(neighbor)\n    return visited",
+    "family": "dfs",
+    "triggers": [
+      "reachability or connected components: can A reach B, how many groups",
+      "follow one branch to the end before backing up: cycles, ordering, flood fill"
+    ],
+    "prompts": [
+      "Installing one package pulls in its dependencies, and theirs in turn. List every package that installing a given one brings along.",
+      "Rooms are linked by one-way doors. Starting in the lobby, which rooms can a visitor ever reach?"
+    ],
+    "invariant": "visited holds exactly the expanded nodes, and every node on the stack is reachable from start.",
+    "mantra": "Pop, skip if seen, mark, push the unseen neighbours.",
+    "pitfalls": [
+      "Marking on pop allows duplicates on the stack, so the 'if node in visited: continue' guard is required.",
+      "Recursive DFS is shorter, but Python's default recursion limit is about 1000 frames.",
+      "Cycle detection in a directed graph needs three states: unvisited, on the current path, done."
+    ],
+    "anchors": [
+      {
+        "name": "Number of Islands",
+        "trick": "Start a DFS from each unvisited land cell; count the starts."
+      },
+      {
+        "name": "Clone Graph",
+        "trick": "The original-to-copy map doubles as the visited set."
+      },
+      {
+        "name": "Course Schedule",
+        "trick": "Three-state DFS: reaching an on-path node means a cycle."
+      },
+      {
+        "name": "Keys and Rooms",
+        "trick": "Exactly this: is every room reachable from room 0?"
+      }
+    ],
+    "keyLineIndices": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "contrastWith": [
+      "py-bfs",
+      "py-backtracking",
+      "py-union-find",
+      "py-tree-dfs",
+      "py-grid-traversal",
+      "py-topological-sort"
+    ],
+    "complexity": {
+      "time": "O(V + E)",
+      "space": "O(V + E)"
+    },
+    "mutations": [
+      {
+        "line": 5,
+        "replacement": "        node = stack[-1]",
+        "explanation": "Peeks instead of popping: once the top node is visited, the loop spins on it forever."
+      }
+    ]
+  },
+  {
+    "id": "py-tree-dfs",
+    "title": "Tree DFS: return values up",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Diameter of a binary tree: the most edges on any path between two nodes. A post-order helper returns each subtree's height and records the best path through the current node on the way up. O(n). The TreeNode class is shown, not typed.",
+    "code": "class TreeNode:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right = right\n\n# Each call returns a height; the best path through a node joins both heights.\ndef diameter(root):\n    best = 0\n    def height(node):\n        nonlocal best\n        if node is None:\n            return 0\n        left = height(node.left)\n        right = height(node.right)\n        best = max(best, left + right)\n        return 1 + max(left, right)\n    height(root)\n    return best",
+    "family": "tree-dfs",
+    "triggers": [
+      "an answer for the whole tree built from answers for its subtrees",
+      "a path that may bend at any node: combine the left and right results there"
+    ],
+    "prompts": [
+      "Reporting lines form a tree in which each manager has at most two direct reports. How many reporting links separate the two people who are farthest apart?",
+      "A cave system branches like a binary tree from its entrance, and passages never rejoin. Counting passages, how long is the longest route between any two chambers?"
+    ],
+    "invariant": "height(node) returns the number of nodes on the longest downward path from node, and best is the longest path, in edges, through any node finished so far.",
+    "mantra": "Return the height up; record left + right on the way.",
+    "pitfalls": [
+      "What a call returns (height) differs from what it records (diameter): keep both straight.",
+      "Diameter counts edges: left + right, not left + right + 1.",
+      "Use nonlocal, or a one-element list, to update best from the nested function.",
+      "A deep, one-sided tree can hit Python's recursion limit of about 1000."
+    ],
+    "anchors": [
+      {
+        "name": "Diameter of Binary Tree",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Maximum Depth of Binary Tree",
+        "trick": "Only the returned height: 1 + max(left, right)."
+      },
+      {
+        "name": "Balanced Binary Tree",
+        "trick": "Return the height, or -1 once the two sides differ by more than 1."
+      },
+      {
+        "name": "Binary Tree Maximum Path Sum",
+        "trick": "Return value + the better non-negative side; record value + both non-negative sides."
+      }
+    ],
+    "keyLineIndices": [
+      11,
+      12,
+      15,
+      16
+    ],
+    "scaffoldLineIndices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "contrastWith": [
+      "py-tree-bfs",
+      "py-dfs"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(h), h = tree height"
+    },
+    "mutations": [
+      {
+        "line": 16,
+        "replacement": "        return max(left, right)",
+        "explanation": "Never counts the current node, so every height is 0 and the diameter is always 0."
+      },
+      {
+        "line": 15,
+        "replacement": "        best = max(best, left + right + 1)",
+        "explanation": "Counts nodes instead of edges: a single node reports 1 instead of 0."
+      }
+    ]
   },
   {
     "id": "py-backtracking",
-    "title": "Backtracking",
-    "category": "13 Python patterns",
+    "title": "Backtracking: subsets",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Generate all subsets of a list of distinct values. Choose, explore, undo; copy the current path before saving it.",
-    "code": "# Each recursive call extends a choice made so far.\ndef subsets(values):\n    result = []\n    path = []\n    def visit(start):\n        result.append(path.copy())\n        for index in range(start, len(values)):\n            path.append(values[index])\n            visit(index + 1)\n            path.pop()\n    visit(0)\n    return result"
+    "summary": "Every subset of distinct values. Record a copy of path, then for each later index choose it, recurse from index + 1, and undo. O(n * 2^n).",
+    "code": "# Each recursive call extends a choice made so far.\ndef subsets(values):\n    result = []\n    path = []\n    def visit(start):\n        result.append(path.copy())\n        for index in range(start, len(values)):\n            path.append(values[index])\n            visit(index + 1)\n            path.pop()\n    visit(0)\n    return result",
+    "family": "backtracking",
+    "triggers": [
+      "list every subset, combination, permutation or arrangement",
+      "choices with undo, and n small enough (about 20) for exponential output"
+    ],
+    "prompts": [
+      "A pizza shop offers a handful of toppings. List every possible topping selection, including a plain pizza.",
+      "A tester wants to try every combination of a few feature flags being switched on. Generate them all."
+    ],
+    "invariant": "On entry to visit(start), path is a subset of values[:start] in index order, and only values[start:] may still be added.",
+    "mantra": "Choose, explore from index + 1, un-choose.",
+    "pitfalls": [
+      "Save path.copy(); saving path itself stores one list that ends up empty.",
+      "visit(index + 1) uses each value once; visit(index) allows reuse; visit(start + 1) is the classic bug.",
+      "Duplicate values: sort first, then skip values[index] == values[index - 1] when index > start."
+    ],
+    "anchors": [
+      {
+        "name": "Subsets",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Subsets II",
+        "trick": "Sort; skip a repeated value when index > start."
+      },
+      {
+        "name": "Combination Sum",
+        "trick": "Recurse with visit(index) to reuse a value; stop when the remainder goes negative."
+      },
+      {
+        "name": "Permutations",
+        "trick": "No start index: loop over every value and skip those in a used set."
+      }
+    ],
+    "keyLineIndices": [
+      5,
+      7,
+      8,
+      9
+    ],
+    "contrastWith": [
+      "py-dfs",
+      "py-dp"
+    ],
+    "complexity": {
+      "time": "O(n * 2^n)",
+      "space": "O(n) besides the output"
+    },
+    "mutations": [
+      {
+        "line": 5,
+        "replacement": "        result.append(path)",
+        "explanation": "Saves the same list object every time; after backtracking, every saved subset is empty."
+      },
+      {
+        "line": 8,
+        "replacement": "            visit(start + 1)",
+        "explanation": "Recurses from the loop start instead of past the chosen index, so values repeat and subsets are duplicated."
+      }
+    ]
   },
   {
     "id": "py-top-k",
-    "title": "Top K with a heap",
-    "category": "13 Python patterns",
+    "title": "Heap: top k largest",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Keep only the k largest values using a min-heap. Returns up to k values in descending order. O(n log k) for 1 ≤ k ≤ n.",
-    "code": "import heapq\n\n# The smallest retained value stays at the heap root.\ndef largest_k(values, k):\n    if k <= 0:\n        return []\n    heap = []\n    for value in values:\n        heapq.heappush(heap, value)\n        if len(heap) > k:\n            heapq.heappop(heap)\n    return sorted(heap, reverse=True)"
+    "summary": "The k largest values, largest first. Keep a min-heap of at most k values; its root is the smallest survivor, the bar a new value must beat. O(n log k).",
+    "code": "import heapq\n\n# The smallest retained value stays at the heap root.\ndef largest_k(values, k):\n    if k <= 0:\n        return []\n    heap = []\n    for value in values:\n        heapq.heappush(heap, value)\n        if len(heap) > k:\n            heapq.heappop(heap)\n    return sorted(heap, reverse=True)",
+    "family": "heap",
+    "triggers": [
+      "k largest, smallest, most frequent or closest",
+      "a stream where only the best k matter"
+    ],
+    "prompts": [
+      "A game server receives scores all day. Keep the ten highest scores so far without storing every score.",
+      "From thousands of delivery stops, return the five closest to the depot."
+    ],
+    "invariant": "heap holds the k largest values seen so far, and heap[0] is the smallest of them.",
+    "mantra": "Keep k in a min-heap; the root is the bar to beat.",
+    "pitfalls": [
+      "heapq is min-only: push -value, or (-key, tiebreak, item), for a max-heap.",
+      "Tuples compare field by field; add an index tiebreak when items can't be compared.",
+      "Once the heap is full, heapq.heappushpop(heap, value) pushes and pops in one step.",
+      "Only heap[0] is ordered; sort the heap to return it in order."
+    ],
+    "anchors": [
+      {
+        "name": "Kth Largest Element in an Array",
+        "trick": "Size-k min-heap; heap[0] is the answer."
+      },
+      {
+        "name": "Top K Frequent Elements",
+        "trick": "Counter first, then a size-k heap of (count, value)."
+      },
+      {
+        "name": "K Closest Points to Origin",
+        "trick": "Size-k max-heap keyed by -(x * x + y * y); skip the square root."
+      },
+      {
+        "name": "Merge k Sorted Lists",
+        "trick": "Min-heap of (value, list index, node) frontiers."
+      }
+    ],
+    "keyLineIndices": [
+      8,
+      9,
+      10
+    ],
+    "complexity": {
+      "time": "O(n log k)",
+      "space": "O(k)"
+    },
+    "mutations": [
+      {
+        "line": 9,
+        "replacement": "        if len(heap) >= k:",
+        "explanation": "Pops as soon as the heap reaches k, so only k - 1 values survive."
+      }
+    ]
   },
   {
     "id": "py-union-find",
-    "title": "Union-find",
-    "category": "13 Python patterns",
+    "title": "Union-find: path halving, union by size",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Track connected components among nodes 0 through n-1. Use path compression and union by size.",
-    "code": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.size = [1] * n\n\n    def find(self, node):\n        while node != self.parent[node]:\n            self.parent[node] = self.parent[self.parent[node]]\n            node = self.parent[node]\n        return node\n\n    def union(self, first, second):\n        first, second = self.find(first), self.find(second)\n        if first == second:\n            return False\n        if self.size[first] < self.size[second]:\n            first, second = second, first\n        self.parent[second] = first\n        self.size[first] += self.size[second]\n        return True"
+    "summary": "Merge groups of nodes 0..n-1 and ask whether two share a group. find() halves the path as it climbs; union() hangs the smaller root under the larger and returns False when already joined. Near O(1) amortized.",
+    "code": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.size = [1] * n\n\n    def find(self, node):\n        while node != self.parent[node]:\n            self.parent[node] = self.parent[self.parent[node]]\n            node = self.parent[node]\n        return node\n\n    def union(self, first, second):\n        first, second = self.find(first), self.find(second)\n        if first == second:\n            return False\n        if self.size[first] < self.size[second]:\n            first, second = second, first\n        self.parent[second] = first\n        self.size[first] += self.size[second]\n        return True",
+    "family": "union-find",
+    "triggers": [
+      "groups that only ever merge, with 'are x and y connected?' queries",
+      "adding undirected edges one at a time and spotting the first cycle"
+    ],
+    "prompts": [
+      "Accounts that share an email address belong to the same person. After all merges, how many distinct people remain?",
+      "Cables are added between servers one at a time. Report the first cable that closes a loop."
+    ],
+    "invariant": "Following parent pointers from any node reaches its group's root, and size[root] is that group's size.",
+    "mantra": "Find both roots; hang the smaller under the larger.",
+    "pitfalls": [
+      "Union the roots, never the raw nodes.",
+      "This is path halving (parent = grandparent), not full path compression; both give near-constant time.",
+      "Count components as n minus the successful unions.",
+      "union() returning False means the edge closes a cycle."
+    ],
+    "anchors": [
+      {
+        "name": "Number of Provinces",
+        "trick": "Union every connected pair; provinces = n - successful unions."
+      },
+      {
+        "name": "Redundant Connection",
+        "trick": "The first edge whose union returns False."
+      },
+      {
+        "name": "Accounts Merge",
+        "trick": "Union accounts that share an email, then group emails by root."
+      }
+    ],
+    "keyLineIndices": [
+      7,
+      12,
+      15,
+      17
+    ],
+    "contrastWith": [
+      "py-dfs",
+      "py-bfs"
+    ],
+    "complexity": {
+      "time": "O(α(n)) amortized per call",
+      "space": "O(n)"
+    },
+    "mutations": [
+      {
+        "line": 12,
+        "replacement": "        first, second = self.parent[first], self.parent[second]",
+        "explanation": "Uses parents instead of roots: two nodes deep in one tree look like different groups, and a subtree gets re-hung."
+      }
+    ]
   },
   {
     "id": "py-dp",
-    "title": "Dynamic programming",
-    "category": "13 Python patterns",
+    "title": "1D DP: take or skip",
+    "category": "Python interview patterns",
+    "track": "leetcode",
     "language": "python",
-    "summary": "Maximum sum of nonadjacent nonnegative values. Keep only the previous two optimal states. O(n) time, O(1) extra space.",
-    "code": "# Choose between skipping this value and taking it.\ndef max_nonadjacent_sum(values):\n    previous_two = 0\n    previous_one = 0\n    for value in values:\n        current = max(previous_one, previous_two + value)\n        previous_two = previous_one\n        previous_one = current\n    return previous_one"
+    "summary": "Largest sum of nonnegative values with no two adjacent. dp[i] = max(dp[i-1], dp[i-2] + values[i]), rolled into two variables. O(n) time, O(1) space.",
+    "code": "# Choose between skipping this value and taking it.\ndef max_nonadjacent_sum(values):\n    previous_two = 0\n    previous_one = 0\n    for value in values:\n        current = max(previous_one, previous_two + value)\n        previous_two = previous_one\n        previous_one = current\n    return previous_one",
+    "family": "dynamic-programming",
+    "triggers": [
+      "maximize, minimize or count over choices where taking one blocks its neighbour",
+      "a recursion that recomputes the same prefix or suffix"
+    ],
+    "prompts": [
+      "A runner may train on any day but never two days in a row, and each day's session has a fitness score. Maximize the total score.",
+      "Billboard slots along a road each pay a fee, but neighbouring slots can't both be rented. Choose slots to maximize income."
+    ],
+    "invariant": "After each value, previous_one is the best total for the prefix so far and previous_two the best for the prefix one shorter.",
+    "mantra": "Take it plus two back, or skip it and keep one back.",
+    "pitfalls": [
+      "Shift previous_two before overwriting previous_one, or use a tuple assignment.",
+      "Write the full recurrence and base case first, then roll the table into variables.",
+      "If at least one value must be taken, the empty-choice base of 0 is wrong for all-negative input."
+    ],
+    "anchors": [
+      {
+        "name": "House Robber",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "House Robber II",
+        "trick": "Circular street: best of values[1:] and values[:-1]."
+      },
+      {
+        "name": "Climbing Stairs",
+        "trick": "Same two-variable roll with + instead of max."
+      },
+      {
+        "name": "Min Cost Climbing Stairs",
+        "trick": "dp[i] = cost[i] + min(dp[i-1], dp[i-2])."
+      }
+    ],
+    "keyLineIndices": [
+      5,
+      6,
+      7
+    ],
+    "contrastWith": [
+      "py-backtracking",
+      "py-knapsack-01",
+      "py-coin-change"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+    },
+    "mutations": [
+      {
+        "line": 5,
+        "replacement": "        current = max(previous_one, previous_one + value)",
+        "explanation": "Adds value to a total that may already include its neighbour."
+      },
+      {
+        "line": 6,
+        "replacement": "        previous_two = current",
+        "explanation": "Both variables end up holding dp[i], so the next value is added next to its neighbour."
+      }
+    ]
+  },
+  {
+    "id": "py-knapsack-01",
+    "title": "0/1 knapsack: capacity loop backward",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Most value from (weight, value) items within a capacity, each item used at most once. One row of best totals by capacity; walk capacities downward so an item never builds on itself. O(n × capacity).",
+    "code": "# Walk capacities downward so each item is counted at most once.\ndef best_value(items, capacity):\n    best = [0] * (capacity + 1)\n    for weight, value in items:\n        for c in range(capacity, weight - 1, -1):\n            best[c] = max(best[c], best[c - weight] + value)\n    return best[capacity]",
+    "family": "dynamic-programming",
+    "triggers": [
+      "choose a subset of items under a weight, cost or size budget, each item at most once",
+      "can some subset reach exactly this sum?"
+    ],
+    "prompts": [
+      "A hiker's pack holds a fixed weight. Each piece of gear has a weight and a usefulness score, and there is only one of each. Pack the most useful load.",
+      "A studio has a fixed number of hours this week and a list of possible commissions, each with the hours it needs and a fee. Each can be taken at most once. Maximize the fees."
+    ],
+    "invariant": "After an item is processed, best[c] is the most value that fits in capacity c using only the items seen so far, each at most once.",
+    "mantra": "Each item once: walk capacity down.",
+    "pitfalls": [
+      "Walking capacity upward reuses the item in the same pass; that is unbounded knapsack.",
+      "The loop stops at weight: smaller capacities can't hold the item.",
+      "best starts at 0 everywhere because taking nothing is always allowed."
+    ],
+    "anchors": [
+      {
+        "name": "Partition Equal Subset Sum",
+        "trick": "Boolean version: can a subset reach sum // 2? Same backward loop."
+      },
+      {
+        "name": "Target Sum",
+        "trick": "Count subsets that sum to (total + target) / 2 with the same backward loop."
+      },
+      {
+        "name": "Last Stone Weight II",
+        "trick": "Find the reachable subset sum closest to half the total."
+      },
+      {
+        "name": "Ones and Zeroes",
+        "trick": "Two capacities, zeros and ones, both walked backward."
+      }
+    ],
+    "keyLineIndices": [
+      2,
+      4,
+      5
+    ],
+    "contrastWith": [
+      "py-coin-change",
+      "py-dp"
+    ],
+    "complexity": {
+      "time": "O(n × capacity)",
+      "space": "O(capacity)"
+    },
+    "mutations": [
+      {
+        "line": 4,
+        "replacement": "        for c in range(weight, capacity + 1):",
+        "explanation": "Walking upward lets best[c - weight] already include this item, so one item can be taken many times."
+      }
+    ]
+  },
+  {
+    "id": "py-coin-change",
+    "title": "Unbounded knapsack: fewest coins",
+    "category": "Python interview patterns",
+    "track": "leetcode",
+    "language": "python",
+    "summary": "Fewest coins that make an amount, with unlimited coins of each value, or -1. dp[a] = min(dp[a], dp[a - coin] + 1), walking amounts upward so a coin can be reused. O(len(coins) × amount).",
+    "code": "# Walk amounts upward so a coin can be reused within the same pass.\ndef fewest_coins(coins, amount):\n    inf = float('inf')\n    dp = [0] + [inf] * amount\n    for coin in coins:\n        for a in range(coin, amount + 1):\n            dp[a] = min(dp[a], dp[a - coin] + 1)\n    return dp[amount] if dp[amount] != inf else -1",
+    "family": "dynamic-programming",
+    "triggers": [
+      "fewest pieces, or the number of ways, to build a total from reusable parts",
+      "an unlimited supply of each item and a target sum"
+    ],
+    "prompts": [
+      "A vending machine gives change in a few coin values and never runs out of any. What is the smallest number of coins that pays out an exact amount?",
+      "Floor tiles come in a handful of lengths, unlimited of each. Cover a corridor of exact length with as few tiles as possible, or report that it can't be done."
+    ],
+    "invariant": "After a coin is processed, dp[a] is the fewest coins that make a using only the coins seen so far, repeats allowed.",
+    "mantra": "Reuse allowed: walk the amount up, plus one coin.",
+    "pitfalls": [
+      "Seed dp[0] = 0 and every other amount with infinity; amounts never reached stay infinite and become -1.",
+      "Walking amounts upward reuses a coin; walking downward allows each coin once (0/1 knapsack).",
+      "Counting ways adds instead of taking the minimum, with coins in the outer loop so each combination is counted once."
+    ],
+    "anchors": [
+      {
+        "name": "Coin Change",
+        "trick": "Exactly this."
+      },
+      {
+        "name": "Coin Change II",
+        "trick": "Count ways: dp[a] += dp[a - coin], coins in the outer loop."
+      },
+      {
+        "name": "Perfect Squares",
+        "trick": "The coins are the squares up to n."
+      },
+      {
+        "name": "Combination Sum IV",
+        "trick": "Amounts in the outer loop count ordered sequences instead."
+      }
+    ],
+    "keyLineIndices": [
+      3,
+      5,
+      6,
+      7
+    ],
+    "contrastWith": [
+      "py-knapsack-01",
+      "py-dp"
+    ],
+    "complexity": {
+      "time": "O(len(coins) × amount)",
+      "space": "O(amount)"
+    },
+    "mutations": [
+      {
+        "line": 6,
+        "replacement": "            dp[a] = min(dp[a], dp[a - coin])",
+        "explanation": "Forgets to count the coin just used, so every reachable amount reports 0 coins."
+      },
+      {
+        "line": 5,
+        "replacement": "        for a in range(amount, coin - 1, -1):",
+        "explanation": "Walking downward allows each coin at most once, so amounts that need a repeated coin look impossible."
+      }
+    ]
+  },
+  {
+    "id": "lld-factory",
+    "title": "Factory: a registry of creators",
+    "category": "Creational patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "create(kind) looks the class up in a registry that each class joins with @register, so a new channel never edits create(). An unknown kind raises instead of quietly falling back.",
+    "code": "# Each class registers itself, so create() never grows an if/elif.\nCHANNELS = {}\n\ndef register(kind):\n    def add(cls):\n        CHANNELS[kind] = cls\n        return cls\n    return add\n\n@register('email')\nclass Email:\n    def send(self, to, text):\n        return f'email {to}: {text}'\n\n@register('sms')\nclass Sms:\n    def send(self, to, text):\n        return f'sms {to}: {text[:160]}'\n\ndef create(kind):\n    if kind not in CHANNELS:\n        raise ValueError(f'unknown channel: {kind}')\n    return CHANNELS[kind]()",
+    "family": "factory",
+    "triggers": [
+      "the caller knows a kind, name or config value, not the class to construct",
+      "an if/elif that picks a class by a type string and grows with every new type"
+    ],
+    "prompts": [
+      "A settings file lists export formats by name, such as csv or json. The app must construct the right exporter for each name, and adding a format must not touch the code that reads the settings.",
+      "A game level file names its enemies by type, such as goblin or archer. The loader must create the right object for each name, and other developers will add enemy types without editing the loader."
+    ],
+    "invariant": "create() reads only the registry: every kind it can build was registered by its class, and any other kind raises.",
+    "mantra": "Look the class up; don't branch on the name.",
+    "pitfalls": [
+      "A class decorator must return the class, or the module-level name becomes None.",
+      "Return CHANNELS[kind](), a new instance, not the class itself.",
+      "Raise on an unknown kind; a silent default turns typos into wrong behaviour."
+    ],
+    "anchors": [
+      {
+        "name": "Notification service",
+        "trick": "Each channel name maps to a sender class that registers itself."
+      },
+      {
+        "name": "Parking lot",
+        "trick": "One factory call turns a vehicle type into the matching spot or ticket."
+      }
+    ],
+    "keyLineIndices": [
+      5,
+      6,
+      20,
+      22
+    ],
+    "scaffoldLineIndices": [
+      14,
+      15,
+      16,
+      17
+    ],
+    "contrastWith": [
+      "lld-builder",
+      "lld-singleton"
+    ],
+    "mutations": [
+      {
+        "line": 22,
+        "replacement": "    return CHANNELS[kind]",
+        "explanation": "Returns the class instead of a new instance, so callers get no object to send with."
+      },
+      {
+        "line": 21,
+        "replacement": "        kind = 'email'",
+        "explanation": "Falls back to email for an unknown kind, hiding typos that should fail loudly."
+      }
+    ]
+  },
+  {
+    "id": "lld-builder",
+    "title": "Builder: assemble, then validate once",
+    "category": "Creational patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Each step returns the builder, so optional parts chain in any order. build() rejects a query with no columns and hands back an immutable snapshot that later steps can't change.",
+    "code": "# Chain optional parts in any order; build() checks them once and returns a finished query.\nfrom collections import namedtuple\n\nQuery = namedtuple('Query', 'table columns filters limit')\n\nclass QueryBuilder:\n    def __init__(self, table):\n        self.table = table\n        self.columns = []\n        self.filters = []\n        self.limit = None\n\n    def select(self, *columns):\n        self.columns.extend(columns)\n        return self\n\n    def where(self, condition):\n        self.filters.append(condition)\n        return self\n\n    def take(self, count):\n        self.limit = count\n        return self\n\n    def build(self):\n        if not self.columns:\n            raise ValueError('select at least one column')\n        return Query(self.table, tuple(self.columns), tuple(self.filters), self.limit)",
+    "family": "builder",
+    "triggers": [
+      "an object with many optional parts, set in any order, that must be valid once finished",
+      "a constructor with a long list of mostly optional parameters"
+    ],
+    "prompts": [
+      "A report screen lets users pick columns, add any number of filters and optionally cap the row count, in whatever order they click. A report with no columns chosen must be refused before it runs.",
+      "A game lets players set up a character across several screens: name, class, starting items. Nothing should exist until the final screen confirms the choices are valid."
+    ],
+    "invariant": "Every step returns the builder; only build() creates a query, after one validation, and the query never shares a list with the builder.",
+    "mantra": "Set in any order, check once, hand back a copy.",
+    "pitfalls": [
+      "Each step must return self, or the chain breaks at the next call.",
+      "Copy lists into the product with tuple(); a shared list lets later steps change a finished query.",
+      "Don't name a method after a field: with self.limit as data, a limit() method would be hidden."
+    ],
+    "anchors": [
+      {
+        "name": "Pizza or burger ordering",
+        "trick": "Add toppings step by step; build() validates and prices the order."
+      },
+      {
+        "name": "HTTP client request",
+        "trick": "Headers, body and timeout chained before one build()."
+      }
+    ],
+    "keyLineIndices": [
+      14,
+      25,
+      27
+    ],
+    "scaffoldLineIndices": [
+      1,
+      3
+    ],
+    "contrastWith": [
+      "lld-factory"
+    ],
+    "mutations": [
+      {
+        "line": 27,
+        "replacement": "        return Query(self.table, self.columns, tuple(self.filters), self.limit)",
+        "explanation": "Hands out the builder's own list, so selecting another column later changes a query that was already built."
+      },
+      {
+        "line": 25,
+        "replacement": "        if self.columns is None:",
+        "explanation": "An empty list is not None, so the check never fires and a query with no columns gets built."
+      }
+    ]
+  },
+  {
+    "id": "lld-singleton",
+    "title": "Singleton: one shared instance",
+    "category": "Creational patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Config() always returns the same object. Check, take the class lock, check again, then build once. Settings are created in __new__ because __init__ would run again on every call.",
+    "code": "# Check, lock, check again: two threads arriving together still create one instance.\nfrom threading import Lock\n\nclass Config:\n    _instance = None\n    _lock = Lock()\n\n    def __new__(cls):\n        if cls._instance is None:\n            with cls._lock:\n                if cls._instance is None:\n                    cls._instance = super().__new__(cls)\n                    cls._instance.settings = {}\n        return cls._instance",
+    "family": "singleton",
+    "triggers": [
+      "exactly one shared object for the whole process, such as a config, registry or connection pool",
+      "'only one may ever exist', even when several threads ask for it at the same moment"
+    ],
+    "prompts": [
+      "Every part of an app reads feature switches from one in-memory table loaded on first use. Separate tables would disagree, so every module must receive the very same table.",
+      "A print spooler must keep exactly one job queue, no matter how many worker threads ask for it first."
+    ],
+    "invariant": "At most one instance is ever created, under the class lock, and every call returns that same object.",
+    "mantra": "Check, lock, check again, then build once.",
+    "pitfalls": [
+      "Share one class-level lock; a lock made inside __new__ is new on every call and guards nothing.",
+      "Without the second check, a thread that waited for the lock builds another instance.",
+      "Python runs __init__ after every Config() call; set state up once in __new__, or later calls wipe it."
+    ],
+    "anchors": [
+      {
+        "name": "Logger",
+        "trick": "One shared logger whose handlers are configured once."
+      },
+      {
+        "name": "Parking lot",
+        "trick": "One ParkingLot object owns every floor and spot."
+      }
+    ],
+    "keyLineIndices": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "contrastWith": [
+      "lld-factory"
+    ],
+    "mutations": [
+      {
+        "line": 9,
+        "replacement": "            with Lock():",
+        "explanation": "A lock created on each call is never shared, so two threads can still build two instances."
+      }
+    ]
+  },
+  {
+    "id": "lld-adapter",
+    "title": "Adapter: translate an interface you can't change",
+    "category": "Structural patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "The checkout calls pay(dollars); the vendor's SDK wants cents and reports declines in a dict. The adapter converts units and raises on a decline. The vendor class is given; you type the adapter.",
+    "code": "# Checkout calls pay(dollars); the vendor wants cents. The adapter translates both ways.\nclass VendorGateway:\n    def __init__(self):\n        self.charges = []\n\n    def submit_charge(self, cents, currency):\n        self.charges.append((cents, currency))\n        return {'ok': cents > 0, 'id': f'ch_{len(self.charges)}'}\n\nclass GatewayAdapter:\n    def __init__(self, gateway):\n        self.gateway = gateway\n\n    def pay(self, dollars):\n        result = self.gateway.submit_charge(round(dollars * 100), 'USD')\n        if not result['ok']:\n            raise ValueError('charge declined')\n        return result['id']",
+    "family": "adapter",
+    "triggers": [
+      "existing code expects one interface, and a library or legacy class offers a different one you can't edit",
+      "translating units, names or result shapes at a boundary, such as cents and dollars or status codes and exceptions"
+    ],
+    "prompts": [
+      "Your app logs through log(level, message), but the monitoring vendor's client only offers emit(severity_code, payload). Make the app's calls reach the vendor without changing either side.",
+      "A new thermometer driver reports Fahrenheit through read_f(), while every dashboard calls celsius(). Plug the new device in without touching the dashboards."
+    ],
+    "invariant": "Callers see only pay(dollars); every unit, name and failure translation happens inside the adapter, and the vendor class is never edited.",
+    "mantra": "Wrap it, translate it, never edit it.",
+    "pitfalls": [
+      "Convert units with round(dollars * 100); int() truncates 0.29 * 100 to 28.",
+      "Translate failures too: raise your own error instead of leaking the vendor's status dict.",
+      "Hold the vendor object rather than subclassing it, so its whole API doesn't leak into yours."
+    ],
+    "anchors": [
+      {
+        "name": "Payment gateway integration",
+        "trick": "One adapter per provider behind a single pay() interface."
+      },
+      {
+        "name": "Third-party logging or maps SDK",
+        "trick": "Adapt the vendor's calls so the rest of the code never imports the SDK."
+      }
+    ],
+    "keyLineIndices": [
+      11,
+      14,
+      15,
+      17
+    ],
+    "scaffoldLineIndices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "contrastWith": [
+      "lld-decorator"
+    ],
+    "mutations": [
+      {
+        "line": 14,
+        "replacement": "        result = self.gateway.submit_charge(dollars, 'USD')",
+        "explanation": "Passes dollars where the vendor expects cents, so a $12.34 payment charges 12.34 cents."
+      },
+      {
+        "line": 15,
+        "replacement": "        if not result:",
+        "explanation": "A non-empty dict is always truthy, so declined charges come back as successes."
+      }
+    ]
+  },
+  {
+    "id": "lld-decorator",
+    "title": "Decorator: wrap to add behaviour",
+    "category": "Structural patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Cheese and HappyHour wrap anything with cost() and describe() and offer the same two methods, so they stack in any order. Each calls through, then adds its part. The base pizza is given.",
+    "code": "# A wrapper keeps the interface of what it wraps, so wrappers stack in any order.\nclass Pizza:\n    def cost(self):\n        return 8.0\n\n    def describe(self):\n        return 'pizza'\n\nclass Cheese:\n    def __init__(self, item):\n        self.item = item\n\n    def cost(self):\n        return self.item.cost() + 1.5\n\n    def describe(self):\n        return self.item.describe() + ', cheese'\n\nclass HappyHour:\n    def __init__(self, item):\n        self.item = item\n\n    def cost(self):\n        return self.item.cost() * 0.8\n\n    def describe(self):\n        return self.item.describe() + ' (happy hour)'",
+    "family": "decorator",
+    "triggers": [
+      "add optional features to an object at runtime, in any combination, without a subclass per combination",
+      "wrappers that keep the same interface: logging, caching, retries, add-ons"
+    ],
+    "prompts": [
+      "An HTTP client needs optional retries, request logging and auth headers. Teams combine them differently, and nobody wants a class for every combination.",
+      "A document exporter can add a header, a footer and page numbers in any combination the user ticks, and new options keep arriving."
+    ],
+    "invariant": "Every wrapper offers the wrapped object's methods and calls through to it, adding its own part before or after.",
+    "mantra": "Same interface in and out: call through, then add.",
+    "pitfalls": [
+      "A wrapper that never calls the wrapped object replaces it instead of decorating it.",
+      "Order matters: HappyHour(Cheese(pizza)) discounts the cheese too; Cheese(HappyHour(pizza)) doesn't.",
+      "A subclass per combination (CheesePizza, CheeseHappyHourPizza, ...) explodes; wrap objects instead."
+    ],
+    "anchors": [
+      {
+        "name": "Coffee or pizza ordering",
+        "trick": "Each add-on wraps the item and adds its price and name."
+      },
+      {
+        "name": "Notification service",
+        "trick": "Wrap a base notifier with SMS and Slack senders in any combination."
+      }
+    ],
+    "keyLineIndices": [
+      10,
+      13,
+      16,
+      23
+    ],
+    "scaffoldLineIndices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "contrastWith": [
+      "lld-adapter",
+      "lld-composite",
+      "lld-chain"
+    ],
+    "mutations": [
+      {
+        "line": 13,
+        "replacement": "        return 1.5",
+        "explanation": "Returns only its own price; a decorator must call through to the wrapped item and add to its result."
+      },
+      {
+        "line": 26,
+        "replacement": "        return 'pizza (happy hour)'",
+        "explanation": "Hard-codes the base instead of asking the wrapped item, so every topping underneath vanishes from the description."
+      }
+    ]
+  },
+  {
+    "id": "lld-composite",
+    "title": "Composite: one interface for parts and wholes",
+    "category": "Structural patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "A File and a Folder both answer size(). A folder sums whatever its children answer, so nesting works at any depth and callers never check which one they hold.",
+    "code": "# Files and folders answer the same size(), so callers never check which one they hold.\nclass File:\n    def __init__(self, name, size):\n        self.name = name\n        self.bytes = size\n\n    def size(self):\n        return self.bytes\n\nclass Folder:\n    def __init__(self, name):\n        self.name = name\n        self.children = []\n\n    def add(self, item):\n        self.children.append(item)\n        return self\n\n    def size(self):\n        return sum(child.size() for child in self.children)",
+    "family": "composite",
+    "triggers": [
+      "a tree of parts and wholes where callers want one operation on a single item or a whole group",
+      "recursive structures: folders and files, menus and submenus, org charts, nested expressions"
+    ],
+    "prompts": [
+      "A drawing app lets users group shapes, and groups can hold other groups. Moving or measuring a group must work exactly like moving or measuring a single shape.",
+      "An org chart rolls up salary cost: a manager's cost includes everyone below them at any depth, while an individual's cost is just their own salary."
+    ],
+    "invariant": "File and Folder answer the same size(); a folder's answer is the sum of its children's answers, at any depth.",
+    "mantra": "Leaves answer; groups ask their children.",
+    "pitfalls": [
+      "isinstance checks in the folder or the caller defeat the pattern; give leaf and group the same method.",
+      "Call child.size(), not child.bytes, or nested folders count as nothing.",
+      "Don't store an attribute named like a method: self.size = size would hide size()."
+    ],
+    "anchors": [
+      {
+        "name": "File system",
+        "trick": "Folder.size() sums its children; File.size() returns its bytes."
+      },
+      {
+        "name": "Restaurant menu",
+        "trick": "Menus hold items and submenus; print or price the whole tree with one call."
+      }
+    ],
+    "keyLineIndices": [
+      7,
+      12,
+      19
+    ],
+    "contrastWith": [
+      "lld-decorator"
+    ],
+    "mutations": [
+      {
+        "line": 19,
+        "replacement": "        return sum(child.bytes for child in self.children if isinstance(child, File))",
+        "explanation": "Counts only the files directly inside; nested folders add nothing because the folder stopped asking its children."
+      },
+      {
+        "line": 16,
+        "replacement": "        return item",
+        "explanation": "Returns the child, so a chained add() puts the next item inside it, or fails on a file."
+      }
+    ]
+  },
+  {
+    "id": "lld-strategy",
+    "title": "Strategy: swap the rule, keep the caller",
+    "category": "Behavioral patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Checkout holds a pricing object and calls its apply(); the caller picks the rule and can swap it at runtime. A new discount is a new class, never a new branch in Checkout.",
+    "code": "# Checkout calls apply() on whatever rule it was given; a new rule is a new class.\nclass FullPrice:\n    def apply(self, prices):\n        return sum(prices)\n\nclass PercentOff:\n    def __init__(self, percent):\n        self.percent = percent\n\n    def apply(self, prices):\n        return sum(prices) * (100 - self.percent) / 100\n\nclass CheapestFree:\n    def apply(self, prices):\n        return sum(prices) - min(prices, default=0)\n\nclass Checkout:\n    def __init__(self, pricing):\n        self.pricing = pricing\n\n    def total(self, prices):\n        return round(self.pricing.apply(prices), 2)",
+    "family": "strategy",
+    "triggers": [
+      "several interchangeable ways to do one job, chosen by the caller or by config at runtime",
+      "an if/elif on a mode or type value inside one method that keeps growing"
+    ],
+    "prompts": [
+      "A maps app offers fastest, shortest and no-toll routes. The navigation screen asks for a route without knowing which rule the user picked, and a scenic option is coming next month.",
+      "A warehouse picks orders by arrival, by priority or by shelf location, and managers switch the rule during the day without restarting anything."
+    ],
+    "invariant": "Checkout knows only the apply() interface; the caller chooses the rule, and adding a rule never edits Checkout.",
+    "mantra": "Pass the rule in; never branch on it.",
+    "pitfalls": [
+      "The context must call the strategy it holds; a hard-coded rule makes swapping pointless.",
+      "Strategies don't pick their successor; when the object switches itself, that's State.",
+      "In Python a plain function can be the strategy; a class helps when the rule has settings, like a percent."
+    ],
+    "anchors": [
+      {
+        "name": "Parking lot",
+        "trick": "A fee strategy per vehicle type or time of day, passed into the ticket."
+      },
+      {
+        "name": "Splitwise",
+        "trick": "Equal, exact and percentage splits as interchangeable split strategies."
+      }
+    ],
+    "keyLineIndices": [
+      10,
+      18,
+      21
+    ],
+    "contrastWith": [
+      "lld-state",
+      "lld-command"
+    ],
+    "mutations": [
+      {
+        "line": 21,
+        "replacement": "        return round(FullPrice().apply(prices), 2)",
+        "explanation": "Checkout ignores the rule it was given and hard-codes one, so swapping strategies changes nothing."
+      },
+      {
+        "line": 10,
+        "replacement": "        return sum(prices) * self.percent / 100",
+        "explanation": "Charges the discount instead of what's left: 25% off becomes paying 25%."
+      }
+    ]
+  },
+  {
+    "id": "lld-state",
+    "title": "State: let the current state answer",
+    "category": "Behavioral patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "A vending machine hands each event to its current state object. Idle accepts a coin and switches to Paid; Paid dispenses and switches back. The machine never checks a status flag.",
+    "code": "# Each state answers the events and picks the next state; the machine never checks a flag.\nclass Idle:\n    def insert_coin(self, machine):\n        machine.state = Paid()\n        return 'coin accepted'\n\n    def press(self, machine):\n        return 'insert a coin first'\n\nclass Paid:\n    def insert_coin(self, machine):\n        return 'coin returned'\n\n    def press(self, machine):\n        machine.state = Idle()\n        return 'dispensed'\n\nclass VendingMachine:\n    def __init__(self):\n        self.state = Idle()\n\n    def insert_coin(self):\n        return self.state.insert_coin(self)\n\n    def press(self):\n        return self.state.press(self)",
+    "family": "state",
+    "triggers": [
+      "the same call behaves differently depending on the object's current mode, with rules for which mode comes next",
+      "status flags checked by if/elif in every method: vending machines, order lifecycles, traffic lights"
+    ],
+    "prompts": [
+      "A turnstile ignores pushes until a ticket is scanned, lets exactly one person through, then locks again. Extra scans while it's unlocked must not bank extra passes.",
+      "A document moves from draft to review to published. Editing is allowed only in draft, approving only in review, and each step decides where the document goes next."
+    ],
+    "invariant": "The machine always holds exactly one state object; each event is answered by that state, and only states change machine.state.",
+    "mantra": "Ask the state; the state picks the next state.",
+    "pitfalls": [
+      "Assign machine.state, not self.state: the state is handed the machine so it can switch it.",
+      "Every state answers every event, even if only to refuse it.",
+      "If the caller picks the object and it never replaces itself, that's Strategy."
+    ],
+    "anchors": [
+      {
+        "name": "Vending machine",
+        "trick": "Idle, paid and sold-out states each handle coin and button events."
+      },
+      {
+        "name": "Elevator system",
+        "trick": "Idle, moving and doors-open states decide what each button press does."
+      }
+    ],
+    "keyLineIndices": [
+      3,
+      14,
+      22,
+      25
+    ],
+    "contrastWith": [
+      "lld-strategy"
+    ],
+    "mutations": [
+      {
+        "line": 3,
+        "replacement": "        self.state = Paid()",
+        "explanation": "Sets an attribute on the state object instead of the machine, so the machine never leaves Idle."
+      },
+      {
+        "line": 14,
+        "replacement": "        machine.state = Paid()",
+        "explanation": "Stays paid after dispensing, so every later press dispenses for free."
+      }
+    ]
+  },
+  {
+    "id": "lld-observer",
+    "title": "Observer: notify every subscriber",
+    "category": "Behavioral patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Subscribers hand the feed a callback and get back a function that unsubscribes them. publish() loops over a copy of the list, so a callback can unsubscribe mid-publish without skipping its neighbour.",
+    "code": "# The feed calls every subscriber without knowing what they do; it loops over a copy.\nclass PriceFeed:\n    def __init__(self):\n        self.subscribers = []\n\n    def subscribe(self, callback):\n        self.subscribers.append(callback)\n        return lambda: self.subscribers.remove(callback)\n\n    def publish(self, price):\n        for callback in list(self.subscribers):\n            callback(price)",
+    "family": "observer",
+    "triggers": [
+      "one change must reach many dependents, and the source shouldn't know who they are",
+      "subscribe and unsubscribe, listeners, event handlers: 'notify everyone when X changes'"
+    ],
+    "prompts": [
+      "When a flight's gate changes, the departure board, the mobile app and the crew pager all need the new gate. Next quarter a chat bot will want it too, and the gate system must not change.",
+      "A spreadsheet cell feeds several charts. Whenever the value changes every chart showing it redraws, and closing a chart stops its updates."
+    ],
+    "invariant": "publish calls each callback that was subscribed when it started, exactly once, and the feed never depends on what a callback does.",
+    "mantra": "Keep a list; notify a copy.",
+    "pitfalls": [
+      "Loop over a copy: a callback that unsubscribes during publish would make the live loop skip its neighbour.",
+      "Unsubscribe removes this callback; forgotten subscriptions keep their objects alive.",
+      "A slow or failing callback holds up the rest; real systems queue or isolate them."
+    ],
+    "anchors": [
+      {
+        "name": "Stock price alerts",
+        "trick": "Traders subscribe to a ticker; each price update notifies them."
+      },
+      {
+        "name": "Notification service",
+        "trick": "Order events fan out to email, SMS and analytics subscribers."
+      }
+    ],
+    "keyLineIndices": [
+      6,
+      7,
+      10,
+      11
+    ],
+    "contrastWith": [
+      "lld-chain"
+    ],
+    "mutations": [
+      {
+        "line": 10,
+        "replacement": "        for callback in self.subscribers:",
+        "explanation": "Loops over the live list: a subscriber that unsubscribes during publish makes the loop skip the next one."
+      },
+      {
+        "line": 7,
+        "replacement": "        return lambda: self.subscribers.pop()",
+        "explanation": "Unsubscribing removes whoever subscribed last, not this callback."
+      }
+    ]
+  },
+  {
+    "id": "lld-command",
+    "title": "Command: actions you can undo",
+    "category": "Behavioral patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Each edit is an object with do() and undo(). The editor keeps two stacks: undo moves the last command from done to undone, redo moves it back, and a new command clears redo.",
+    "code": "# Every edit knows how to undo itself; two stacks give undo and redo.\nclass Insert:\n    def __init__(self, position, text):\n        self.position = position\n        self.text = text\n\n    def do(self, doc):\n        return doc[:self.position] + self.text + doc[self.position:]\n\n    def undo(self, doc):\n        return doc[:self.position] + doc[self.position + len(self.text):]\n\nclass Editor:\n    def __init__(self):\n        self.doc = ''\n        self.done = []\n        self.undone = []\n\n    def run(self, command):\n        self.doc = command.do(self.doc)\n        self.done.append(command)\n        self.undone.clear()\n\n    def undo(self):\n        if self.done:\n            command = self.done.pop()\n            self.doc = command.undo(self.doc)\n            self.undone.append(command)\n\n    def redo(self):\n        if self.undone:\n            command = self.undone.pop()\n            self.doc = command.do(self.doc)\n            self.done.append(command)",
+    "family": "command",
+    "triggers": [
+      "undo and redo, macros, or a log of user actions that must be stored and replayed",
+      "separate what triggers an action (a button, shortcut or menu) from the code that performs it"
+    ],
+    "prompts": [
+      "A drawing app lets users move, recolour and delete shapes, then step backwards and forwards through those changes as far as they like.",
+      "A smart-home hub records the actions a scene performs, so one tap can roll the whole scene back in reverse order."
+    ],
+    "invariant": "done holds applied commands in order and undone holds undone ones; undo and redo move one command between them, and a new command empties undone.",
+    "mantra": "Every action knows its inverse; a new action clears redo.",
+    "pitfalls": [
+      "A new command must clear the redo stack; redoing old commands onto newer text corrupts it.",
+      "undo must reverse exactly what do changed: the whole inserted text, at its position.",
+      "Undo in reverse order by popping from the end of the history."
+    ],
+    "anchors": [
+      {
+        "name": "Text editor with undo and redo",
+        "trick": "Insert and delete commands on two stacks."
+      },
+      {
+        "name": "Remote control or smart home",
+        "trick": "Buttons hold commands; the last command can be undone."
+      }
+    ],
+    "keyLineIndices": [
+      10,
+      21,
+      26,
+      27
+    ],
+    "contrastWith": [
+      "lld-strategy"
+    ],
+    "mutations": [
+      {
+        "line": 21,
+        "replacement": "        self.done.clear()",
+        "explanation": "Clears the undo history instead of the redo stack, so nothing before this edit can be undone."
+      },
+      {
+        "line": 10,
+        "replacement": "        return doc[:self.position] + doc[self.position + 1:]",
+        "explanation": "Undo removes one character instead of the whole inserted text."
+      }
+    ]
+  },
+  {
+    "id": "lld-chain",
+    "title": "Chain of responsibility: handle it or pass it on",
+    "category": "Behavioral patterns",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Approvers are linked by spending limit. Each approves what it can and forwards the rest unchanged; the caller knows only the first link, and the end of the chain rejects.",
+    "code": "# Each approver handles what it can and forwards the rest; callers only know the first.\nclass Approver:\n    def __init__(self, title, limit, successor=None):\n        self.title = title\n        self.limit = limit\n        self.successor = successor\n\n    def approve(self, amount):\n        if amount <= self.limit:\n            return self.title\n        if self.successor is None:\n            return 'rejected'\n        return self.successor.approve(amount)\n\ndef approval_chain():\n    cfo = Approver('cfo', 100_000)\n    director = Approver('director', 10_000, cfo)\n    return Approver('manager', 1_000, director)",
+    "family": "chain-of-responsibility",
+    "triggers": [
+      "the first of several handlers able to deal with a request should take it, tried in order, without the sender choosing",
+      "escalation levels, middleware and fallbacks: approvals by amount, support tiers, cash dispensers"
+    ],
+    "prompts": [
+      "Support tickets go to a chatbot first; whatever it can't answer goes to a first-line agent, then to an engineer. Customers only submit the ticket and never pick the level.",
+      "A loan request is reviewed by an automatic scorer, then a branch officer, then a credit committee, and the first one allowed to decide on that amount does."
+    ],
+    "invariant": "Each approver either answers or forwards the unchanged request to its successor; exactly one link answers, or the end of the chain rejects.",
+    "mantra": "Handle it or hand it on.",
+    "pitfalls": [
+      "Forward by calling the successor's approve(), so the request keeps travelling.",
+      "Decide what the end of the chain does: reject, return a default or raise.",
+      "Unlike a decorator, a handler that answers stops the chain; unlike an observer, only one handler acts."
+    ],
+    "anchors": [
+      {
+        "name": "ATM cash withdrawal",
+        "trick": "Each note dispenser pays what it can and passes the remainder down."
+      },
+      {
+        "name": "Expense approval workflow",
+        "trick": "Manager, director and CFO links, each with a spending limit."
+      }
+    ],
+    "keyLineIndices": [
+      8,
+      10,
+      12
+    ],
+    "contrastWith": [
+      "lld-observer",
+      "lld-decorator"
+    ],
+    "mutations": [
+      {
+        "line": 12,
+        "replacement": "        return self.successor.title",
+        "explanation": "Names the next approver without asking it, so every amount above the manager's limit lands on the director, even 1,000,000."
+      },
+      {
+        "line": 8,
+        "replacement": "        if amount < self.limit:",
+        "explanation": "Off by one at the limit: a manager may approve exactly 1,000, but this escalates it."
+      }
+    ]
+  },
+  {
+    "id": "lld-lru-cache",
+    "title": "LRU cache: evict the least recently used",
+    "category": "Design building blocks",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "An OrderedDict keeps keys from least to most recently used. get and put move the key to the end; when the cache overflows, popitem(last=False) evicts from the front. O(1) per operation.",
+    "code": "# Keys run from least to most recently used: a touch moves a key to the end, eviction takes the front.\nfrom collections import OrderedDict\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.items = OrderedDict()\n\n    def get(self, key):\n        if key not in self.items:\n            return None\n        self.items.move_to_end(key)\n        return self.items[key]\n\n    def put(self, key, value):\n        self.items[key] = value\n        self.items.move_to_end(key)\n        if len(self.items) > self.capacity:\n            self.items.popitem(last=False)",
+    "family": "lru-cache",
+    "triggers": [
+      "a fixed-size cache that evicts whatever was used longest ago",
+      "O(1) get and put that also track recency: a hash map plus an ordered list"
+    ],
+    "prompts": [
+      "A photo app keeps thumbnails for the 200 images viewed most recently. Opening an old image again must protect it from being the next one dropped.",
+      "A database client caches query results but has room for a few hundred. When it's full, it discards the result nobody has asked for in the longest time."
+    ],
+    "invariant": "items holds at most capacity keys ordered from least to most recently used, and every get or put moves its key to the end.",
+    "mantra": "Touch moves to the back; evict from the front.",
+    "pitfalls": [
+      "popitem() takes the newest entry by default; LRU eviction needs popitem(last=False).",
+      "Assigning to an existing key keeps its old position, so move it to the end after updating.",
+      "Without OrderedDict, use a dict of nodes and a doubly linked list with head and tail sentinels."
+    ],
+    "anchors": [
+      {
+        "name": "LRU Cache",
+        "trick": "Exactly this; interviewers may ask for the linked-list version."
+      },
+      {
+        "name": "LFU Cache",
+        "trick": "Group keys by use count, with LRU order inside each count."
+      }
+    ],
+    "keyLineIndices": [
+      11,
+      16,
+      17,
+      18
+    ],
+    "complexity": {
+      "time": "O(1) per get or put",
+      "space": "O(capacity)"
+    },
+    "mutations": [
+      {
+        "line": 18,
+        "replacement": "            self.items.popitem()",
+        "explanation": "popitem() takes from the end by default, evicting the key that was just put instead of the least recently used one."
+      },
+      {
+        "line": 11,
+        "replacement": "        self.items.move_to_end(key, last=False)",
+        "explanation": "Moving a read key to the front marks it least recent, so the key you just used is evicted next."
+      }
+    ]
+  },
+  {
+    "id": "lld-rate-limiter",
+    "title": "Rate limiter: token bucket",
+    "category": "Design building blocks",
+    "track": "lowLevelDesign",
+    "language": "python",
+    "summary": "Tokens refill with elapsed time, capped at capacity; a request spends one whole token or is refused. The clock is passed in so tests control time. O(1) per request.",
+    "code": "# Refill by elapsed time up to capacity; a request spends one token or is refused.\nclass TokenBucket:\n    def __init__(self, capacity, per_second, clock):\n        self.capacity = capacity\n        self.per_second = per_second\n        self.clock = clock\n        self.tokens = capacity\n        self.updated = clock()\n\n    def allow(self):\n        now = self.clock()\n        self.tokens = min(self.capacity, self.tokens + (now - self.updated) * self.per_second)\n        self.updated = now\n        if self.tokens < 1:\n            return False\n        self.tokens -= 1\n        return True",
+    "family": "rate-limiter",
+    "triggers": [
+      "allow at most N requests per period with short bursts, per user or per API key",
+      "throttling, quotas and 'too many requests' errors"
+    ],
+    "prompts": [
+      "A public API lets each key make a burst of ten calls, then roughly one call per second. Calls beyond the allowance get an error instead of waiting.",
+      "A game server lets each player fire a few shots in quick succession but limits sustained firing, so scripted clicking gains nothing."
+    ],
+    "invariant": "Before each decision tokens = min(capacity, tokens + elapsed × rate); a request is allowed only when a whole token is available, and it spends that token.",
+    "mantra": "Refill by elapsed time, cap it, spend one.",
+    "pitfalls": [
+      "Cap the refill at capacity, or an idle client banks an unlimited burst.",
+      "Record the refill time on every call, or the same seconds are credited twice.",
+      "Inject the clock so tests control time, and keep one bucket per user or key."
+    ],
+    "anchors": [
+      {
+        "name": "API rate limiter",
+        "trick": "One bucket per key: burst = capacity, sustained rate = refill."
+      },
+      {
+        "name": "Logger Rate Limiter",
+        "trick": "A simpler rule: remember when each message may print again."
+      },
+      {
+        "name": "Design Hit Counter",
+        "trick": "A sliding window of timestamps instead of tokens."
+      }
+    ],
+    "keyLineIndices": [
+      11,
+      12,
+      13,
+      15
+    ],
+    "complexity": {
+      "time": "O(1) per request",
+      "space": "O(1) per bucket"
+    },
+    "mutations": [
+      {
+        "line": 11,
+        "replacement": "        self.tokens = self.tokens + (now - self.updated) * self.per_second",
+        "explanation": "Without the cap, a long idle period banks unlimited tokens and allows a burst far beyond capacity."
+      },
+      {
+        "line": 13,
+        "replacement": "        if self.tokens <= 0:",
+        "explanation": "Allows a request with only part of a token, so the bucket runs into debt and lets traffic through too early."
+      }
+    ]
   },
   {
     "id": "py-comprehensions",
     "title": "Comprehensions and enumeration",
     "category": "Python fundamentals",
+    "track": "languages",
     "language": "python",
     "summary": "Transform and filter sequences; enumerate pairs an index with its value.",
     "code": "def describe_even_squares(values):\n    squares = [value * value for value in values if value % 2 == 0]\n    positions = {index: value for index, value in enumerate(squares)}\n    unique = {value for value in squares}\n    return squares, positions, unique"
@@ -115,6 +2552,7 @@
     "id": "py-collections",
     "title": "Counting and grouping",
     "category": "Python fundamentals",
+    "track": "languages",
     "language": "python",
     "summary": "Use Counter for frequencies and defaultdict for grouping by a derived key.",
     "code": "from collections import Counter, defaultdict\n\ndef summarize_words(words):\n    counts = Counter(words)\n    groups = defaultdict(list)\n    for word in words:\n        groups[len(word)].append(word)\n    return counts, dict(groups)"
@@ -123,6 +2561,7 @@
     "id": "py-generators",
     "title": "Generators and iteration",
     "category": "Python fundamentals",
+    "track": "languages",
     "language": "python",
     "summary": "Yield bounded batches without materializing the entire input. Validate batch size before iterating.",
     "code": "def batches(items, size):\n    if size <= 0:\n        raise ValueError(\"size must be positive\")\n    batch = []\n    for item in items:\n        batch.append(item)\n        if len(batch) == size:\n            yield batch\n            batch = []\n    if batch:\n        yield batch"
@@ -131,6 +2570,7 @@
     "id": "py-dataclasses",
     "title": "Dataclasses and sorting",
     "category": "Python fundamentals",
+    "track": "languages",
     "language": "python",
     "summary": "Represent structured data and sort by a tuple of keys. A fresh sorted list leaves the input unchanged.",
     "code": "from dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Task:\n    name: str\n    priority: int\n\ndef prioritize(tasks):\n    return sorted(tasks, key=lambda task: (-task.priority, task.name))"
@@ -139,6 +2579,7 @@
     "id": "cpp-vectors",
     "title": "Vectors, references and range loops",
     "category": "C++ fundamentals",
+    "track": "languages",
     "language": "cpp",
     "summary": "C++17. Borrow a vector through a const reference and produce a new vector. Practice bounds-free range iteration.",
     "code": "#include <iostream>\n#include <vector>\n\nstd::vector<int> positiveValues(const std::vector<int>& values) {\n    std::vector<int> result;\n    for (int value : values) {\n        if (value > 0) {\n            result.push_back(value);\n        }\n    }\n    return result;\n}\n\nint main() {\n    for (int value : positiveValues({-1, 2, 0, 3})) {\n        std::cout << value << ' ';\n    }\n}"
@@ -147,6 +2588,7 @@
     "id": "cpp-map",
     "title": "Hash maps and structured bindings",
     "category": "C++ fundamentals",
+    "track": "languages",
     "language": "cpp",
     "summary": "C++17. Count values with unordered_map. operator[] inserts a zero-initialized count for a new key.",
     "code": "#include <iostream>\n#include <string>\n#include <unordered_map>\n#include <vector>\n\nint main() {\n    std::vector<std::string> words = {\"go\", \"rust\", \"go\"};\n    std::unordered_map<std::string, int> counts;\n    for (const auto& word : words) {\n        ++counts[word];\n    }\n    auto [position, inserted] = counts.try_emplace(\"cpp\", 1);\n    std::cout << counts.at(\"go\") << ' ' << position->second;\n}"
@@ -155,6 +2597,7 @@
     "id": "cpp-raii",
     "title": "Ownership with unique_ptr",
     "category": "C++ fundamentals",
+    "track": "languages",
     "language": "cpp",
     "summary": "C++17. A unique_ptr owns an object and releases it automatically. Move transfers ownership explicitly.",
     "code": "#include <iostream>\n#include <memory>\n#include <utility>\n\nstruct Node {\n    int value;\n    std::unique_ptr<Node> next;\n    explicit Node(int value) : value(value) {}\n};\n\nint main() {\n    auto head = std::make_unique<Node>(10);\n    head->next = std::make_unique<Node>(20);\n    auto owner = std::move(head);\n    std::cout << owner->value << ' ' << owner->next->value;\n}"
@@ -163,6 +2606,7 @@
     "id": "cpp-lambda",
     "title": "Sorting with a lambda",
     "category": "C++ fundamentals",
+    "track": "languages",
     "language": "cpp",
     "summary": "C++17. Define a strict ordering by score, then name. Comparator parameters borrow their arguments.",
     "code": "#include <algorithm>\n#include <iostream>\n#include <string>\n#include <vector>\n\nstruct Entry {\n    std::string name;\n    int score;\n};\n\nint main() {\n    std::vector<Entry> entries = {{\"b\", 3}, {\"a\", 3}, {\"c\", 1}};\n    std::sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) {\n        if (a.score != b.score) return a.score > b.score;\n        return a.name < b.name;\n    });\n    for (const auto& entry : entries) std::cout << entry.name << ' ';\n}"
@@ -171,6 +2615,7 @@
     "id": "rust-borrow",
     "title": "Ownership and borrowing",
     "category": "Rust fundamentals",
+    "track": "languages",
     "language": "rust",
     "summary": "Borrow a str to inspect it and a mutable String to change it. A borrow ends before the next conflicting use.",
     "code": "fn first_word(text: &str) -> &str {\n    text.split_whitespace().next().unwrap_or(\"\")\n}\n\nfn add_suffix(text: &mut String) {\n    text.push_str(\" patterns\");\n}\n\nfn main() {\n    let mut text = String::from(\"practice\");\n    println!(\"{}\", first_word(&text));\n    add_suffix(&mut text);\n    println!(\"{}\", text);\n}"
@@ -179,6 +2624,7 @@
     "id": "rust-result",
     "title": "Result and error propagation",
     "category": "Rust fundamentals",
+    "track": "languages",
     "language": "rust",
     "summary": "Return parse failures through Result. The question-mark operator propagates an error to the caller.",
     "code": "use std::num::ParseIntError;\n\nfn parse_numbers(text: &str) -> Result<Vec<i32>, ParseIntError> {\n    let mut values = Vec::new();\n    for word in text.split_whitespace() {\n        values.push(word.parse::<i32>()?);\n    }\n    Ok(values)\n}\n\nfn main() {\n    match parse_numbers(\"1 2 3\") {\n        Ok(values) => println!(\"{:?}\", values),\n        Err(error) => eprintln!(\"{}\", error),\n    }\n}"
@@ -187,6 +2633,7 @@
     "id": "rust-iterators",
     "title": "Iterators and collection",
     "category": "Rust fundamentals",
+    "track": "languages",
     "language": "rust",
     "summary": "Borrow a slice, copy its integers, filter, transform and collect into a vector.",
     "code": "fn even_squares(values: &[i32]) -> Vec<i32> {\n    values.iter()\n        .copied()\n        .filter(|value| value % 2 == 0)\n        .map(|value| value * value)\n        .collect()\n}\n\nfn main() {\n    let values = [1, 2, 3, 4];\n    println!(\"{:?}\", even_squares(&values));\n}"
@@ -195,6 +2642,7 @@
     "id": "rust-enums",
     "title": "Enums and pattern matching",
     "category": "Rust fundamentals",
+    "track": "languages",
     "language": "rust",
     "summary": "Model distinct events with an enum and handle every variant with match.",
     "code": "enum Event {\n    Insert(String),\n    Remove(usize),\n    Clear,\n}\n\nfn apply(event: Event, items: &mut Vec<String>) {\n    match event {\n        Event::Insert(value) => items.push(value),\n        Event::Remove(index) if index < items.len() => { items.remove(index); }\n        Event::Remove(_) => {}\n        Event::Clear => items.clear(),\n    }\n}\n\nfn main() {\n    let mut items = Vec::new();\n    apply(Event::Insert(String::from(\"pattern\")), &mut items);\n    apply(Event::Remove(0), &mut items);\n    apply(Event::Clear, &mut items);\n    println!(\"{}\", items.len());\n}"
@@ -203,6 +2651,7 @@
     "id": "go-slices",
     "title": "Slices, maps and range",
     "category": "Go fundamentals",
+    "track": "languages",
     "language": "go",
     "summary": "Grow a slice with append and count strings in a map. Map lookup returns the zero value for a missing key.",
     "code": "package main\n\nimport \"fmt\"\n\nfunc counts(words []string) map[string]int {\n    result := make(map[string]int)\n    for _, word := range words {\n        result[word]++\n    }\n    return result\n}\n\nfunc main() {\n    words := []string{\"go\", \"rust\"}\n    words = append(words, \"go\")\n    fmt.Println(counts(words)[\"go\"])\n}"
@@ -211,6 +2660,7 @@
     "id": "go-errors",
     "title": "Errors and multiple returns",
     "category": "Go fundamentals",
+    "track": "languages",
     "language": "go",
     "summary": "Check an error before using the accompanying value. fmt.Errorf with %w preserves the underlying error.",
     "code": "package main\n\nimport (\n    \"fmt\"\n    \"strconv\"\n)\n\nfunc parsePort(text string) (int, error) {\n    port, err := strconv.Atoi(text)\n    if err != nil {\n        return 0, fmt.Errorf(\"parse port: %w\", err)\n    }\n    if port < 1 || port > 65535 {\n        return 0, fmt.Errorf(\"port out of range\")\n    }\n    return port, nil\n}\n\nfunc main() {\n    port, err := parsePort(\"8080\")\n    if err != nil {\n        fmt.Println(err)\n        return\n    }\n    fmt.Println(port)\n}"
@@ -219,6 +2669,7 @@
     "id": "go-methods",
     "title": "Structs and pointer receivers",
     "category": "Go fundamentals",
+    "track": "languages",
     "language": "go",
     "summary": "A pointer receiver mutates the original struct. A value receiver can inspect a copy.",
     "code": "package main\n\nimport \"fmt\"\n\ntype Counter struct {\n    value int\n}\n\nfunc (counter *Counter) Add(delta int) {\n    counter.value += delta\n}\n\nfunc (counter Counter) Value() int {\n    return counter.value\n}\n\nfunc main() {\n    counter := Counter{}\n    counter.Add(3)\n    fmt.Println(counter.Value())\n}"
@@ -227,6 +2678,7 @@
     "id": "go-interfaces",
     "title": "Small interfaces",
     "category": "Go fundamentals",
+    "track": "languages",
     "language": "go",
     "summary": "Types satisfy interfaces implicitly. Accept the behavior you need as a small interface.",
     "code": "package main\n\nimport \"fmt\"\n\ntype Describer interface {\n    Describe() string\n}\n\ntype Task struct {\n    Name string\n}\n\nfunc (task Task) Describe() string {\n    return \"task: \" + task.Name\n}\n\nfunc printDescription(value Describer) {\n    fmt.Println(value.Describe())\n}\n\nfunc main() {\n    printDescription(Task{Name: \"practice\"})\n}"
@@ -235,6 +2687,7 @@
     "id": "py-thread-pool",
     "title": "Thread pool and futures",
     "category": "Python concurrency",
+    "track": "languages",
     "language": "python",
     "summary": "Submit independent tasks and retrieve results in input order. Threads commonly suit blocking I/O; this arithmetic task only demonstrates the API.",
     "code": "from concurrent.futures import ThreadPoolExecutor\n\ndef square(value):\n    return value * value\n\ndef parallel_squares(values):\n    with ThreadPoolExecutor(max_workers=4) as executor:\n        futures = [executor.submit(square, value) for value in values]\n        return [future.result() for future in futures]"
@@ -243,6 +2696,7 @@
     "id": "py-lock",
     "title": "Protecting shared state",
     "category": "Python concurrency",
+    "track": "languages",
     "language": "python",
     "summary": "A lock protects the complete read-modify-write operation. Join every worker before observing the final result.",
     "code": "from threading import Lock, Thread\n\ndef shared_counter():\n    lock = Lock()\n    count = 0\n    def increment():\n        nonlocal count\n        for _ in range(100):\n            with lock:\n                count += 1\n    workers = [Thread(target=increment) for _ in range(4)]\n    for worker in workers:\n        worker.start()\n    for worker in workers:\n        worker.join()\n    return count"
@@ -251,6 +2705,7 @@
     "id": "py-asyncio",
     "title": "Async tasks with gather",
     "category": "Python concurrency",
+    "track": "languages",
     "language": "python",
     "summary": "Await cooperative work without blocking the event loop. gather returns results in argument order. Run the demo from a normal Python script.",
     "code": "import asyncio\n\nasync def work(value):\n    await asyncio.sleep(0)\n    return value * 2\n\nasync def run_batch(values):\n    tasks = [work(value) for value in values]\n    return await asyncio.gather(*tasks)\n\nif __name__ == \"__main__\":\n    print(asyncio.run(run_batch([1, 2, 3])))"
@@ -259,6 +2714,7 @@
     "id": "cpp-lock",
     "title": "Mutex and lock_guard",
     "category": "C++ concurrency",
+    "track": "languages",
     "language": "cpp",
     "summary": "C++17. Hold a scoped mutex guard around shared state. Join both threads before reading the counter.",
     "code": "#include <iostream>\n#include <mutex>\n#include <thread>\n\nint main() {\n    std::mutex mutex;\n    int count = 0;\n    auto increment = [&] {\n        for (int i = 0; i < 100; ++i) {\n            std::lock_guard<std::mutex> lock(mutex);\n            ++count;\n        }\n    };\n    std::thread first(increment);\n    std::thread second(increment);\n    first.join();\n    second.join();\n    std::cout << count;\n}"
@@ -267,6 +2723,7 @@
     "id": "cpp-condition",
     "title": "Condition variable and a predicate",
     "category": "C++ concurrency",
+    "track": "languages",
     "language": "cpp",
     "summary": "C++17. The predicate handles notifications that arrive early and spurious wakeups. Both data and readiness are protected by the same mutex.",
     "code": "#include <condition_variable>\n#include <iostream>\n#include <mutex>\n#include <thread>\n\nint main() {\n    std::mutex mutex;\n    std::condition_variable ready;\n    bool hasValue = false;\n    int value = 0;\n    std::thread producer([&] {\n        {\n            std::lock_guard<std::mutex> lock(mutex);\n            value = 42;\n            hasValue = true;\n        }\n        ready.notify_one();\n    });\n    std::unique_lock<std::mutex> lock(mutex);\n    ready.wait(lock, [&] { return hasValue; });\n    std::cout << value;\n    lock.unlock();\n    producer.join();\n}"
@@ -275,6 +2732,7 @@
     "id": "cpp-future",
     "title": "Async and future",
     "category": "C++ concurrency",
+    "track": "languages",
     "language": "cpp",
     "summary": "C++17. Request asynchronous execution explicitly, retain the future and collect its value with get.",
     "code": "#include <future>\n#include <iostream>\n\nint main() {\n    auto result = std::async(std::launch::async, [] {\n        int total = 0;\n        for (int value = 1; value <= 10; ++value) {\n            total += value;\n        }\n        return total;\n    });\n    std::cout << result.get();\n}"
@@ -283,6 +2741,7 @@
     "id": "go-channels",
     "title": "Goroutines, channels and closing",
     "category": "Go concurrency",
+    "track": "languages",
     "language": "go",
     "summary": "The sender closes the channel after producing all values. range receives until the channel is closed and drained.",
     "code": "package main\n\nimport \"fmt\"\n\nfunc squares(values []int) <-chan int {\n    results := make(chan int)\n    go func() {\n        defer close(results)\n        for _, value := range values {\n            results <- value * value\n        }\n    }()\n    return results\n}\n\nfunc main() {\n    for result := range squares([]int{1, 2, 3}) {\n        fmt.Println(result)\n    }\n}"
@@ -291,6 +2750,7 @@
     "id": "rust-shared-state",
     "title": "Arc, Mutex and thread joining",
     "category": "Rust concurrency",
+    "track": "languages",
     "language": "rust",
     "summary": "Arc shares ownership across threads; Mutex serializes mutation. This small demo treats a panicked worker or poisoned mutex as fatal.",
     "code": "use std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn main() {\n    let counter = Arc::new(Mutex::new(0));\n    let mut workers = Vec::new();\n    for _ in 0..4 {\n        let counter = Arc::clone(&counter);\n        workers.push(thread::spawn(move || {\n            let mut value = counter.lock().expect(\"poisoned mutex\");\n            *value += 1;\n        }));\n    }\n    for worker in workers {\n        worker.join().expect(\"worker panicked\");\n    }\n    println!(\"{}\", *counter.lock().expect(\"poisoned mutex\"));\n}"

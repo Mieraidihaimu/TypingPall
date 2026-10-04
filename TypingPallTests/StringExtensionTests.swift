@@ -232,6 +232,36 @@ final class EditorRegressionTests: XCTestCase {
         XCTAssertTrue(coordinator.textView(view, shouldChangeTextIn: NSRange(location: 1, length: 0), replacementString: "y"))
     }
 
+    func testStyleMarksOnlyTheFirstDifference() throws {
+        let parent = TextKit2TypingEditor(typedText: .constant("abxd"), targetText: .constant("abcd"), fontSize: 18)
+        let coordinator = TextKit2Coordinator(parent)
+        let view = NSTextView()
+        view.string = "abxd"
+        coordinator.textView = view
+        coordinator.applyStyle()
+        let storage = try XCTUnwrap(view.textStorage)
+        func color(_ i: Int) -> NSColor? { storage.attribute(.foregroundColor, at: i, effectiveRange: nil) as? NSColor }
+        func underline(_ i: Int) -> Int? { storage.attribute(.underlineStyle, at: i, effectiveRange: nil) as? Int }
+        XCTAssertEqual(color(0), .labelColor)
+        XCTAssertNil(underline(1))
+        XCTAssertEqual(underline(2), NSUnderlineStyle.thick.rawValue)
+        XCTAssertEqual(color(3), .tertiaryLabelColor)
+        XCTAssertNil(underline(3))
+    }
+
+    func testRejectedEditsReportTheirReason() {
+        var reasons: [PracticeText.InputRejection] = []
+        let parent = TextKit2TypingEditor(typedText: .constant("x"), targetText: .constant("x"), fontSize: 18,
+                                         onSubmit: {}, onReject: { reasons.append($0) })
+        let coordinator = TextKit2Coordinator(parent)
+        let view = NSTextView()
+        view.string = "x"
+        XCTAssertFalse(coordinator.textView(view, shouldChangeTextIn: NSRange(location: 1, length: 0), replacementString: "a\nb"))
+        XCTAssertFalse(coordinator.textView(view, shouldChangeTextIn: NSRange(location: 9, length: 0), replacementString: "a"))
+        XCTAssertEqual(reasons, [.multipleLines, .invalidRange])
+        XCTAssertNil(PracticeText.InputRejection.invalidRange.message)
+    }
+
     func testSwitchingScriptResetsInputEvenForSameText() throws {
         let model = TypingScreenViewModel()
         try model.updatePlaceholder(with: "abc")
@@ -361,9 +391,10 @@ final class CommentSkippingTests: XCTestCase {
 
     func testBundledCatalogIsCompleteAndEveryLessonHasPracticeCode() throws {
         let lessons = try PracticeCatalog.load()
-        XCTAssertEqual(lessons.count, 37)
+        XCTAssertEqual(PracticeCatalog.lessons.count, lessons.count)
         XCTAssertEqual(Set(lessons.map(\.id)).count, lessons.count)
-        XCTAssertEqual(lessons.filter { $0.category == "13 Python patterns" }.count, 13)
+        XCTAssertGreaterThanOrEqual(lessons.filter { $0.category == "Python interview patterns" }.count, 13)
+        XCTAssertFalse(lessons.contains { $0.category.first?.isNumber == true }, "Category names carry no counts")
         for lesson in lessons {
             XCTAssertFalse(lesson.summary.isEmpty)
             let source = try PracticeText.validated(lesson.code, tabSpaces: 4).components(separatedBy: "\n")

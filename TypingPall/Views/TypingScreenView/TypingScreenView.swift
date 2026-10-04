@@ -3,93 +3,81 @@ import CoreData
 import UniformTypeIdentifiers
 
 struct TypingScreenView: View {
+    private enum LibraryAction { case addScript, importFile }
+
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var viewModel = TypingScreenViewModel()
     @State private var isImporting = false
+    @State private var isShowingOptions = false
+    @State private var isShowingDrill = false
+    @State private var pendingLibraryAction: LibraryAction?
     @State private var errorMessage: String?
+    @State private var contrastStatement = ""   // unsaved
+    @State private var isComparingMantras = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Make the pattern familiar.").font(.title2).fontWeight(.semibold)
-                    Text(viewModel.lessonTitle)
-                        .foregroundColor(.secondary)
-                }
+                Text(viewModel.displayedSummary).font(.callout).foregroundColor(.secondary).lineLimit(3)
                 Spacer()
-                Button { viewModel.restart() } label: { Label("Repeat Pattern", systemImage: "arrow.counterclockwise") }
-                    .keyboardShortcut("r", modifiers: .command)
-                    .accessibilityIdentifier("restartPractice")
-            }
-            HStack {
-                Toggle("Skip comments", isOn: Binding(get: { viewModel.skipComments }, set: { viewModel.setSkipComments($0) }))
-                    .accessibilityIdentifier("skipComments")
-                Picker("Language", selection: Binding(get: { viewModel.language }, set: { viewModel.setLanguage($0) })) {
-                    ForEach(CodeLanguage.allCases) { Text($0.title).tag($0) }
-                }.frame(width: 180)
-                Text("Changing these options restarts the pattern.").font(.caption).foregroundColor(.secondary)
-                Spacer()
-            }
-            Text(viewModel.lessonSummary).font(.callout).foregroundColor(.secondary).lineLimit(3)
-            HStack {
-                Label(!viewModel.hasPracticeLines ? "No code to practice" : viewModel.isComplete ? "Pattern complete" : "Step \(viewModel.practicePosition + 1) of \(viewModel.practiceLines.count) · line \(viewModel.currentLineIndex + 1)",
-                      systemImage: viewModel.isComplete ? "checkmark.circle" : "text.line.first.and.arrowtriangle.forward")
+                Label(viewModel.progressText, systemImage: viewModel.isComplete ? "checkmark.circle" : "text.line.first.and.arrowtriangle.forward")
                     .font(.headline)
                     .accessibilityIdentifier("patternProgress")
-                Spacer()
-                Text("\(viewModel.completedLineCount) lines practiced")
-                    .foregroundColor(.secondary)
             }
             ProgressView(value: Double(viewModel.completedLineCount), total: Double(max(1, viewModel.practiceLines.count)))
                 .accessibilityLabel("Lines practiced")
-            referenceView
-            HStack {
-                Text(viewModel.isComplete ? "Pattern complete. Repeat it to reinforce the sequence." : "TYPE THE HIGHLIGHTED LINE")
-                    .font(.caption).fontWeight(.semibold).foregroundColor(.secondary)
-                Spacer()
-                Text("Tab = \(viewModel.sessionTabSpaces) spaces")
-                    .font(.caption).foregroundColor(.secondary)
+                .accessibilityValue(viewModel.progressText)
+            if let hunt = viewModel.bugHunt, hunt.phase != .solved {
+                BugHuntBanner(hunt: hunt)
             }
-            TextKit2TypingEditor(typedText: $viewModel.editorText, targetText: .constant(viewModel.currentLine),
-                                 fontSize: safeFontSize, tabSpaces: viewModel.sessionTabSpaces,
-                                 isEnabled: viewModel.hasPracticeLines && !viewModel.isComplete, resetID: viewModel.sessionID,
-                                 onSubmit: { viewModel.advanceLine() })
-                .frame(minHeight: 100, idealHeight: 130, maxHeight: 160)
-                .cornerRadius(12)
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.secondary.opacity(0.25)))
-            HStack {
-                Text(lineGuidance)
-                    .font(.callout)
-                    .foregroundColor(viewModel.isLineMatched ? .green : .secondary)
-                    .accessibilityIdentifier("lineGuidance")
-                Spacer()
-                Button("Repeat Line") { viewModel.repeatLine() }
-                    .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
-                    .accessibilityIdentifier("repeatLine")
-                Button(viewModel.isLastPracticeLine ? "Finish Pattern" : "Next Line") {
-                    viewModel.advanceLine()
+            if let pair = viewModel.contrast {
+                ContrastReferenceView(baseTitle: pair.base.title, baseRows: viewModel.contrastBaseRows,
+                                      variantTitle: pair.variant.title, variantRows: viewModel.referenceRows,
+                                      fontSize: safeFontSize, currentIndex: viewModel.currentLineIndex, contentKey: viewModel.placeholderText)
+            } else {
+                ReferenceCodeView(rows: viewModel.referenceRows, fontSize: safeFontSize,
+                                  currentIndex: viewModel.currentLineIndex, contentKey: viewModel.placeholderText,
+                                  onSelectRow: viewModel.bugHunt?.phase == .finding ? viewModel.selectReferenceLine : nil)
+            }
+            if viewModel.isComplete {
+                CompletionCard(title: viewModel.lessonTitle, nextLesson: viewModel.nextLesson,
+                               isUserScript: !viewModel.isStarterPattern && viewModel.currentLessonID == nil,
+                               accessoryOwnsDefaultAction: viewModel.contrast != nil,
+                               onNext: { if let next = viewModel.nextLesson { loadLesson(next) } },
+                               onRepeat: { viewModel.restart() },
+                               onLibrary: { viewModel.isShowingHistoryUploads = true }) {
+                    completionAccessory
                 }
-                .disabled(!viewModel.isLineMatched || viewModel.isComplete)
-                .accessibilityIdentifier("nextLine")
+            } else {
+                PracticeInputPanel(viewModel: viewModel, fontSize: safeFontSize)
             }
             if viewModel.isShowingKeyboard {
                 KeyboardLayoutView(typedLetter: $viewModel.lastKeyboardType)
                     .frame(height: 250)
+                    .accessibilityHidden(true)
             }
         }
         .padding(24)
+        .background(modeShortcuts)
         .frame(minWidth: 760, idealWidth: 900, minHeight: 620, idealHeight: 740)
-        .navigationTitle("TypingPall")
+        .navigationTitle(viewModel.lessonTitle)
+        .modifier(SubtitleModifier(text: viewModel.lessonSubtitle))
         .onChange(of: viewModel.editorText) { text in
             viewModel.lastKeyboardType = text.last.map(String.init)
         }
         .sheet(isPresented: $viewModel.isShowingPlaceholderText) { scriptSheet }
-        .sheet(isPresented: $viewModel.isShowingHistoryUploads) {
-            HistoryUploadsView(onSelect: { text, language in load(text, language: language) }, onSelectLesson: { lesson in
-                do { try viewModel.loadLesson(lesson) }
+        .sheet(isPresented: $isShowingDrill) {
+            RecognitionDrillView { lesson in
+                do { try viewModel.loadLesson(lesson); viewModel.setMode(.recall) }
                 catch { errorMessage = error.localizedDescription }
-            })
-                .frame(width: 900, height: 600)
+            }
+            .frame(minWidth: 560, minHeight: 460)
+        }
+        .sheet(isPresented: $viewModel.isShowingHistoryUploads, onDismiss: runPendingLibraryAction) {
+            HistoryUploadsView(onSelect: { text, language in load(text, language: language) }, onSelectLesson: loadLesson,
+                               onAddScript: { pendingLibraryAction = .addScript }, onImport: { pendingLibraryAction = .importFile },
+                               onSelectBugHunt: { startBugHunt($0) }, onSelectContrast: startContrast)
+                .frame(minWidth: 680, idealWidth: 860, minHeight: 460, idealHeight: 600)
         }
         .fileImporter(isPresented: $isImporting, allowedContentTypes: [.data], allowsMultipleSelection: false) { result in
             do {
@@ -109,19 +97,40 @@ struct TypingScreenView: View {
         } message: { Text(errorMessage ?? "") }
         .toolbar {
             ToolbarItemGroup {
-                Button { errorMessage = nil; viewModel.temPlaceholderText = ""; viewModel.isShowingPlaceholderText = true } label: {
-                    Label("Add Script", systemImage: "plus")
-                }.keyboardShortcut("n", modifiers: [.command, .shift])
+                Button { isShowingOptions = true } label: { Label("Options", systemImage: "slider.horizontal.3") }
+                    .accessibilityIdentifier("practiceOptions")
+                    .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) { PracticeOptionsPopover(viewModel: viewModel) }
+                Button { viewModel.restart() } label: { Label("Repeat Pattern", systemImage: "arrow.counterclockwise") }
+                    .keyboardShortcut("r", modifiers: .command)
+                    .accessibilityIdentifier("restartPractice")
+                Button(action: showScriptSheet) { Label("Add Script", systemImage: "plus") }
+                    .keyboardShortcut("n", modifiers: [.command, .shift])
                 Button { isImporting = true } label: { Label("Import File", systemImage: "square.and.arrow.down") }
                     .keyboardShortcut("o", modifiers: .command)
                 Button { viewModel.isShowingHistoryUploads = true } label: { Label("Library", systemImage: "books.vertical") }
                     .keyboardShortcut("l", modifiers: .command)
+                Button { isShowingDrill = true } label: { Label("Which Pattern?", systemImage: "questionmark.circle") }
+                    .keyboardShortcut("d", modifiers: [.command, .shift])
+                    .accessibilityIdentifier("whichPattern")
             }
         }
     }
 
     private var safeFontSize: Double {
         viewModel.textViewFontSize.isFinite ? min(30, max(12, viewModel.textViewFontSize)) : 25
+    }
+
+    // Interim ⌘1–⌘3 until menus exist; opacity 0 (not hidden) keeps the shortcuts registered.
+    private var modeShortcuts: some View {
+        ZStack {
+            ForEach(PracticeMode.allCases) { mode in
+                Button(mode.title) { viewModel.setMode(mode) }
+                    .keyboardShortcut(KeyEquivalent(Character(String(mode.rawValue + 1))), modifiers: .command)
+            }
+        }
+        .opacity(0)
+        .frame(width: 0, height: 0)
+        .accessibilityHidden(true)
     }
 
     private var scriptSheet: some View {
@@ -169,50 +178,102 @@ struct TypingScreenView: View {
         } catch { errorMessage = error.localizedDescription }
     }
 
-    private var lineGuidance: String {
-        if !viewModel.hasPracticeLines { return "Only comments remain. Turn off Skip comments to practice them." }
-        if viewModel.isComplete { return "Take a moment to recall what each step does." }
-        if viewModel.currentLine.isEmpty { return "Blank line — press Return to continue." }
-        if viewModel.isLineMatched { return "Line matched. Press Return to continue, or repeat this line." }
-        return viewModel.skipComments && viewModel.language != .plainText ? "Type code only. Leading indentation and comments are skipped." : "Leading indentation is skipped. Correct any underlined differences, then press Return."
+    private func loadLesson(_ lesson: PracticeLesson) {
+        do { try viewModel.loadLesson(lesson) }
+        catch { errorMessage = error.localizedDescription }
     }
 
-    private var referenceView: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(viewModel.lines.indices, id: \.self) { index in
-                        HStack(alignment: .firstTextBaseline, spacing: 16) {
-                            Text("\(index + 1)")
-                                .font(.system(.caption, design: .monospaced))
-                                .foregroundColor(.secondary)
-                                .frame(width: 30, alignment: .trailing)
-                            Text(viewModel.lines[index].isEmpty ? " " : viewModel.lines[index])
-                                .font(.system(size: safeFontSize, design: .monospaced))
-                                .frame(maxWidth: .infinity, alignment: .leading)
+    private func startBugHunt(_ lesson: PracticeLesson, mutationIndex: Int? = nil) {
+        do { try viewModel.startBugHunt(lesson, mutationIndex: mutationIndex) }
+        catch { errorMessage = error.localizedDescription }
+    }
+
+    private func startContrast(_ pair: ContrastPair) {
+        contrastStatement = ""
+        isComparingMantras = false
+        do { try viewModel.startContrast(pair) }
+        catch { errorMessage = error.localizedDescription }
+    }
+
+    @ViewBuilder private var completionAccessory: some View {
+        if let hunt = viewModel.bugHunt, hunt.phase == .solved, let lesson = viewModel.currentLesson {
+            VStack(alignment: .leading, spacing: 8) {
+                if hunt.wrongGuesses.isEmpty {
+                    Text("Found on the first click.").font(.headline)
+                } else {
+                    Text("Found after checking ^[\(hunt.wrongGuesses.count) other line](inflect: true).").font(.headline)
+                }
+                Text(hunt.mutation.explanation)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("bugExplanation")
+                HStack {
+                    if (lesson.mutations?.count ?? 0) > 1 {
+                        Button("Another Bug") {
+                            let others = (lesson.mutations ?? []).indices.filter { lesson.mutations?[$0] != hunt.mutation }
+                            startBugHunt(lesson, mutationIndex: others.randomElement())
                         }
-                        .foregroundColor(viewModel.skippedLineIndices.contains(index) ? .secondary : .primary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 5)
-                        .background(index == viewModel.currentLineIndex && !viewModel.isComplete ? Color.accentColor.opacity(0.15) : Color.clear)
-                        .overlay(alignment: .leading) {
-                            if index == viewModel.currentLineIndex && !viewModel.isComplete {
-                                Rectangle().fill(Color.accentColor).frame(width: 3)
-                            }
-                        }
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Line \(index + 1)\(index == viewModel.currentLineIndex ? ", current line" : ""): \(viewModel.lines[index])")
-                        .id(index)
                     }
-                }.padding(.vertical, 12)
+                    Button("Practice Lesson") { loadLesson(lesson) }
+                }
             }
-            .onChange(of: viewModel.currentLineIndex) { index in
-                withAnimation { proxy.scrollTo(index, anchor: .center) }
+        } else if let pair = viewModel.contrast {
+            VStack(alignment: .leading, spacing: 8) {
+                TextField("In one line, what's the difference?", text: $contrastStatement)
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("contrastStatement")
+                if isComparingMantras {
+                    HStack(alignment: .top, spacing: 16) {
+                        mantra(of: pair.base)
+                        mantra(of: pair.variant)
+                    }
+                } else {
+                    Button("Compare") { isComparingMantras = true }
+                        .keyboardShortcut(.defaultAction)
+                        .accessibilityIdentifier("contrastCompare")
+                }
             }
-            .onChange(of: viewModel.placeholderText) { _ in proxy.scrollTo(viewModel.currentLineIndex, anchor: .top) }
+        } else if viewModel.bugHunt == nil {
+            AttemptOutcomeView(viewModel: viewModel)
+            if let lesson = viewModel.currentLesson, let pair = ContrastPair.pairs(for: lesson).first {
+                Button("Contrast with \(pair.variant.title)") { startContrast(pair) }
+                    .accessibilityIdentifier("completionContrast")
+            }
         }
-        .frame(minHeight: 180, idealHeight: 300)
-        .background(Color(NSColor.controlBackgroundColor))
-        .cornerRadius(12)
+    }
+
+    private func mantra(of lesson: PracticeLesson) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(lesson.title).font(.caption).fontWeight(.semibold).foregroundColor(.secondary)
+            Text(lesson.mantra ?? lesson.summary).fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func showScriptSheet() {
+        errorMessage = nil
+        viewModel.temPlaceholderText = ""
+        viewModel.isShowingPlaceholderText = true
+    }
+
+    // A sheet can't open while the library sheet is still presented.
+    private func runPendingLibraryAction() {
+        defer { pendingLibraryAction = nil }
+        switch pendingLibraryAction {
+        case .addScript?: showScriptSheet()
+        case .importFile?: isImporting = true
+        case nil: break
+        }
+    }
+}
+
+private struct SubtitleModifier: ViewModifier {
+    let text: String
+
+    func body(content: Content) -> some View {
+        #if os(macOS)
+        content.navigationSubtitle(text)
+        #else
+        content
+        #endif
     }
 }

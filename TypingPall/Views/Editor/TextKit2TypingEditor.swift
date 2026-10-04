@@ -10,7 +10,9 @@ struct TextKit2TypingEditor: NSViewRepresentable {
     var tabSpaces: Int = 4
     var isEnabled = true
     var resetID: UUID? = nil
+    var liveFeedback = true
     var onSubmit: (() -> Void)? = nil
+    var onReject: ((PracticeText.InputRejection) -> Void)? = nil
 
     func makeCoordinator() -> TextKit2Coordinator { TextKit2Coordinator(self) }
 
@@ -20,7 +22,8 @@ struct TextKit2TypingEditor: NSViewRepresentable {
         textView.delegate = context.coordinator
         textView.isRichText = false
         textView.allowsUndo = true
-        textView.textContainerInset = NSSize(width: 16, height: 16)
+        textView.textContainerInset = NSSize(width: 16, height: 8)
+        textView.textContainer?.lineFragmentPadding = 0
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
         textView.isAutomaticTextReplacementEnabled = false
@@ -31,6 +34,7 @@ struct TextKit2TypingEditor: NSViewRepresentable {
         textView.setAccessibilityLabel("Type the highlighted line here")
         context.coordinator.textView = textView
         updateNSView(scrollView, context: context)
+        DispatchQueue.main.async { textView.window?.makeFirstResponder(textView) }
         return scrollView
     }
 
@@ -43,6 +47,7 @@ struct TextKit2TypingEditor: NSViewRepresentable {
         textView.isEditable = isEnabled
         // SwiftUI refreshes must not replace an unfinished IME composition.
         guard !textView.hasMarkedText() else { return }
+        if resetChanged { coordinator.submittedMismatch = nil }
         if resetChanged || textView.string != typedText {
             textView.string = typedText
             textView.setSelectedRange(NSRange(location: typedText.utf16.count, length: 0))
@@ -61,6 +66,8 @@ struct TextKit2TypingEditor: NSViewRepresentable {
 final class TextKit2Coordinator: NSObject, NSTextViewDelegate {
     var parent: TextKit2TypingEditor
     weak var textView: NSTextView?
+    /// Without live feedback, the first difference is shown only after Return, until the next edit.
+    var submittedMismatch: NSRange?
 
     init(_ parent: TextKit2TypingEditor) { self.parent = parent }
 
@@ -68,6 +75,7 @@ final class TextKit2Coordinator: NSObject, NSTextViewDelegate {
         guard let view = notification.object as? NSTextView, view === textView else { return }
         // Let input methods finish composing before comparing or restyling.
         guard !view.hasMarkedText() else { return }
+        submittedMismatch = nil
         parent.typedText = view.string
         applyStyle()
     }
@@ -76,18 +84,22 @@ final class TextKit2Coordinator: NSObject, NSTextViewDelegate {
         guard commandSelector == #selector(NSTextView.insertNewline(_:)),
               !textView.hasMarkedText(), let onSubmit = parent.onSubmit else { return false }
         onSubmit()
+        if !parent.liveFeedback {
+            submittedMismatch = LineDiff(typed: textView.string, target: parent.targetText).mismatchRange
+            applyStyle()
+        }
         return true
     }
 
     func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange,
                   replacementString: String?) -> Bool {
         guard let replacementString else { return true }
-        guard let range = Range(affectedCharRange, in: textView.string) else { return false }
+        guard let range = Range(affectedCharRange, in: textView.string) else { parent.onReject?(.invalidRange); return false }
         let replacement = PracticeText.normalize(replacementString, tabSpaces: parent.tabSpaces)
         // Keep pastes and other text services within the current exercise line.
-        if parent.onSubmit != nil && replacement.contains("\n") { NSSound.beep(); return false }
+        if parent.onSubmit != nil && replacement.contains("\n") { NSSound.beep(); parent.onReject?(.multipleLines); return false }
         let proposed = textView.string.replacingCharacters(in: range, with: replacement)
-        guard proposed.count <= PracticeText.maximumCharacters else { NSSound.beep(); return false }
+        guard proposed.count <= PracticeText.maximumCharacters else { NSSound.beep(); parent.onReject?(.tooLong); return false }
         if replacement != replacementString {
             textView.insertText(replacement, replacementRange: affectedCharRange)
             return false
@@ -98,22 +110,19 @@ final class TextKit2Coordinator: NSObject, NSTextViewDelegate {
     func applyStyle() {
         guard let textView, !textView.hasMarkedText(), let storage = textView.textStorage else { return }
         let font = NSFont.monospacedSystemFont(ofSize: min(30, max(12, parent.fontSize)), weight: .regular)
-        let fullRange = NSRange(location: 0, length: storage.length)
+        let base: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: NSColor.labelColor]
         storage.beginEditing()
-        storage.setAttributes([.font: font, .foregroundColor: NSColor.labelColor], range: fullRange)
-        var target = parent.targetText.makeIterator()
-        var offset = 0
-        for character in textView.string {
-            let length = String(character).utf16.count
-            let correct = character == target.next()
-            let range = NSRange(location: offset, length: length)
-            storage.addAttribute(.foregroundColor, value: correct ? NSColor.systemGreen : NSColor.systemRed, range: range)
-            if !correct {
-                storage.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: range)
-            }
-            offset += length
+        storage.setAttributes(base, range: NSRange(location: 0, length: storage.length))
+        let mismatch = parent.liveFeedback ? LineDiff(typed: storage.string, target: parent.targetText).mismatchRange : submittedMismatch
+        if let rest = mismatch, NSMaxRange(rest) <= storage.length {
+            storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: rest)
+            let first = (storage.string as NSString).rangeOfComposedCharacterSequence(at: rest.location)
+            storage.addAttributes([.foregroundColor: NSColor.labelColor,
+                                   .underlineStyle: NSUnderlineStyle.thick.rawValue,
+                                   .underlineColor: NSColor.systemRed,
+                                   .backgroundColor: NSColor.systemRed.withAlphaComponent(0.15)], range: first)
         }
         storage.endEditing()
-        textView.typingAttributes = [.font: font, .foregroundColor: NSColor.labelColor]
+        textView.typingAttributes = base
     }
 }

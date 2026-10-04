@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		7D76E1952A6FBC7F00D76E59 /* TypingScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */; };
-		7D76E1982A6FBE6300D76E59 /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D76E1972A6FBE6300D76E59 /* Context.swift */; };
 		7DC150902A7D3D2F00AE7358 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC1508F2A7D3D2F00AE7358 /* SettingView.swift */; };
 		7DC150922A8657E200AE7358 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC150912A8657E200AE7358 /* AppearanceSettingsView.swift */; };
 		7DC150942A86583200AE7358 /* PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC150932A86583200AE7358 /* PrivacySettingsView.swift */; };
@@ -21,16 +20,31 @@
 		7DCAA2982A5F33D700AFC118 /* TypingPallUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2972A5F33D700AFC118 /* TypingPallUITests.swift */; };
 		7DCAA2A82A5F340100AFC118 /* TypingScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */; };
 		7DCAA2AB2A5FEC8800AFC118 /* KeyboardLayoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */; };
-		7DCAA2AF2A5FF3CE00AFC118 /* TypingEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2AE2A5FF3CE00AFC118 /* TypingEditor.swift */; };
 		7DCAA2B12A5FF5C700AFC118 /* HistoryUploadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */; };
 		7DCAA2B42A60024A00AFC118 /* String+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2B32A60024A00AFC118 /* String+Utils.swift */; };
 		9595215C2EB49A4F00216F1E /* TextKit2TypingEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9595215A2EB49A4F00216F1E /* TextKit2TypingEditor.swift */; };
-		9595215D2EB49A4F00216F1E /* ModernTypingEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959521592EB49A4F00216F1E /* ModernTypingEditor.swift */; };
-		9595215E2EB49A4F00216F1E /* TextKit2TypingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9595215B2EB49A4F00216F1E /* TextKit2TypingView.swift */; };
-		A10000000000000000000001 = {isa = PBXBuildFile; fileRef = A10000000000000000000002; };
-		A10000000000000000000003 = {isa = PBXBuildFile; fileRef = A10000000000000000000004; };
-		B20000000000000000000001 = {isa = PBXBuildFile; fileRef = B20000000000000000000002; };
-		B20000000000000000000003 = {isa = PBXBuildFile; fileRef = B20000000000000000000004; };
+		B20000000000000000000001 /* TypingPall/Models/PracticeContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* TypingPall/Models/PracticeContent.swift */; };
+		B20000000000000000000003 /* TypingPall/Content/lessons.json in Resources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* TypingPall/Content/lessons.json */; };
+		C10000000000000000000002 /* TypingPall/Models/LineDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001 /* TypingPall/Models/LineDiff.swift */; };
+		C10000000000000000000004 /* PracticeScreenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000003 /* PracticeScreenTests.swift */; };
+		C10000000000000000000006 /* ReferenceCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000005 /* ReferenceCodeView.swift */; };
+		C10000000000000000000008 /* PracticeInputPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000007 /* PracticeInputPanel.swift */; };
+		C1000000000000000000000A /* CompletionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000009 /* CompletionCard.swift */; };
+		C1000000000000000000000C /* PracticeOptionsPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000000000000000000000B /* PracticeOptionsPopover.swift */; };
+		C20000000000000000000002 /* TypingPall/Models/PracticeLadder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* TypingPall/Models/PracticeLadder.swift */; };
+		C20000000000000000000004 /* PracticeLadderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* PracticeLadderTests.swift */; };
+		C20000000000000000000006 /* AttemptOutcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000005 /* AttemptOutcomeView.swift */; };
+		C30000000000000000000002 /* TypingPall/Models/LessonMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000001 /* TypingPall/Models/LessonMetadata.swift */; };
+		C30000000000000000000004 /* LessonNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000003 /* LessonNotesView.swift */; };
+		C30000000000000000000006 /* LessonCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000005 /* LessonCatalogTests.swift */; };
+		C30000000000000000000008 /* TypingPall/Models/RecognitionDrill.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000007 /* TypingPall/Models/RecognitionDrill.swift */; };
+		C3000000000000000000000A /* RecognitionDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000009 /* RecognitionDrillView.swift */; };
+		C3000000000000000000000C /* RecognitionDrillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3000000000000000000000B /* RecognitionDrillTests.swift */; };
+		C3000000000000000000000E /* TypingPall/Models/BugHunt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3000000000000000000000D /* TypingPall/Models/BugHunt.swift */; };
+		C30000000000000000000010 /* TypingPall/Models/ContrastPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3000000000000000000000F /* TypingPall/Models/ContrastPair.swift */; };
+		C30000000000000000000012 /* BugHuntBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000011 /* BugHuntBanner.swift */; };
+		C30000000000000000000014 /* ContrastReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000013 /* ContrastReferenceView.swift */; };
+		C30000000000000000000016 /* PatternDrillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000015 /* PatternDrillTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,12 +90,32 @@
 		959521592EB49A4F00216F1E /* ModernTypingEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernTypingEditor.swift; sourceTree = "<group>"; };
 		9595215A2EB49A4F00216F1E /* TextKit2TypingEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextKit2TypingEditor.swift; sourceTree = "<group>"; };
 		9595215B2EB49A4F00216F1E /* TextKit2TypingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextKit2TypingView.swift; sourceTree = "<group>"; };
+		A10000000000000000000002 /* TypingPall/Models/TypingStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/TypingStatistics.swift; sourceTree = SOURCE_ROOT; };
+		A10000000000000000000004 /* TypingPall/Views/TypingStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Views/TypingStatisticsView.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000002 /* TypingPall/Models/PracticeContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/PracticeContent.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000004 /* TypingPall/Content/lessons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TypingPall/Content/lessons.json; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000005 /* TypingPallV2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TypingPallV2.xcdatamodel; sourceTree = "<group>"; };
 		B5CE24732A9780D100383369 /* TypingPall.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TypingPall.xctestplan; sourceTree = "<group>"; };
-		A10000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/TypingStatistics.swift; sourceTree = SOURCE_ROOT; };
-		A10000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Views/TypingStatisticsView.swift; sourceTree = SOURCE_ROOT; };
-		B20000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/PracticeContent.swift; sourceTree = SOURCE_ROOT; };
-		B20000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = text.json; path = TypingPall/Content/lessons.json; sourceTree = SOURCE_ROOT; };
-		B20000000000000000000005 = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TypingPallV2.xcdatamodel; sourceTree = "<group>"; };
+		C10000000000000000000001 /* TypingPall/Models/LineDiff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/LineDiff.swift; sourceTree = SOURCE_ROOT; };
+		C10000000000000000000003 /* PracticeScreenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeScreenTests.swift; sourceTree = "<group>"; };
+		C10000000000000000000005 /* ReferenceCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceCodeView.swift; sourceTree = "<group>"; };
+		C10000000000000000000007 /* PracticeInputPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeInputPanel.swift; sourceTree = "<group>"; };
+		C10000000000000000000009 /* CompletionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionCard.swift; sourceTree = "<group>"; };
+		C1000000000000000000000B /* PracticeOptionsPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeOptionsPopover.swift; sourceTree = "<group>"; };
+		C20000000000000000000001 /* TypingPall/Models/PracticeLadder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/PracticeLadder.swift; sourceTree = SOURCE_ROOT; };
+		C20000000000000000000003 /* PracticeLadderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeLadderTests.swift; sourceTree = "<group>"; };
+		C20000000000000000000005 /* AttemptOutcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttemptOutcomeView.swift; sourceTree = "<group>"; };
+		C30000000000000000000001 /* TypingPall/Models/LessonMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/LessonMetadata.swift; sourceTree = SOURCE_ROOT; };
+		C30000000000000000000003 /* LessonNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonNotesView.swift; sourceTree = "<group>"; };
+		C30000000000000000000005 /* LessonCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonCatalogTests.swift; sourceTree = "<group>"; };
+		C30000000000000000000007 /* TypingPall/Models/RecognitionDrill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/RecognitionDrill.swift; sourceTree = SOURCE_ROOT; };
+		C30000000000000000000009 /* RecognitionDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognitionDrillView.swift; sourceTree = "<group>"; };
+		C3000000000000000000000B /* RecognitionDrillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognitionDrillTests.swift; sourceTree = "<group>"; };
+		C3000000000000000000000D /* TypingPall/Models/BugHunt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/BugHunt.swift; sourceTree = SOURCE_ROOT; };
+		C3000000000000000000000F /* TypingPall/Models/ContrastPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/ContrastPair.swift; sourceTree = SOURCE_ROOT; };
+		C30000000000000000000011 /* BugHuntBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BugHuntBanner.swift; sourceTree = "<group>"; };
+		C30000000000000000000013 /* ContrastReferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContrastReferenceView.swift; sourceTree = "<group>"; };
+		C30000000000000000000015 /* PatternDrillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatternDrillTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +148,13 @@
 			children = (
 				7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */,
 				7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */,
+				C10000000000000000000005 /* ReferenceCodeView.swift */,
+				C10000000000000000000007 /* PracticeInputPanel.swift */,
+				C1000000000000000000000B /* PracticeOptionsPopover.swift */,
+				C10000000000000000000009 /* CompletionCard.swift */,
+				C20000000000000000000005 /* AttemptOutcomeView.swift */,
+				C30000000000000000000011 /* BugHuntBanner.swift */,
+				C30000000000000000000013 /* ContrastReferenceView.swift */,
 			);
 			path = TypingScreenView;
 			sourceTree = "<group>";
@@ -169,14 +210,20 @@
 				7DCAA2762A5F33D600AFC118 /* TypingPallApp.swift */,
 				7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */,
 				7DCAA27F2A5F33D700AFC118 /* Persistence.swift */,
-				B20000000000000000000004,
-				B20000000000000000000002,
-				A10000000000000000000004,
-				A10000000000000000000002,
+				B20000000000000000000004 /* TypingPall/Content/lessons.json */,
+				B20000000000000000000002 /* TypingPall/Models/PracticeContent.swift */,
+				C30000000000000000000001 /* TypingPall/Models/LessonMetadata.swift */,
+				C30000000000000000000007 /* TypingPall/Models/RecognitionDrill.swift */,
+				C3000000000000000000000D /* TypingPall/Models/BugHunt.swift */,
+				C3000000000000000000000F /* TypingPall/Models/ContrastPair.swift */,
+				A10000000000000000000004 /* TypingPall/Views/TypingStatisticsView.swift */,
+				A10000000000000000000002 /* TypingPall/Models/TypingStatistics.swift */,
 				7DCAA2842A5F33D700AFC118 /* TypingPall.entitlements */,
 				7DCAA2812A5F33D700AFC118 /* TypingPall.xcdatamodeld */,
 				B5CE24732A9780D100383369 /* TypingPall.xctestplan */,
 				7DCAA27C2A5F33D700AFC118 /* Preview Content */,
+				C10000000000000000000001 /* TypingPall/Models/LineDiff.swift */,
+				C20000000000000000000001 /* TypingPall/Models/PracticeLadder.swift */,
 			);
 			path = TypingPall;
 			sourceTree = "<group>";
@@ -193,6 +240,11 @@
 			isa = PBXGroup;
 			children = (
 				7DCAA28D2A5F33D700AFC118 /* StringExtensionTests.swift */,
+				C30000000000000000000005 /* LessonCatalogTests.swift */,
+				C3000000000000000000000B /* RecognitionDrillTests.swift */,
+				C30000000000000000000015 /* PatternDrillTests.swift */,
+				C10000000000000000000003 /* PracticeScreenTests.swift */,
+				C20000000000000000000003 /* PracticeLadderTests.swift */,
 			);
 			path = TypingPallTests;
 			sourceTree = "<group>";
@@ -213,6 +265,8 @@
 				7D76E1932A6FBC6E00D76E59 /* TypingScreenView */,
 				7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */,
 				7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */,
+				C30000000000000000000003 /* LessonNotesView.swift */,
+				C30000000000000000000009 /* RecognitionDrillView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -331,7 +385,7 @@
 			files = (
 				7DCAA27E2A5F33D700AFC118 /* Preview Assets.xcassets in Resources */,
 				7DCAA27B2A5F33D700AFC118 /* Assets.xcassets in Resources */,
-				B20000000000000000000003,
+				B20000000000000000000003 /* TypingPall/Content/lessons.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -357,10 +411,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				7DCAA2802A5F33D700AFC118 /* Persistence.swift in Sources */,
-				B20000000000000000000001,
+				B20000000000000000000001 /* TypingPall/Models/PracticeContent.swift in Sources */,
+				C30000000000000000000002 /* TypingPall/Models/LessonMetadata.swift in Sources */,
+				C30000000000000000000008 /* TypingPall/Models/RecognitionDrill.swift in Sources */,
+				C3000000000000000000000E /* TypingPall/Models/BugHunt.swift in Sources */,
+				C30000000000000000000010 /* TypingPall/Models/ContrastPair.swift in Sources */,
 				7DCAA2A82A5F340100AFC118 /* TypingScreenView.swift in Sources */,
 				7D76E1952A6FBC7F00D76E59 /* TypingScreenViewModel.swift in Sources */,
 				7DCAA2B12A5FF5C700AFC118 /* HistoryUploadsView.swift in Sources */,
+				C30000000000000000000004 /* LessonNotesView.swift in Sources */,
 				7DCAA2772A5F33D600AFC118 /* TypingPallApp.swift in Sources */,
 				7DCAA2B42A60024A00AFC118 /* String+Utils.swift in Sources */,
 				7DCAA2832A5F33D700AFC118 /* TypingPall.xcdatamodeld in Sources */,
@@ -369,6 +428,16 @@
 				7DC150902A7D3D2F00AE7358 /* SettingView.swift in Sources */,
 				7DC150922A8657E200AE7358 /* AppearanceSettingsView.swift in Sources */,
 				7DC150942A86583200AE7358 /* PrivacySettingsView.swift in Sources */,
+				C10000000000000000000002 /* TypingPall/Models/LineDiff.swift in Sources */,
+				C10000000000000000000006 /* ReferenceCodeView.swift in Sources */,
+				C10000000000000000000008 /* PracticeInputPanel.swift in Sources */,
+				C1000000000000000000000C /* PracticeOptionsPopover.swift in Sources */,
+				C1000000000000000000000A /* CompletionCard.swift in Sources */,
+				C20000000000000000000002 /* TypingPall/Models/PracticeLadder.swift in Sources */,
+				C20000000000000000000006 /* AttemptOutcomeView.swift in Sources */,
+				C3000000000000000000000A /* RecognitionDrillView.swift in Sources */,
+				C30000000000000000000012 /* BugHuntBanner.swift in Sources */,
+				C30000000000000000000014 /* ContrastReferenceView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,6 +446,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				7DCAA28E2A5F33D700AFC118 /* StringExtensionTests.swift in Sources */,
+				C30000000000000000000006 /* LessonCatalogTests.swift in Sources */,
+				C3000000000000000000000C /* RecognitionDrillTests.swift in Sources */,
+				C30000000000000000000016 /* PatternDrillTests.swift in Sources */,
+				C10000000000000000000004 /* PracticeScreenTests.swift in Sources */,
+				C20000000000000000000004 /* PracticeLadderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,16 +597,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"TypingPall/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = B25LW5K7BX;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -551,16 +626,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"TypingPall/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = B25LW5K7BX;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -697,9 +773,9 @@
 			isa = XCVersionGroup;
 			children = (
 				7DCAA2822A5F33D700AFC118 /* TypingPall.xcdatamodel */,
-				B20000000000000000000005,
+				B20000000000000000000005 /* TypingPallV2.xcdatamodel */,
 			);
-			currentVersion = B20000000000000000000005;
+			currentVersion = B20000000000000000000005 /* TypingPallV2.xcdatamodel */;
 			path = TypingPall.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
