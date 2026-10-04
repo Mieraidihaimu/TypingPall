@@ -39,7 +39,13 @@ To check whether you can spot a pattern before writing it, press **⇧⌘D**: th
 
 ## Get started
 
-The features shown here are on `main`. Build from source to try them; the [older 1.0.1 pre-release](https://github.com/Mieraidihaimu/TypingPall/releases/tag/1.0.1) predates this practice flow and lesson library.
+### Install via Homebrew
+
+```sh
+brew install --cask mieraidihaimu/tap/typingpall
+```
+
+### Or build from source
 
 On a Mac with full Xcode installed:
 

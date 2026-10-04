@@ -16,6 +16,30 @@ Open the archive in Xcode Organizer and choose the Developer ID distribution wor
 
 Keep credentials in Keychain or CI secrets. Commit neither certificates nor credentials. Increment the marketing version and build number for subsequent releases. Include the GPL license and corresponding source when distributing binaries.
 
+## Homebrew Cask distribution
+
+The Homebrew Cask formula is maintained in [`Casks/typingpall.rb`](Casks/typingpall.rb) and distributed via personal tap `mieraidihaimu/tap`:
+
+1. Build the universal Release binary:
+   ```sh
+   xcodebuild -project TypingPall.xcodeproj -scheme TypingPall \
+     -configuration Release -destination 'generic/platform=macOS' \
+     -derivedDataPath "$PWD/build/ReleaseDerivedData" \
+     ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO build
+   ```
+2. Compress into a release archive and compute its SHA256:
+   ```sh
+   mkdir -p build/dist
+   ditto -c -k --sequesterRsrc --keepParent build/ReleaseDerivedData/Build/Products/Release/TypingPall.app build/dist/TypingPall-v1.1.0.zip
+   shasum -a 256 build/dist/TypingPall-v1.1.0.zip
+   ```
+3. Attach `TypingPall-v1.1.0.zip` to the GitHub release tag `v1.1.0`.
+4. Update `version` and `sha256` in [`Casks/typingpall.rb`](Casks/typingpall.rb) (and copy into your `homebrew-tap` repository under `Casks/typingpall.rb`).
+5. Users can install directly with:
+   ```sh
+   brew install --cask mieraidihaimu/tap/typingpall
+   ```
+
 ## Existing data and sandboxing
 
 This release retains the existing `com.mier.TypingPall` bundle ID, `TypingPall` Core Data model and default store location. Lightweight migration remains enabled. Failed loads show a retry screen and never delete or replace the store. Failed writes roll back and show an error.

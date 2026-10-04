@@ -34,7 +34,10 @@ What it is not:
 - Not a coding challenge platform
 - Not connected to the internet at all — SwiftUI, AppKit, Core Data, GPL-3.0, no account, no analytics
 
-macOS 12+ and a current Xcode are needed to build from source. I would especially value feedback on whether this kind of deliberate practice is useful, which patterns are worth adding, and where the native macOS experience could be clearer. Small, focused contributions are very welcome.
+You can install it via Homebrew Cask:
+`brew install --cask mieraidihaimu/tap/typingpall`
+
+Or build from source with Xcode (macOS 12+). I would especially value feedback on whether this kind of deliberate practice is useful, which patterns are worth adding, and where the native macOS experience could be clearer. Small, focused contributions are very welcome.
 
 Source and contribution guide: https://github.com/Mieraidihaimu/TypingPall
 

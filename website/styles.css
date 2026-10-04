@@ -23,6 +23,12 @@ h1 em { color:var(--acid); font-family:var(--serif); font-weight:400; }
 .button-primary { background:var(--acid); color:#15200d; }
 .button-quiet { border:1px solid var(--line); color:var(--ink); }
 .button-light { background:var(--ink); color:#10150d; }
+.brew-install { display:inline-flex; align-items:center; gap:10px; margin:22px 0 14px; padding:10px 16px; background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:8px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:.85rem; color:var(--ink); cursor:pointer; transition:all .15s ease; user-select:all; }
+.brew-install:hover { background:rgba(184,239,98,.08); border-color:rgba(184,239,98,.3); }
+.brew-install .brew-icon { font-size:1rem; }
+.brew-install code { color:#d9e0da; font-family:inherit; font-size:inherit; }
+.brew-install .copy-feedback { display:none; font-size:.72rem; color:var(--acid); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-left:6px; }
+.brew-install.copied .copy-feedback { display:inline; }
 .fine-print { color:#737b76; font-size:.76rem; }
 .hero-subtitle { color:var(--acid); font-family:var(--serif); font-size:clamp(1.15rem,2.2vw,1.45rem); font-style:italic; font-weight:400; margin-bottom:14px; letter-spacing:-.01em; }
 .hero-art { position:relative; min-height:400px; display:grid; place-items:center; }
