@@ -1,0 +1,96 @@
+{
+  "id": "lld-circuit-breaker",
+  "title": "Circuit Breaker",
+  "category": "Design building blocks",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Prevent cascading failures by tripping after repeated errors and probing recovery.",
+  "code": [
+    "# Prevent cascading failures by tripping after repeated errors and probing recovery.",
+    "class CircuitBreaker:",
+    "    def __init__(self, failure_threshold, recovery_time, clock):",
+    "        self.threshold = failure_threshold",
+    "        self.recovery_time = recovery_time",
+    "        self.clock = clock",
+    "        self.failures = 0",
+    "        self.state = \"CLOSED\"",
+    "        self.tripped_at = 0",
+    "",
+    "    def allow(self):",
+    "        if self.state == \"OPEN\":",
+    "            if self.clock() - self.tripped_at >= self.recovery_time:",
+    "                self.state = \"HALF_OPEN\"",
+    "                return True",
+    "            return False",
+    "        return True",
+    "",
+    "    def record_success(self):",
+    "        self.failures = 0",
+    "        self.state = \"CLOSED\"",
+    "",
+    "    def record_failure(self):",
+    "        self.failures += 1",
+    "        if self.failures >= self.threshold:",
+    "            self.state = \"OPEN\"",
+    "            self.tripped_at = self.clock()"
+  ],
+  "keyLineIndices": [
+    11,
+    12,
+    14,
+    24
+  ],
+  "mutations": [
+    {
+      "line": 3,
+      "replacement": "        pass",
+      "explanation": "Skips required state initialization, raising AttributeError on failure check."
+    },
+    {
+      "line": 24,
+      "replacement": "        if self.failures > self.threshold:",
+      "explanation": "Requires an extra failure before tripping, failing to open at the exact threshold."
+    }
+  ],
+  "test": [
+    "time = [100]",
+    "cb = CircuitBreaker(failure_threshold=2, recovery_time=10, clock=lambda: time[0])",
+    "assert cb.allow() == True",
+    "cb.record_failure()",
+    "assert cb.allow() == True",
+    "cb.record_failure()",
+    "assert cb.allow() == False",
+    "time[0] += 5",
+    "assert cb.allow() == False",
+    "time[0] += 6",
+    "assert cb.allow() == True",
+    "cb.record_success()",
+    "assert cb.state == \"CLOSED\""
+  ],
+  "family": "circuit-breaker",
+  "triggers": [
+    "prevent cascading failures when an external dependency is unavailable or timing out",
+    "fail fast during outages and probe service recovery after a cooldown window"
+  ],
+  "prompts": [
+    "A payment service calls a third-party gateway that is experiencing an outage. Avoid hanging threads by failing fast after 5 timeouts, then probing every 30 seconds.",
+    "Design a client-side circuit breaker that wraps remote microservice calls to isolate intermittent network failures."
+  ],
+  "pitfalls": [
+    "Failing to transition to HALF_OPEN after recovery time permanently blocks all future requests.",
+    "Resetting failure counts prematurely allows flaky services to oscillate indefinitely.",
+    "Not injecting the clock makes timeout testing slow and non-deterministic."
+  ],
+  "anchors": [
+    {
+      "name": "Design a Circuit Breaker",
+      "trick": "Three-state machine: CLOSED (normal) -> OPEN (tripped) -> HALF_OPEN (probe)."
+    },
+    {
+      "name": "Rate Limiter vs Circuit Breaker",
+      "trick": "Rate limiter protects the server from excess load; circuit breaker protects the client from dead dependencies."
+    }
+  ],
+  "mantra": "Fail fast when broken, probe on cooldown, reset on success.",
+  "invariant": "When failures >= threshold state becomes OPEN; when cooldown passes state probes HALF_OPEN."
+}
