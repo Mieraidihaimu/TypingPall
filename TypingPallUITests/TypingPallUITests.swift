@@ -3,11 +3,20 @@ import XCTest
 final class TypingPallUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
-    func testLinePracticeCorrectionRepetitionCompletionAndLibrary() {
+    @discardableResult
+    private func launchApp(arguments: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
+        app.launchArguments = ["--ui-testing", "-ApplePersistenceIgnoreState", "YES", "-NSQuitAlwaysKeepsWindows", "NO"] + arguments
         app.launch()
-        app.buttons["Add Script"].click()
+        app.activate()
+        return app
+    }
+
+    func testLinePracticeCorrectionRepetitionCompletionAndLibrary() {
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let addScript = app.buttons["Add Script"]
+        XCTAssertTrue(addScript.waitForExistence(timeout: 10))
+        addScript.click()
         let script = app.textViews["scriptText"]
         XCTAssertTrue(script.waitForExistence(timeout: 5))
         script.click()
@@ -43,19 +52,19 @@ final class TypingPallUITests: XCTestCase {
     }
 
     func testEmptyScriptCannotBeSaved() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
-        app.launch()
-        app.buttons["Add Script"].click()
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let addScript = app.buttons["Add Script"]
+        XCTAssertTrue(addScript.waitForExistence(timeout: 10))
+        addScript.click()
         XCTAssertFalse(app.buttons["Save & Practice"].isEnabled)
         app.buttons["Cancel"].click()
         XCTAssertTrue(app.textViews["practiceInput"].exists)
     }
     func testBuiltInLessonSearchLoadAndCommentSkipping() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES", "-skipPracticeComments", "YES"]
-        app.launch()
-        app.buttons["Library"].click()
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-skipPracticeComments", "YES"])
+        let library = app.buttons["Library"]
+        XCTAssertTrue(library.waitForExistence(timeout: 10))
+        library.click()
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -87,10 +96,10 @@ final class TypingPallUITests: XCTestCase {
     }
 
     func testLibrarySearchMatchesTriggersAndShowsPatternNotes() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
-        app.launch()
-        app.buttons["Library"].click()
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let library = app.buttons["Library"]
+        XCTAssertTrue(library.waitForExistence(timeout: 10))
+        library.click()
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -102,22 +111,19 @@ final class TypingPallUITests: XCTestCase {
     }
 
     func testFirstRunTipShowsUntilSeen() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "NO"]
-        app.launch()
-        XCTAssertTrue(app.buttons["dismissTip"].waitForExistence(timeout: 5))
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "NO"])
+        XCTAssertTrue(app.buttons["dismissTip"].waitForExistence(timeout: 10))
         app.terminate()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
-        app.launch()
-        XCTAssertTrue(app.textViews["practiceInput"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["dismissTip"].exists)
+        let app2 = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        XCTAssertTrue(app2.textViews["practiceInput"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app2.buttons["dismissTip"].exists)
     }
 
     func testKeyLinesCheckOnReturnHintsAndSelfRating() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
-        app.launch()
-        app.buttons["Library"].click()
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let library = app.buttons["Library"]
+        XCTAssertTrue(library.waitForExistence(timeout: 10))
+        library.click()
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -144,9 +150,8 @@ final class TypingPallUITests: XCTestCase {
     }
 
     func testWhichPatternDrillRevealsCuesAndOpensPractice() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
-        app.launch()
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        XCTAssertTrue(app.buttons["whichPattern"].waitForExistence(timeout: 10))
         app.typeKey("d", modifierFlags: [.command, .shift])
         XCTAssertTrue(app.staticTexts["drillPrompt"].waitForExistence(timeout: 5))
         app.buttons["drillOption0"].click()
@@ -157,10 +162,10 @@ final class TypingPallUITests: XCTestCase {
     }
 
     func testBugHuntFindFixAndExplanation() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
-        app.launch()
-        app.buttons["Library"].click()
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let library = app.buttons["Library"]
+        XCTAssertTrue(library.waitForExistence(timeout: 10))
+        library.click()
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -178,10 +183,10 @@ final class TypingPallUITests: XCTestCase {
     }
 
     func testContrastPairFromTheLibrary() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ux.hasSeenPracticeTip", "YES"]
-        app.launch()
-        app.buttons["Library"].click()
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let library = app.buttons["Library"]
+        XCTAssertTrue(library.waitForExistence(timeout: 10))
+        library.click()
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()

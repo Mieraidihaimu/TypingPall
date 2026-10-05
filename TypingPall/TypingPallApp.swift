@@ -1,10 +1,32 @@
 import SwiftUI
 
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            for window in sender.windows {
+                window.makeKeyAndOrderFront(self)
+            }
+        }
+        return true
+    }
+}
+
 @main
 struct TypingPallApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var persistence: PersistenceController
 
     init() {
+        UserDefaults.standard.register(defaults: [
+            "NSQuitAlwaysKeepsWindows": false,
+            "ApplePersistenceIgnoreState": true
+        ])
+        UserDefaults.standard.set(false, forKey: "NSQuitAlwaysKeepsWindows")
         let testing = ProcessInfo.processInfo.arguments.contains("--ui-testing") || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         _persistence = StateObject(wrappedValue: testing ? PersistenceController(inMemory: true) : .shared)
     }
