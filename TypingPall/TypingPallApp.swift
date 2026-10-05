@@ -2,11 +2,16 @@ import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSLog("DEBUG_TP: applicationDidFinishLaunching, windows count=%ld", NSApp.windows.count)
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NSLog("DEBUG_TP: delayed check, windows count=%ld, windows=%@", NSApp.windows.count, NSApp.windows)
+        }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        NSLog("DEBUG_TP: applicationShouldHandleReopen flag=%d windows=%ld", flag, sender.windows.count)
         if !flag {
             for window in sender.windows {
                 window.makeKeyAndOrderFront(self)
@@ -22,6 +27,7 @@ struct TypingPallApp: App {
     @StateObject private var persistence: PersistenceController
 
     init() {
+        NSLog("DEBUG_TP: TypingPallApp.init, args=%@", ProcessInfo.processInfo.arguments)
         UserDefaults.standard.register(defaults: [
             "NSQuitAlwaysKeepsWindows": false,
             "ApplePersistenceIgnoreState": true
@@ -32,6 +38,7 @@ struct TypingPallApp: App {
     }
 
     var body: some Scene {
+        let _ = NSLog("DEBUG_TP: body evaluated, isReady=%d, loadError=%@", persistence.isReady ? 1 : 0, persistence.loadError ?? "nil")
         WindowGroup {
             Group {
                 if persistence.isReady {
