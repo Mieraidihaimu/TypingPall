@@ -80,7 +80,20 @@ struct HistoryUploadsView: View {
                         Section(header: Text(section.title)) {
                             ForEach(section.lessons) { lesson in
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(lesson.title).fontWeight(.medium)
+                                    HStack {
+                                        Text(lesson.title).fontWeight(.medium)
+                                        Spacer()
+                                        if !(lesson.mutations ?? []).isEmpty {
+                                            Image(systemName: "ladybug")
+                                                .font(.caption2)
+                                                .foregroundColor(.orange)
+                                        }
+                                        if !(lesson.contrastWith ?? []).isEmpty {
+                                            Image(systemName: "arrow.left.arrow.right")
+                                                .font(.caption2)
+                                                .foregroundColor(.blue)
+                                        }
+                                    }
                                     Text(lesson.language.title).font(.caption).foregroundColor(.secondary)
                                 }
                                 .padding(.vertical, 4)
@@ -165,3 +178,123 @@ struct HistoryUploadsView: View {
         }
     }
 }
+
+struct QuickSwitcherPaletteView: View {
+    let lessons: [PracticeLesson]
+    let onSelect: (PracticeLesson) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var query = ""
+    @FocusState private var isSearchFocused: Bool
+
+    private var filteredLessons: [PracticeLesson] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !trimmed.isEmpty else { return lessons }
+        return lessons.filter { lesson in
+            lesson.title.localizedCaseInsensitiveContains(trimmed) ||
+            lesson.language.title.localizedCaseInsensitiveContains(trimmed) ||
+            lesson.category.localizedCaseInsensitiveContains(trimmed) ||
+            (lesson.triggers?.contains { $0.localizedCaseInsensitiveContains(trimmed) } ?? false) ||
+            (lesson.mantra?.localizedCaseInsensitiveContains(trimmed) ?? false)
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.secondary)
+                    .font(.title3)
+                TextField("Type a pattern name, language, cue, or keyword…", text: $query)
+                    .textFieldStyle(.plain)
+                    .font(.title3)
+                    .focused($isSearchFocused)
+                    .accessibilityIdentifier("quickSwitcherSearch")
+                if !query.isEmpty {
+                    Button {
+                        query = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+                Text("esc to close")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.secondary.opacity(0.12))
+                    .cornerRadius(4)
+            }
+            .padding(16)
+            .background(Color(NSColor.windowBackgroundColor))
+
+            Divider()
+
+            if filteredLessons.isEmpty {
+                VStack(spacing: 8) {
+                    Text("No patterns match “\(query)”")
+                        .foregroundColor(.secondary)
+                        .padding(.top, 32)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List(filteredLessons) { lesson in
+                    Button {
+                        onSelect(lesson)
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(lesson.title)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                if let cue = lesson.triggers?.first {
+                                    Text("Fits: \(cue)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                }
+                            }
+                            Spacer()
+                            HStack(spacing: 6) {
+                                if !(lesson.mutations ?? []).isEmpty {
+                                    Image(systemName: "ladybug")
+                                        .font(.caption2)
+                                        .foregroundColor(.orange)
+                                        .help("Bug hunt available")
+                                }
+                                if !(lesson.contrastWith ?? []).isEmpty {
+                                    Image(systemName: "arrow.left.arrow.right")
+                                        .font(.caption2)
+                                        .foregroundColor(.blue)
+                                        .help("Contrast pair available")
+                                }
+                                Text(lesson.language.title)
+                                    .font(.caption2)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.accentColor.opacity(0.12))
+                                    .cornerRadius(4)
+                                Text(lesson.category)
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .listStyle(.inset)
+            }
+        }
+        .frame(width: 580, height: 380)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isSearchFocused = true
+            }
+        }
+    }
+}
+

@@ -10,23 +10,45 @@ struct TypingScreenView: View {
     @State private var isImporting = false
     @State private var isShowingOptions = false
     @State private var isShowingDrill = false
+    @State private var isShowingQuickSwitcher = false
     @State private var pendingLibraryAction: LibraryAction?
     @State private var errorMessage: String?
     @State private var contrastStatement = ""   // unsaved
     @State private var isComparingMantras = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(viewModel.displayedSummary).font(.callout).foregroundColor(.secondary).lineLimit(3)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .center, spacing: 12) {
+                Picker("Practice Mode", selection: Binding(get: { viewModel.mode }, set: { viewModel.setMode($0) })) {
+                    ForEach(PracticeMode.allCases) { mode in
+                        Text("\(mode.title) (⌘\(mode.rawValue + 1))").tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .frame(maxWidth: 360)
+                .accessibilityIdentifier("practiceLadderPicker")
+                .disabled(viewModel.bugHunt != nil)
+
                 Spacer()
+
                 Label(viewModel.progressText, systemImage: viewModel.isComplete ? "checkmark.circle" : "text.line.first.and.arrowtriangle.forward")
                     .font(.headline)
                     .accessibilityIdentifier("patternProgress")
             }
+
+            HStack(alignment: .firstTextBaseline) {
+                Text(viewModel.displayedSummary)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                Spacer()
+            }
+
             ProgressView(value: Double(viewModel.completedLineCount), total: Double(max(1, viewModel.practiceLines.count)))
                 .accessibilityLabel("Lines practiced")
                 .accessibilityValue(viewModel.progressText)
+                .animation(.easeInOut(duration: 0.2), value: viewModel.completedLineCount)
             if let hunt = viewModel.bugHunt, hunt.phase != .solved {
                 BugHuntBanner(hunt: hunt)
             }
@@ -37,6 +59,7 @@ struct TypingScreenView: View {
             } else {
                 ReferenceCodeView(rows: viewModel.referenceRows, fontSize: safeFontSize,
                                   currentIndex: viewModel.currentLineIndex, contentKey: viewModel.placeholderText,
+                                  language: viewModel.language,
                                   onSelectRow: viewModel.bugHunt?.phase == .finding ? viewModel.selectReferenceLine : nil)
             }
             if viewModel.isComplete {
@@ -66,6 +89,9 @@ struct TypingScreenView: View {
             viewModel.lastKeyboardType = text.last.map(String.init)
         }
         .sheet(isPresented: $viewModel.isShowingPlaceholderText) { scriptSheet }
+        .sheet(isPresented: $isShowingQuickSwitcher) {
+            QuickSwitcherPaletteView(lessons: PracticeCatalog.lessons) { loadLesson($0) }
+        }
         .sheet(isPresented: $isShowingDrill) {
             RecognitionDrillView { lesson in
                 do { try viewModel.loadLesson(lesson); viewModel.setMode(.recall) }
@@ -97,6 +123,9 @@ struct TypingScreenView: View {
         } message: { Text(errorMessage ?? "") }
         .toolbar {
             ToolbarItemGroup {
+                Button { isShowingQuickSwitcher = true } label: { Label("Quick Switcher", systemImage: "magnifyingglass") }
+                    .keyboardShortcut("k", modifiers: .command)
+                    .accessibilityIdentifier("quickSwitcher")
                 Button { isShowingOptions = true } label: { Label("Options", systemImage: "slider.horizontal.3") }
                     .accessibilityIdentifier("practiceOptions")
                     .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) { PracticeOptionsPopover(viewModel: viewModel) }
@@ -127,6 +156,8 @@ struct TypingScreenView: View {
                 Button(mode.title) { viewModel.setMode(mode) }
                     .keyboardShortcut(KeyEquivalent(Character(String(mode.rawValue + 1))), modifiers: .command)
             }
+            Button("Quick Switcher") { isShowingQuickSwitcher = true }
+                .keyboardShortcut("p", modifiers: .command)
         }
         .opacity(0)
         .frame(width: 0, height: 0)
@@ -234,9 +265,15 @@ struct TypingScreenView: View {
             }
         } else if viewModel.bugHunt == nil {
             AttemptOutcomeView(viewModel: viewModel)
-            if let lesson = viewModel.currentLesson, let pair = ContrastPair.pairs(for: lesson).first {
-                Button("Contrast with \(pair.variant.title)") { startContrast(pair) }
-                    .accessibilityIdentifier("completionContrast")
+            HStack(spacing: 12) {
+                if let lesson = viewModel.currentLesson, let pair = ContrastPair.pairs(for: lesson).first {
+                    Button("Contrast with \(pair.variant.title)") { startContrast(pair) }
+                        .accessibilityIdentifier("completionContrast")
+                }
+                if let lesson = viewModel.currentLesson, (lesson.mutations?.count ?? 0) > 0 {
+                    Button("Find the Bug 🐞") { startBugHunt(lesson) }
+                        .accessibilityIdentifier("completionFindBug")
+                }
             }
         }
     }

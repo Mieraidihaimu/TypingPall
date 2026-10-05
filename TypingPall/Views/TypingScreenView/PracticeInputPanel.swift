@@ -45,26 +45,62 @@ struct PracticeInputPanel: View {
             }
             .background(Color(NSColor.textBackgroundColor))
             .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.secondary.opacity(0.25)))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(viewModel.isLineMatched && !viewModel.mode.isGraded ? Color.accentColor.opacity(0.6) : Color.secondary.opacity(0.25),
+                            lineWidth: viewModel.isLineMatched && !viewModel.mode.isGraded ? 1.5 : 1)
+            )
+            .animation(.easeInOut(duration: 0.15), value: viewModel.isLineMatched)
             HStack {
                 Label(statusText, systemImage: viewModel.isLineMatched && !viewModel.mode.isGraded ? "checkmark.circle.fill" : "keyboard")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(viewModel.isLineMatched && !viewModel.mode.isGraded ? .primary : .secondary)
                     .accessibilityIdentifier("lineGuidance")
                 Spacer()
                 if !viewModel.hasPracticeLines && !viewModel.mode.isGraded {
                     Button("Include Comments") { viewModel.setSkipComments(false) }
                         .accessibilityIdentifier("includeComments")
                 }
-                Button("Hint") { viewModel.revealHint() }
-                    .keyboardShortcut("'", modifiers: .command)
-                    .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
-                    .accessibilityIdentifier("hintButton")
-                Button("Repeat Line") { viewModel.repeatLine() }
-                    .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
-                    .accessibilityIdentifier("repeatLine")
-                Button(primaryTitle) { viewModel.advanceLine() }
+                Button {
+                    viewModel.revealHint()
+                } label: {
+                    HStack(spacing: 3) {
+                        Text("Hint")
+                        Text("⌘'").font(.caption2).foregroundColor(.secondary)
+                    }
+                }
+                .keyboardShortcut("'", modifiers: .command)
+                .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
+                .accessibilityIdentifier("hintButton")
+                Button {
+                    viewModel.repeatLine()
+                } label: {
+                    HStack(spacing: 3) {
+                        Text("Repeat Line")
+                    }
+                }
+                .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
+                .accessibilityIdentifier("repeatLine")
+                if primaryEnabled && !viewModel.isComplete {
+                    Button {
+                        viewModel.advanceLine()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(primaryTitle)
+                            Text("↵").font(.caption).fontWeight(.semibold)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
                     .disabled(!primaryEnabled || viewModel.isComplete)
                     .accessibilityIdentifier("nextLine")
+                } else {
+                    Button {
+                        viewModel.advanceLine()
+                    } label: {
+                        Text(primaryTitle)
+                    }
+                    .disabled(!primaryEnabled || viewModel.isComplete)
+                    .accessibilityIdentifier("nextLine")
+                }
             }
         }
         .onChange(of: viewModel.editorText) { _ in notice = nil }
