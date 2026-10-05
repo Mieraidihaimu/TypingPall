@@ -585,6 +585,52 @@ def check_rate_limiter(m, rng):
             assert bucket.allow() == allowed
 
 
+@checks('lld-load-balancer')
+def check_load_balancer(m, rng):
+    for _ in range(50):
+        server_count = rng.randint(2, 5)
+        servers = [f"srv-{i}" for i in range(server_count)]
+        lb = m.LoadBalancer(servers)
+        # All healthy: standard round-robin rotation
+        for i in range(len(servers) * 3):
+            assert lb.route() == servers[i % len(servers)]
+        # Mark one unhealthy: it must never be routed to
+        dead = servers[0]
+        lb.set_health(dead, False)
+        for _ in range(len(servers) * 3):
+            assert lb.route() != dead
+        # Mark all unhealthy: returns None
+        for s in servers:
+            lb.set_health(s, False)
+        assert lb.route() is None
+        # Add new server: immediately routes to it
+        lb.add_server("srv-recovery")
+        assert lb.route() == "srv-recovery"
+
+
+@checks('lld-amazon-locker')
+def check_amazon_locker(m, rng):
+    for _ in range(50):
+        # 3 lockers: small, medium, large
+        lockers = [("L-small", 1), ("L-med", 2), ("L-large", 3)]
+        hub = m.LockerHub(lockers)
+        # Best fit: size 1 parcel goes into small locker
+        assert hub.deposit(1, "code-s") == "L-small"
+        # Next size 1 parcel goes into next available fit (medium)
+        assert hub.deposit(1, "code-m") == "L-med"
+        # Large parcel goes into large locker
+        assert hub.deposit(3, "code-l") == "L-large"
+        # Full hub rejects new deposit
+        assert hub.deposit(1, "code-overflow") is None
+        # Unknown code returns None
+        assert hub.pickup("invalid-code") is None
+        # Pickup frees the locker
+        assert hub.pickup("code-s") == "L-small"
+        assert hub.pickup("code-s") is None
+        # Released locker can now accept a new parcel
+        assert hub.deposit(1, "code-new") == "L-small"
+
+
 @checks('py-comprehensions')
 def check_comprehensions(m, rng):
     assert m.describe_even_squares([1, 2, 2, 3, 4]) == ([4, 4, 16], {0: 4, 1: 4, 2: 16}, {4, 16})
