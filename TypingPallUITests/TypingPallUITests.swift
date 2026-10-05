@@ -6,7 +6,7 @@ final class TypingPallUITests: XCTestCase {
     @discardableResult
     private func launchApp(arguments: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "-ApplePersistenceIgnoreState", "YES", "-NSQuitAlwaysKeepsWindows", "NO"] + arguments
+        app.launchArguments = ["--ui-testing", "-NSQuitAlwaysKeepsWindows", "NO"] + arguments
         app.launch()
         app.activate()
         return app

@@ -2,22 +2,32 @@ import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSLog("DEBUG_TP: applicationDidFinishLaunching, windows count=%ld", NSApp.windows.count)
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            NSLog("DEBUG_TP: delayed check, windows count=%ld, windows=%@", NSApp.windows.count, NSApp.windows)
+        ensureWindowIsOpen()
+        DispatchQueue.main.async { [weak self] in
+            self?.ensureWindowIsOpen()
         }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        NSLog("DEBUG_TP: applicationShouldHandleReopen flag=%d windows=%ld", flag, sender.windows.count)
         if !flag {
+            ensureWindowIsOpen()
             for window in sender.windows {
                 window.makeKeyAndOrderFront(self)
             }
         }
         return true
+    }
+
+    private func ensureWindowIsOpen() {
+        let keyWindows = NSApp.windows.filter { $0.canBecomeKey }
+        if keyWindows.isEmpty {
+            if let fileMenu = NSApp.mainMenu?.items.first(where: { $0.title == "File" })?.submenu,
+               let newWindowItem = fileMenu.items.first(where: { $0.title == "New Window" && $0.action != nil }) {
+                NSApp.sendAction(newWindowItem.action!, to: newWindowItem.target, from: newWindowItem)
+            }
+        }
     }
 }
 
@@ -27,10 +37,8 @@ struct TypingPallApp: App {
     @StateObject private var persistence: PersistenceController
 
     init() {
-        NSLog("DEBUG_TP: TypingPallApp.init, args=%@", ProcessInfo.processInfo.arguments)
         UserDefaults.standard.register(defaults: [
-            "NSQuitAlwaysKeepsWindows": false,
-            "ApplePersistenceIgnoreState": true
+            "NSQuitAlwaysKeepsWindows": false
         ])
         UserDefaults.standard.set(false, forKey: "NSQuitAlwaysKeepsWindows")
         let testing = ProcessInfo.processInfo.arguments.contains("--ui-testing") || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
@@ -38,7 +46,6 @@ struct TypingPallApp: App {
     }
 
     var body: some Scene {
-        let _ = NSLog("DEBUG_TP: body evaluated, isReady=%d, loadError=%@", persistence.isReady ? 1 : 0, persistence.loadError ?? "nil")
         WindowGroup {
             Group {
                 if persistence.isReady {
