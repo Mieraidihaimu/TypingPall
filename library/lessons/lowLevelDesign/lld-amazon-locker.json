@@ -1,0 +1,80 @@
+{
+  "id": "lld-amazon-locker",
+  "title": "Amazon Locker: best-fit parcel hub",
+  "category": "Design building blocks",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Match incoming parcels to the smallest available locker by capacity size. Issue a single-use pickup code to unlock and free the compartment for future reuse.",
+  "code": [
+    "# Assign packages to the best-fitting available locker and release on pickup code.",
+    "class LockerHub:",
+    "    def __init__(self, lockers):",
+    "        self.lockers = sorted(lockers, key=lambda item: item[1])",
+    "        self.assignments = {}",
+    "        self.occupied = set()",
+    "",
+    "    def deposit(self, parcel_size, pickup_code):",
+    "        for locker_id, cap in self.lockers:",
+    "            if cap >= parcel_size and locker_id not in self.occupied:",
+    "                self.occupied.add(locker_id)",
+    "                self.assignments[pickup_code] = locker_id",
+    "                return locker_id",
+    "        return None",
+    "",
+    "    def pickup(self, pickup_code):",
+    "        if pickup_code not in self.assignments:",
+    "            return None",
+    "        locker_id = self.assignments.pop(pickup_code)",
+    "        self.occupied.remove(locker_id)",
+    "        return locker_id"
+  ],
+  "family": "locker-system",
+  "triggers": [
+    "assign resource with size constraints to incoming requests using best-fit policy",
+    "issue and redeem temporary verification codes to release allocated slots"
+  ],
+  "prompts": [
+    "Design a self-service parcel locker station where packages are placed into the smallest compartment that fits, and customers retrieve them with an SMS code.",
+    "A gym assigns electronic lockers according to bag size, releasing the locker immediately once the member scans their digital key."
+  ],
+  "invariant": "Each occupied locker holds at most one parcel with capacity >= parcel_size, and a pickup code maps to exactly one occupied locker until redeemed.",
+  "mantra": "Sort by size, claim the smallest fit, release on redemption.",
+  "pitfalls": [
+    "Without pre-sorting lockers by size, a small parcel can occupy a large locker and starve subsequent oversized parcels.",
+    "Failing to remove the locker from occupied on pickup leaks slots and exhausts capacity.",
+    "Allowing reuse of a redeemed pickup code compromises customer privacy and security."
+  ],
+  "anchors": [
+    {
+      "name": "Design Amazon Locker",
+      "trick": "Best-fit allocation: sorted lockers + occupied set + code lookup map."
+    },
+    {
+      "name": "Design Parking Lot",
+      "trick": "Size-based slot allocation with entry ticket and exit validation."
+    }
+  ],
+  "keyLineIndices": [
+    9,
+    10,
+    11,
+    18,
+    19
+  ],
+  "complexity": {
+    "time": "O(m) deposit where m is locker count, O(1) pickup",
+    "space": "O(m) for assignments and occupied slots"
+  },
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "            if cap >= parcel_size:",
+      "explanation": "Assigns an already occupied locker, double-booking it and overwriting existing packages."
+    },
+    {
+      "line": 19,
+      "replacement": "        pass",
+      "explanation": "Fails to release the locker on pickup, preventing future packages from using the vacant space."
+    }
+  ]
+}

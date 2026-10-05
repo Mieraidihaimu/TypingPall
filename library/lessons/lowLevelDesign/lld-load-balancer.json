@@ -1,0 +1,77 @@
+{
+  "id": "lld-load-balancer",
+  "title": "Load balancer: round-robin with health checks",
+  "category": "Design building blocks",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Distribute incoming requests across healthy backend servers sequentially. Filters out unhealthy instances before calculating the round-robin index. O(1) routing.",
+  "code": [
+    "# Distribute requests across healthy servers in round-robin sequence.",
+    "class LoadBalancer:",
+    "    def __init__(self, servers=None):",
+    "        self.servers = list(servers or [])",
+    "        self.healthy = set(self.servers)",
+    "        self.cursor = 0",
+    "",
+    "    def add_server(self, server):",
+    "        if server not in self.servers:",
+    "            self.servers.append(server)",
+    "            self.healthy.add(server)",
+    "",
+    "    def set_health(self, server, is_healthy):",
+    "        if is_healthy and server in self.servers:",
+    "            self.healthy.add(server)",
+    "        else:",
+    "            self.healthy.discard(server)",
+    "",
+    "    def route(self):",
+    "        active = [s for s in self.servers if s in self.healthy]",
+    "        if not active:",
+    "            return None",
+    "        chosen = active[self.cursor % len(active)]",
+    "        self.cursor = (self.cursor + 1) % len(active)",
+    "        return chosen"
+  ],
+  "family": "load-balancer",
+  "triggers": [
+    "evenly distribute requests among a dynamic pool of backend instances",
+    "handle backend server failures and health updates without dropping traffic"
+  ],
+  "prompts": [
+    "A gateway receives HTTP requests and forwards them to a cluster of worker nodes in turn, skipping any nodes currently reporting downtime.",
+    "Design a service proxy that registers API replicas and balances client queries evenly across all healthy backends."
+  ],
+  "invariant": "Traffic is only routed to servers present in both self.servers and self.healthy; the cursor advances modulo the active server count.",
+  "mantra": "Filter by health, modulo over active, advance the cursor.",
+  "pitfalls": [
+    "Advancing cursor using total servers instead of healthy servers causes uneven distribution or out-of-range indexing.",
+    "Failing to handle an empty healthy pool leads to division by zero on modulo.",
+    "Removing or marking unhealthy must not leave phantom entries in the healthy set."
+  ],
+  "anchors": [
+    {
+      "name": "Design a Load Balancer",
+      "trick": "Keep registered server order stable; filter to active pool before modulo selection."
+    },
+    {
+      "name": "Round Robin DNS",
+      "trick": "Cyclic indexing over IP addresses with health monitoring."
+    }
+  ],
+  "keyLineIndices": [
+    19,
+    22,
+    23
+  ],
+  "complexity": {
+    "time": "O(k) where k is server count",
+    "space": "O(k) to store registered servers"
+  },
+  "mutations": [
+    {
+      "line": 22,
+      "replacement": "        chosen = self.servers[self.cursor % len(self.servers)]",
+      "explanation": "Routes traffic to configured servers without filtering by health status, directing traffic to dead instances."
+    }
+  ]
+}
