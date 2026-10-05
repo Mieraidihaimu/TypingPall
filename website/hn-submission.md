@@ -24,7 +24,7 @@ So I made TypingPall: a native macOS app that keeps the full reference visible w
 
 What it does:
 
-- Built-in lessons for algorithms (sliding window, BFS, DP), low-level design (factory, observer, LRU cache), and language idioms across Python, C++, Rust, and Go
+- Built-in lessons for algorithms (sliding window, BFS, DP), low-level design (factory, observer, LRU cache), terminal commands, and language idioms across Python, Go, Ruby, C++, and Rust
 - Recall mode hides the code, offers one-token hints, and lets you repeat a line or the whole pattern — no timer, no speed score
 - Paste or import your own UTF-8 snippets to practice anything
 

@@ -485,7 +485,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "First index with value >= target, or len(values) if none. Half-open [left, right): too small → left = mid + 1, else right = mid. O(log n).",
+    "summary": "First index with value >= target, or len(values) if none. Half-open [left, right): too small \u2192 left = mid + 1, else right = mid. O(log n).",
     "code": "# Exclude mid only when its value is too small.\ndef lower_bound(values, target):\n    left, right = 0, len(values)\n    while left < right:\n        mid = left + (right - left) // 2\n        if values[mid] < target:\n            left = mid + 1\n        else:\n            right = mid\n    return left",
     "family": "binary-search",
     "triggers": [
@@ -1109,7 +1109,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "Steps from every open cell to its nearest exit, or -1 for walls and unreachable cells. Seed every exit at distance 0, then expand in four directions; a cell's first visit is final. O(rows × cols).",
+    "summary": "Steps from every open cell to its nearest exit, or -1 for walls and unreachable cells. Seed every exit at distance 0, then expand in four directions; a cell's first visit is final. O(rows \u00d7 cols).",
     "code": "from collections import deque\n\nDIRECTIONS = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n# All exits start in the queue, so a cell's first visit gives its nearest exit.\ndef distances_to_exit(grid):\n    rows, cols = len(grid), len(grid[0])\n    distance = [[-1] * cols for _ in range(rows)]\n    queue = deque()\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 'E':\n                distance[r][c] = 0\n                queue.append((r, c))\n    while queue:\n        r, c = queue.popleft()\n        for dr, dc in DIRECTIONS:\n            nr, nc = r + dr, c + dc\n            inside = 0 <= nr < rows and 0 <= nc < cols\n            if inside and grid[nr][nc] != '#' and distance[nr][nc] == -1:\n                distance[nr][nc] = distance[r][c] + 1\n                queue.append((nr, nc))\n    return distance",
     "family": "bfs",
     "triggers": [
@@ -1158,8 +1158,8 @@
       "py-dfs"
     ],
     "complexity": {
-      "time": "O(rows × cols)",
-      "space": "O(rows × cols)"
+      "time": "O(rows \u00d7 cols)",
+      "space": "O(rows \u00d7 cols)"
     },
     "mutations": [
       {
@@ -1570,7 +1570,7 @@
       "py-bfs"
     ],
     "complexity": {
-      "time": "O(α(n)) amortized per call",
+      "time": "O(\u03b1(n)) amortized per call",
       "space": "O(n)"
     },
     "mutations": [
@@ -1656,7 +1656,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "Most value from (weight, value) items within a capacity, each item used at most once. One row of best totals by capacity; walk capacities downward so an item never builds on itself. O(n × capacity).",
+    "summary": "Most value from (weight, value) items within a capacity, each item used at most once. One row of best totals by capacity; walk capacities downward so an item never builds on itself. O(n \u00d7 capacity).",
     "code": "# Walk capacities downward so each item is counted at most once.\ndef best_value(items, capacity):\n    best = [0] * (capacity + 1)\n    for weight, value in items:\n        for c in range(capacity, weight - 1, -1):\n            best[c] = max(best[c], best[c - weight] + value)\n    return best[capacity]",
     "family": "dynamic-programming",
     "triggers": [
@@ -1702,7 +1702,7 @@
       "py-dp"
     ],
     "complexity": {
-      "time": "O(n × capacity)",
+      "time": "O(n \u00d7 capacity)",
       "space": "O(capacity)"
     },
     "mutations": [
@@ -1719,7 +1719,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "Fewest coins that make an amount, with unlimited coins of each value, or -1. dp[a] = min(dp[a], dp[a - coin] + 1), walking amounts upward so a coin can be reused. O(len(coins) × amount).",
+    "summary": "Fewest coins that make an amount, with unlimited coins of each value, or -1. dp[a] = min(dp[a], dp[a - coin] + 1), walking amounts upward so a coin can be reused. O(len(coins) \u00d7 amount).",
     "code": "# Walk amounts upward so a coin can be reused within the same pass.\ndef fewest_coins(coins, amount):\n    inf = float('inf')\n    dp = [0] + [inf] * amount\n    for coin in coins:\n        for a in range(coin, amount + 1):\n            dp[a] = min(dp[a], dp[a - coin] + 1)\n    return dp[amount] if dp[amount] != inf else -1",
     "family": "dynamic-programming",
     "triggers": [
@@ -1766,7 +1766,7 @@
       "py-dp"
     ],
     "complexity": {
-      "time": "O(len(coins) × amount)",
+      "time": "O(len(coins) \u00d7 amount)",
       "space": "O(amount)"
     },
     "mutations": [
@@ -2495,7 +2495,7 @@
       "A public API lets each key make a burst of ten calls, then roughly one call per second. Calls beyond the allowance get an error instead of waiting.",
       "A game server lets each player fire a few shots in quick succession but limits sustained firing, so scripted clicking gains nothing."
     ],
-    "invariant": "Before each decision tokens = min(capacity, tokens + elapsed × rate); a request is allowed only when a whole token is available, and it spends that token.",
+    "invariant": "Before each decision tokens = min(capacity, tokens + elapsed \u00d7 rate); a request is allowed only when a whole token is available, and it spends that token.",
     "mantra": "Refill by elapsed time, cap it, spend one.",
     "pitfalls": [
       "Cap the refill at capacity, or an idle client banks an unlimited burst.",
@@ -2540,6 +2540,60 @@
     ]
   },
   {
+    "id": "sh-file-search",
+    "title": "Find and search files",
+    "category": "Terminal commands",
+    "track": "languages",
+    "language": "shell",
+    "summary": "Find files by pattern and modification time, with recursive grep across codebases.",
+    "code": "# Find files by pattern and modification time\nfind . -type f -name \"*.log\" -mtime +7\n\n# Search recursively for a string with line numbers\ngrep -rni --exclude-dir=node_modules \"connection refused\" ./src\n\n# Find and count files matching an extension\nfind ./data -type f -name \"*.json\" | wc -l"
+  },
+  {
+    "id": "sh-text-pipelines",
+    "title": "Text processing and pipelines",
+    "category": "Terminal commands",
+    "track": "languages",
+    "language": "shell",
+    "summary": "Stream and filter output using pipes, awk column projection, sort, and uniq.",
+    "code": "# Extract the first column, sort, and count unique occurrences\ncat access.log | awk '{print $1}' | sort | uniq -c | sort -nr\n\n# Replace occurrences inline across configuration files\nsed -i '' 's/localhost:5432/db.internal:5432/g' config.env\n\n# Inspect top 10 largest directories\ndu -sh ./* | sort -hr | head -n 10"
+  },
+  {
+    "id": "sh-process-ports",
+    "title": "Processes and port inspection",
+    "category": "Terminal commands",
+    "track": "languages",
+    "language": "shell",
+    "summary": "Identify running processes, listen on ports, and manage signals cleanly.",
+    "code": "# Find processes listening on a specific network port\nlsof -i :8080\n\n# List filtered processes with resource usage\nps aux | grep \"[n]ode\"\n\n# Send graceful termination signal, then force kill if needed\nkill -15 12345\nkill -9 12345"
+  },
+  {
+    "id": "sh-git-essentials",
+    "title": "Git everyday workflow",
+    "category": "Terminal commands",
+    "track": "languages",
+    "language": "shell",
+    "summary": "Inspect repository status, switch branches, view commit graphs, and stash changes.",
+    "code": "# Inspect concise status and current branch\ngit status --short --branch\n\n# Create and switch to a new feature branch\ngit checkout -b feature/auth-tokens\n\n# View commit history as a compact decorated graph\ngit log --oneline --graph --decorate -n 10\n\n# Stash uncommitted changes and restore them later\ngit stash push -m \"WIP before rebase\"\ngit stash pop"
+  },
+  {
+    "id": "sh-archive-transfer",
+    "title": "Archives and remote transfers",
+    "category": "Terminal commands",
+    "track": "languages",
+    "language": "shell",
+    "summary": "Compress and unpack tarballs, synchronize directories with rsync, and test HTTP endpoints.",
+    "code": "# Create a gzip compressed archive of a project directory\ntar -czvf release.tar.gz ./dist\n\n# Extract an archive to a destination folder\ntar -xzvf release.tar.gz -C /opt/app\n\n# Synchronize files while preserving permissions and showing progress\nrsync -avzP --exclude='.git' ./build/ user@remote:/var/www/app/\n\n# Query an API endpoint with custom headers and payload\ncurl -sSL -X POST https://api.example.com/v1/events \\\n    -H \"Content-Type: application/json\" \\\n    -d '{\"status\":\"deployed\"}'"
+  },
+  {
+    "id": "sh-system-permissions",
+    "title": "Permissions and environment",
+    "category": "Terminal commands",
+    "track": "languages",
+    "language": "shell",
+    "summary": "Change file modes, inspect disk space, and manage shell environment variables.",
+    "code": "# Grant execute permissions to the owner and read to others\nchmod 755 deploy.sh\n\n# Change ownership of a directory recursively\nchown -R www-data:www-data /var/www\n\n# Inspect disk filesystem usage in human-readable units\ndf -h\n\n# Append a directory to PATH and export an environment variable\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport APP_ENV=\"production\""
+  },
+  {
     "id": "py-comprehensions",
     "title": "Comprehensions and enumeration",
     "category": "Python fundamentals",
@@ -2574,6 +2628,168 @@
     "language": "python",
     "summary": "Represent structured data and sort by a tuple of keys. A fresh sorted list leaves the input unchanged.",
     "code": "from dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Task:\n    name: str\n    priority: int\n\ndef prioritize(tasks):\n    return sorted(tasks, key=lambda task: (-task.priority, task.name))"
+  },
+  {
+    "id": "py-context-managers",
+    "title": "Context managers and cleanup",
+    "category": "Python fundamentals",
+    "track": "languages",
+    "language": "python",
+    "summary": "Manage setup and teardown with class-based context managers using enter and exit.",
+    "code": "class ManagedResource:\n    def __init__(self, name):\n        self.name = name\n        self.acquired = False\n\n    def __enter__(self):\n        self.acquired = True\n        return self\n\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        self.acquired = False\n        return False"
+  },
+  {
+    "id": "py-decorators",
+    "title": "Decorators and function wrapping",
+    "category": "Python fundamentals",
+    "track": "languages",
+    "language": "python",
+    "summary": "Preserve function metadata and wrap behavior using functools.wraps.",
+    "code": "from functools import wraps\n\ndef logged_call(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        result = func(*args, **kwargs)\n        return result\n    return wrapper\n\n@logged_call\ndef calculate_total(prices, tax_rate=0.05):\n    subtotal = sum(prices)\n    return round(subtotal * (1 + tax_rate), 2)"
+  },
+  {
+    "id": "py-itertools",
+    "title": "Itertools and grouped streams",
+    "category": "Python fundamentals",
+    "track": "languages",
+    "language": "python",
+    "summary": "Sort, group contiguous keys, and flatten nested sequences with itertools.",
+    "code": "from itertools import chain, groupby\n\ndef group_and_flatten(records):\n    sorted_records = sorted(records, key=lambda item: item[0])\n    grouped = {key: [val for _, val in items] for key, items in groupby(sorted_records, key=lambda item: item[0])}\n    flattened = list(chain.from_iterable(grouped.values()))\n    return grouped, flattened"
+  },
+  {
+    "id": "py-protocols",
+    "title": "Protocols and structural subtyping",
+    "category": "Python fundamentals",
+    "track": "languages",
+    "language": "python",
+    "summary": "Define static contracts and runtime-checkable interfaces with typing.Protocol.",
+    "code": "from typing import Protocol, runtime_checkable\n\n@runtime_checkable\nclass Renderable(Protocol):\n    def render(self) -> str:\n        ...\n\nclass Widget:\n    def __init__(self, label: str):\n        self.label = label\n\n    def render(self) -> str:\n        return f\"[{self.label}]\"\n\ndef format_item(item: Renderable) -> str:\n    if isinstance(item, Renderable):\n        return item.render()\n    return str(item)"
+  },
+  {
+    "id": "rb-blocks-enumerable",
+    "title": "Blocks and enumeration",
+    "category": "Ruby fundamentals",
+    "track": "languages",
+    "language": "ruby",
+    "summary": "Transform, filter, and fold collections with blocks and the Enumerable module.",
+    "code": "def analyze_scores(scores)\n    evens = scores.select { |score| score.even? }\n    squares = evens.map { |score| score * score }\n    total = squares.reduce(0) { |sum, value| sum + value }\n    ranked = scores.sort.reverse.each_with_index.to_h\n    [squares, total, ranked]\nend"
+  },
+  {
+    "id": "rb-classes-modules",
+    "title": "Classes, attributes and mixins",
+    "category": "Ruby fundamentals",
+    "track": "languages",
+    "language": "ruby",
+    "summary": "Object orientation with attr_reader, instance methods, and module inclusion.",
+    "code": "module Loggable\n    def log(message)\n        \"[#{self.class.name}] #{message}\"\n    end\nend\n\nclass User\n    include Loggable\n    attr_reader :name, :role\n\n    def initialize(name, role = :member)\n        @name = name\n        @role = role\n    end\n\n    def admin?\n        @role == :admin\n    end\nend"
+  },
+  {
+    "id": "rb-hashes-kwargs",
+    "title": "Hashes and keyword arguments",
+    "category": "Ruby fundamentals",
+    "track": "languages",
+    "language": "ruby",
+    "summary": "Work with symbol keys, keyword arguments, default options, and hash transforms.",
+    "code": "def configure_server(host:, port: 8080, **options)\n    config = {\n        host: host,\n        port: port,\n        timeout: options.fetch(:timeout, 30),\n        ssl: options.fetch(:ssl, false)\n    }\n    config.transform_keys(&:to_s)\nend\n\nsettings = configure_server(host: \"api.internal\", ssl: true)"
+  },
+  {
+    "id": "rb-error-handling",
+    "title": "Exceptions and rescue blocks",
+    "category": "Ruby fundamentals",
+    "track": "languages",
+    "language": "ruby",
+    "summary": "Handle errors with begin, rescue, ensure, and custom exception classes.",
+    "code": "class ValidationError < StandardError; end\n\ndef parse_user_age(raw)\n    begin\n        age = Integer(raw)\n        raise ValidationError, \"age must be positive\" if age < 0\n        age\n    rescue ArgumentError\n        raise ValidationError, \"invalid numeric string\"\n    ensure\n        # Cleanup or telemetry runs unconditionally\n    end\nend"
+  },
+  {
+    "id": "rb-procs-lambdas",
+    "title": "Procs, lambdas and closures",
+    "category": "Ruby fundamentals",
+    "track": "languages",
+    "language": "ruby",
+    "summary": "Define callable objects with lambda syntax and pass blocks with the ampersand operator.",
+    "code": "def build_filter(min_length)\n    ->(word) { word.length >= min_length }\nend\n\ndef filter_words(words, &predicate)\n    words.select(&predicate)\nend\n\nis_long = build_filter(5)\nresult = filter_words([\"ruby\", \"syntax\", \"practice\"], &is_long)"
+  },
+  {
+    "id": "rb-strings-regex",
+    "title": "String formatting and regex scanning",
+    "category": "Ruby fundamentals",
+    "track": "languages",
+    "language": "ruby",
+    "summary": "Interpolate strings, match patterns with regular expressions, and extract capture groups.",
+    "code": "def parse_log_line(line)\n    pattern = /^\\[(\\w+)\\]\\s+(\\d{4}-\\d{2}-\\d{2})\\s+-\\s+(.+)$/\n    match = line.match(pattern)\n    return nil unless match\n\n    level, date, message = match.captures\n    { level: level.downcase.to_sym, date: date, message: message }\nend"
+  },
+  {
+    "id": "go-slices",
+    "title": "Slices, maps and range",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "Grow a slice with append and count strings in a map. Map lookup returns the zero value for a missing key.",
+    "code": "package main\n\nimport \"fmt\"\n\nfunc counts(words []string) map[string]int {\n    result := make(map[string]int)\n    for _, word := range words {\n        result[word]++\n    }\n    return result\n}\n\nfunc main() {\n    words := []string{\"go\", \"rust\"}\n    words = append(words, \"go\")\n    fmt.Println(counts(words)[\"go\"])\n}"
+  },
+  {
+    "id": "go-errors",
+    "title": "Errors and multiple returns",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "Check an error before using the accompanying value. fmt.Errorf with %w preserves the underlying error.",
+    "code": "package main\n\nimport (\n    \"fmt\"\n    \"strconv\"\n)\n\nfunc parsePort(text string) (int, error) {\n    port, err := strconv.Atoi(text)\n    if err != nil {\n        return 0, fmt.Errorf(\"parse port: %w\", err)\n    }\n    if port < 1 || port > 65535 {\n        return 0, fmt.Errorf(\"port out of range\")\n    }\n    return port, nil\n}\n\nfunc main() {\n    port, err := parsePort(\"8080\")\n    if err != nil {\n        fmt.Println(err)\n        return\n    }\n    fmt.Println(port)\n}"
+  },
+  {
+    "id": "go-methods",
+    "title": "Structs and pointer receivers",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "A pointer receiver mutates the original struct. A value receiver can inspect a copy.",
+    "code": "package main\n\nimport \"fmt\"\n\ntype Counter struct {\n    value int\n}\n\nfunc (counter *Counter) Add(delta int) {\n    counter.value += delta\n}\n\nfunc (counter Counter) Value() int {\n    return counter.value\n}\n\nfunc main() {\n    counter := Counter{}\n    counter.Add(3)\n    fmt.Println(counter.Value())\n}"
+  },
+  {
+    "id": "go-interfaces",
+    "title": "Small interfaces",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "Types satisfy interfaces implicitly. Accept the behavior you need as a small interface.",
+    "code": "package main\n\nimport \"fmt\"\n\ntype Describer interface {\n    Describe() string\n}\n\ntype Task struct {\n    Name string\n}\n\nfunc (task Task) Describe() string {\n    return \"task: \" + task.Name\n}\n\nfunc printDescription(value Describer) {\n    fmt.Println(value.Describe())\n}\n\nfunc main() {\n    printDescription(Task{Name: \"practice\"})\n}"
+  },
+  {
+    "id": "go-defer-recover",
+    "title": "Defer and recover",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "Safely intercept panics and clean up resources with deferred functions.",
+    "code": "package main\n\nimport \"fmt\"\n\nfunc safeDivide(numerator, denominator int) (result int, err error) {\n    defer func() {\n        if recovered := recover(); recovered != nil {\n            err = fmt.Errorf(\"recovered: %v\", recovered)\n        }\n    }()\n    if denominator == 0 {\n        panic(\"division by zero\")\n    }\n    return numerator / denominator, nil\n}\n\nfunc main() {\n    val, err := safeDivide(10, 0)\n    if err != nil {\n        fmt.Println(err)\n        return\n    }\n    fmt.Println(val)\n}"
+  },
+  {
+    "id": "go-generics",
+    "title": "Generics and type parameters",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "Write reusable type-safe slice operations with type parameters and constraints.",
+    "code": "package main\n\nimport \"fmt\"\n\nfunc Filter[T any](items []T, predicate func(T) bool) []T {\n    var result []T\n    for _, item := range items {\n        if predicate(item) {\n            result = append(result, item)\n        }\n    }\n    return result\n}\n\nfunc main() {\n    numbers := []int{1, 2, 3, 4, 5, 6}\n    evens := Filter(numbers, func(n int) bool { return n%2 == 0 })\n    fmt.Printf(\"%d %d\\n\", len(evens), evens[0])\n}"
+  },
+  {
+    "id": "go-json-tags",
+    "title": "Struct tags and JSON marshaling",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "Serialize and deserialize struct fields with json tags and omit options.",
+    "code": "package main\n\nimport (\n    \"encoding/json\"\n    \"fmt\"\n)\n\ntype Config struct {\n    Host    string `json:\"host\"`\n    Port    int    `json:\"port\"`\n    Enabled bool   `json:\"enabled,omitempty\"`\n}\n\nfunc main() {\n    raw := `{\"host\":\"localhost\",\"port\":8080}`\n    var cfg Config\n    if err := json.Unmarshal([]byte(raw), &cfg); err != nil {\n        return\n    }\n    fmt.Printf(\"%s:%d\\n\", cfg.Host, cfg.Port)\n}"
+  },
+  {
+    "id": "go-select-timeout",
+    "title": "Select and channel timeouts",
+    "category": "Go fundamentals",
+    "track": "languages",
+    "language": "go",
+    "summary": "Coordinate channel communication with non-blocking select and time.After.",
+    "code": "package main\n\nimport (\n    \"fmt\"\n    \"time\"\n)\n\nfunc fetchResult(ch chan<- string) {\n    ch <- \"data-ready\"\n}\n\nfunc main() {\n    ch := make(chan string, 1)\n    fetchResult(ch)\n    select {\n    case msg := <-ch:\n        fmt.Println(msg)\n    case <-time.After(100 * time.Millisecond):\n        fmt.Println(\"timeout\")\n    }\n}"
   },
   {
     "id": "cpp-vectors",
@@ -2646,42 +2862,6 @@
     "language": "rust",
     "summary": "Model distinct events with an enum and handle every variant with match.",
     "code": "enum Event {\n    Insert(String),\n    Remove(usize),\n    Clear,\n}\n\nfn apply(event: Event, items: &mut Vec<String>) {\n    match event {\n        Event::Insert(value) => items.push(value),\n        Event::Remove(index) if index < items.len() => { items.remove(index); }\n        Event::Remove(_) => {}\n        Event::Clear => items.clear(),\n    }\n}\n\nfn main() {\n    let mut items = Vec::new();\n    apply(Event::Insert(String::from(\"pattern\")), &mut items);\n    apply(Event::Remove(0), &mut items);\n    apply(Event::Clear, &mut items);\n    println!(\"{}\", items.len());\n}"
-  },
-  {
-    "id": "go-slices",
-    "title": "Slices, maps and range",
-    "category": "Go fundamentals",
-    "track": "languages",
-    "language": "go",
-    "summary": "Grow a slice with append and count strings in a map. Map lookup returns the zero value for a missing key.",
-    "code": "package main\n\nimport \"fmt\"\n\nfunc counts(words []string) map[string]int {\n    result := make(map[string]int)\n    for _, word := range words {\n        result[word]++\n    }\n    return result\n}\n\nfunc main() {\n    words := []string{\"go\", \"rust\"}\n    words = append(words, \"go\")\n    fmt.Println(counts(words)[\"go\"])\n}"
-  },
-  {
-    "id": "go-errors",
-    "title": "Errors and multiple returns",
-    "category": "Go fundamentals",
-    "track": "languages",
-    "language": "go",
-    "summary": "Check an error before using the accompanying value. fmt.Errorf with %w preserves the underlying error.",
-    "code": "package main\n\nimport (\n    \"fmt\"\n    \"strconv\"\n)\n\nfunc parsePort(text string) (int, error) {\n    port, err := strconv.Atoi(text)\n    if err != nil {\n        return 0, fmt.Errorf(\"parse port: %w\", err)\n    }\n    if port < 1 || port > 65535 {\n        return 0, fmt.Errorf(\"port out of range\")\n    }\n    return port, nil\n}\n\nfunc main() {\n    port, err := parsePort(\"8080\")\n    if err != nil {\n        fmt.Println(err)\n        return\n    }\n    fmt.Println(port)\n}"
-  },
-  {
-    "id": "go-methods",
-    "title": "Structs and pointer receivers",
-    "category": "Go fundamentals",
-    "track": "languages",
-    "language": "go",
-    "summary": "A pointer receiver mutates the original struct. A value receiver can inspect a copy.",
-    "code": "package main\n\nimport \"fmt\"\n\ntype Counter struct {\n    value int\n}\n\nfunc (counter *Counter) Add(delta int) {\n    counter.value += delta\n}\n\nfunc (counter Counter) Value() int {\n    return counter.value\n}\n\nfunc main() {\n    counter := Counter{}\n    counter.Add(3)\n    fmt.Println(counter.Value())\n}"
-  },
-  {
-    "id": "go-interfaces",
-    "title": "Small interfaces",
-    "category": "Go fundamentals",
-    "track": "languages",
-    "language": "go",
-    "summary": "Types satisfy interfaces implicitly. Accept the behavior you need as a small interface.",
-    "code": "package main\n\nimport \"fmt\"\n\ntype Describer interface {\n    Describe() string\n}\n\ntype Task struct {\n    Name string\n}\n\nfunc (task Task) Describe() string {\n    return \"task: \" + task.Name\n}\n\nfunc printDescription(value Describer) {\n    fmt.Println(value.Describe())\n}\n\nfunc main() {\n    printDescription(Task{Name: \"practice\"})\n}"
   },
   {
     "id": "py-thread-pool",

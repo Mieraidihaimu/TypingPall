@@ -1,7 +1,7 @@
 import Foundation
 
 enum CodeLanguage: String, Codable, CaseIterable, Identifiable {
-    case plainText, python, cpp, rust, go
+    case plainText, python, cpp, rust, go, ruby, shell
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -10,6 +10,8 @@ enum CodeLanguage: String, Codable, CaseIterable, Identifiable {
         case .cpp: return "C++"
         case .rust: return "Rust"
         case .go: return "Go"
+        case .ruby: return "Ruby"
+        case .shell: return "Shell"
         }
     }
     static func from(fileExtension: String) -> CodeLanguage {
@@ -18,6 +20,8 @@ enum CodeLanguage: String, Codable, CaseIterable, Identifiable {
         case "cpp", "cc", "cxx", "h", "hpp", "c": return .cpp
         case "rs": return .rust
         case "go": return .go
+        case "rb": return .ruby
+        case "sh", "bash", "zsh": return .shell
         default: return .plainText
         }
     }
@@ -146,12 +150,13 @@ enum CommentFilter {
                     } else { output.append(chars[index]); index += 1 }
                     continue
                 }
-                if (language == .python && chars[index] == "#") ||
-                    (language != .python && matches("//", at: index)) {
+                let isHashComment = (language == .python || language == .ruby || language == .shell)
+                if (isHashComment && chars[index] == "#") ||
+                    (!isHashComment && matches("//", at: index)) {
                     hadComment = true
                     break
                 }
-                if language != .python && matches("/*", at: index) {
+                if !isHashComment && matches("/*", at: index) {
                     hadComment = true
                     blockDepth = 1
                     // Preserve token separation in expressions such as a/* note */+b.
@@ -197,7 +202,7 @@ enum CommentFilter {
                         continue
                     }
                     let triple = String(repeating: String(quote), count: 3)
-                    stringEnd = language == .python && matches(triple, at: index) ? Array(triple) : [quote]
+                    stringEnd = (language == .python || language == .ruby) && matches(triple, at: index) ? Array(triple) : [quote]
                     escapes = true
                     output += String(stringEnd)
                     index += stringEnd.count

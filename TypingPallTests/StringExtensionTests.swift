@@ -364,6 +364,27 @@ final class CommentSkippingTests: XCTestCase {
         XCTAssertEqual(CommentFilter.lines(source, language: .plainText, skippingComments: true).map(\.text), source)
     }
 
+    func testRubyCommentsAndStrings() {
+        let source = ["# explanation", "total = sum # inline comment", "url = 'https://example.com/#anchor'", "pattern = \"#literal\""]
+        let filtered = CommentFilter.lines(source, language: .ruby, skippingComments: true)
+        XCTAssertEqual(filtered.map(\.sourceIndex), [1, 2, 3])
+        XCTAssertEqual(filtered.map(\.text), ["total = sum", source[2], source[3]])
+    }
+
+    func testShellCommentsAndStrings() {
+        let source = ["# find files", "find . -name \"*.log\" # only logs", "grep -r 'error #1' /var/log"]
+        let filtered = CommentFilter.lines(source, language: .shell, skippingComments: true)
+        XCTAssertEqual(filtered.map(\.sourceIndex), [1, 2])
+        XCTAssertEqual(filtered.map(\.text), ["find . -name \"*.log\"", source[2]])
+    }
+
+    func testCodeLanguageExtensions() {
+        XCTAssertEqual(CodeLanguage.from(fileExtension: "rb"), .ruby)
+        XCTAssertEqual(CodeLanguage.from(fileExtension: "sh"), .shell)
+        XCTAssertEqual(CodeLanguage.from(fileExtension: "bash"), .shell)
+        XCTAssertEqual(CodeLanguage.from(fileExtension: "zsh"), .shell)
+    }
+
     func testProgressToggleAndCommentOnlyPatterns() throws {
         let name = UUID().uuidString
         let defaults = try XCTUnwrap(UserDefaults(suiteName: name))

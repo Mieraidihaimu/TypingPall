@@ -611,6 +611,38 @@ def check_dataclasses(m, rng):
     assert [t.name for t in m.prioritize([Task('b', 2), Task('a', 2), Task('c', 1)])] == ['a', 'b', 'c']
 
 
+@checks('py-context-managers')
+def check_context_managers(m, rng):
+    resource = m.ManagedResource('db')
+    assert not resource.acquired
+    with resource as r:
+        assert r.acquired
+        assert r.name == 'db'
+    assert not resource.acquired
+
+
+@checks('py-decorators')
+def check_decorators(m, rng):
+    assert m.calculate_total.__name__ == 'calculate_total'
+    assert m.calculate_total([10, 20]) == 31.5
+    assert m.calculate_total([100], tax_rate=0.1) == 110.0
+
+
+@checks('py-itertools')
+def check_itertools(m, rng):
+    data = [('b', 2), ('a', 1), ('b', 3), ('a', 4)]
+    grouped, flattened = m.group_and_flatten(data)
+    assert grouped == {'a': [1, 4], 'b': [2, 3]}
+    assert flattened == [1, 4, 2, 3]
+
+
+@checks('py-protocols')
+def check_protocols(m, rng):
+    widget = m.Widget('ok')
+    assert m.format_item(widget) == '[ok]'
+    assert m.format_item(42) == '42'
+
+
 @checks('py-thread-pool')
 def check_thread_pool(m, rng):
     assert m.parallel_squares([1, 2, 3]) == [1, 4, 9]
@@ -647,7 +679,7 @@ def check_python():
 
 
 def typed_lines(lesson):
-    comment = '#' if lesson['language'] == 'python' else '//'
+    comment = '#' if lesson['language'] in ('python', 'ruby', 'shell') else '//'
     lines = lesson['code'].split('\n')
     typed = {index for index, line in enumerate(lines) if line.strip() and not line.lstrip().startswith(comment)}
     return typed - set(lesson.get('scaffoldLineIndices', []))
@@ -707,6 +739,8 @@ EXPECTED = {
     'cpp-vectors':'2 3', 'cpp-map':'2 1', 'cpp-raii':'10 20', 'cpp-lambda':'a b c',
     'cpp-lock':'200', 'cpp-condition':'42', 'cpp-future':'55',
     'go-slices':'2', 'go-errors':'8080', 'go-methods':'3', 'go-interfaces':'task: practice', 'go-channels':'1\n4\n9',
+    'go-defer-recover':'recovered: division by zero', 'go-generics':'3 2',
+    'go-json-tags':'localhost:8080', 'go-select-timeout':'data-ready',
     'rust-borrow':'practice\npractice patterns', 'rust-result':'[1, 2, 3]',
     'rust-iterators':'[4, 16]', 'rust-enums':'0', 'rust-shared-state':'4',
 }
@@ -738,6 +772,18 @@ def check_compiled(require_all):
                 output = subprocess.run([str(binary)], check=True, capture_output=True, text=True, timeout=10).stdout.strip()
                 assert output == EXPECTED[lesson['id']], (lesson['id'], output)
             print(f'PASS: {len(examples)} {language} lessons compiled and executed')
+        ruby = shutil.which('ruby')
+        if ruby:
+            for lesson in [l for l in LESSONS if l['language'] == 'ruby']:
+                source = folder / (lesson['id'] + '.rb')
+                source.write_text(lesson['code'])
+                subprocess.run([ruby, '-c', str(source)], check=True, capture_output=True, text=True)
+            print(f"PASS: {len([l for l in LESSONS if l['language'] == 'ruby'])} Ruby lessons validated")
+        shell = shutil.which('sh')
+        if shell:
+            for lesson in [l for l in LESSONS if l['language'] == 'shell']:
+                subprocess.run([shell, '-n', '-c', lesson['code']], check=True, capture_output=True, text=True)
+            print(f"PASS: {len([l for l in LESSONS if l['language'] == 'shell'])} Shell lessons validated")
     if missing and require_all:
         raise SystemExit('Missing required compilers: ' + ', '.join(missing))
 
