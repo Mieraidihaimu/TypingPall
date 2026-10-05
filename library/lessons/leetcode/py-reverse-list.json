@@ -1,0 +1,96 @@
+{
+  "id": "py-reverse-list",
+  "title": "Linked list: reverse a sublist",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Reverse positions left..right (1-based) of a linked list in one pass. A dummy head covers left = 1; flip next pointers inside the range, then reconnect both ends. O(n), O(1) space. The Node class is shown, not typed.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, value, next_node=None):",
+    "        self.value = value",
+    "        self.next = next_node",
+    "",
+    "# Flip next pointers inside the range, then reconnect both ends.",
+    "def reverse_between(head, left, right):",
+    "    dummy = Node(0, head)",
+    "    before = dummy",
+    "    for _ in range(left - 1):",
+    "        before = before.next",
+    "    previous, current = None, before.next",
+    "    for _ in range(right - left + 1):",
+    "        following = current.next",
+    "        current.next = previous",
+    "        previous, current = current, following",
+    "    before.next.next = current",
+    "    before.next = previous",
+    "    return dummy.next"
+  ],
+  "family": "linked-list",
+  "triggers": [
+    "reverse all or part of a linked list in place",
+    "reorder nodes by rewiring next pointers, without copying values"
+  ],
+  "prompts": [
+    "A playlist is stored as a chain of tracks, each pointing to the next. Reverse the order of tracks 3 through 7 in place.",
+    "A train's carriages are coupled one to the next. Turn around a run of consecutive carriages in the middle while the rest of the train stays attached."
+  ],
+  "invariant": "previous heads the already-reversed part of the range, current is the next node to flip, and before.next is still the range's original first node.",
+  "mantra": "Save next, point back, step forward; then reconnect both ends.",
+  "pitfalls": [
+    "Save current.next before overwriting it, or the rest of the list is lost.",
+    "Without a dummy head, reversing from position 1 needs a special case.",
+    "After the loop, before.next is the range's old first node and now its last: point it at current."
+  ],
+  "anchors": [
+    {
+      "name": "Reverse Linked List",
+      "trick": "left = 1 and right = n: only the three-line flip remains."
+    },
+    {
+      "name": "Reverse Linked List II",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Reverse Nodes in k-Group",
+      "trick": "Reverse each full block of k, then move before to the block's new tail."
+    },
+    {
+      "name": "Palindrome Linked List",
+      "trick": "Find the middle with fast and slow pointers, reverse the second half, compare."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    14,
+    16,
+    17
+  ],
+  "scaffoldLineIndices": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "contrastWith": [
+    "py-fast-slow"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 8,
+      "replacement": "    before = head",
+      "explanation": "Starts one node too far along: the range shifts right by one, so the head can never be reversed."
+    },
+    {
+      "line": 16,
+      "replacement": "    before.next.next = None",
+      "explanation": "Cuts the list after the reversed range: every node after position right is dropped."
+    }
+  ],
+  "order": 5
+}

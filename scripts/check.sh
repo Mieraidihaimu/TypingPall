@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+python3 scripts/library.py build --check
+python3 scripts/library.py validate
 defaults delete com.mier.TypingPall 2>/dev/null || true
 defaults write com.mier.TypingPall NSQuitAlwaysKeepsWindows -bool false
 rm -rf ~/Library/Saved\ Application\ State/com.mier.TypingPall.savedState 2>/dev/null || true

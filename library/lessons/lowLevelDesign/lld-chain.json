@@ -1,0 +1,76 @@
+{
+  "id": "lld-chain",
+  "title": "Chain of responsibility: handle it or pass it on",
+  "category": "Behavioral patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Approvers are linked by spending limit. Each approves what it can and forwards the rest unchanged; the caller knows only the first link, and the end of the chain rejects.",
+  "code": [
+    "# Each approver handles what it can and forwards the rest; callers only know the first.",
+    "class Approver:",
+    "    def __init__(self, title, limit, successor=None):",
+    "        self.title = title",
+    "        self.limit = limit",
+    "        self.successor = successor",
+    "",
+    "    def approve(self, amount):",
+    "        if amount <= self.limit:",
+    "            return self.title",
+    "        if self.successor is None:",
+    "            return 'rejected'",
+    "        return self.successor.approve(amount)",
+    "",
+    "def approval_chain():",
+    "    cfo = Approver('cfo', 100_000)",
+    "    director = Approver('director', 10_000, cfo)",
+    "    return Approver('manager', 1_000, director)"
+  ],
+  "family": "chain-of-responsibility",
+  "triggers": [
+    "the first of several handlers able to deal with a request should take it, tried in order, without the sender choosing",
+    "escalation levels, middleware and fallbacks: approvals by amount, support tiers, cash dispensers"
+  ],
+  "prompts": [
+    "Support tickets go to a chatbot first; whatever it can't answer goes to a first-line agent, then to an engineer. Customers only submit the ticket and never pick the level.",
+    "A loan request is reviewed by an automatic scorer, then a branch officer, then a credit committee, and the first one allowed to decide on that amount does."
+  ],
+  "invariant": "Each approver either answers or forwards the unchanged request to its successor; exactly one link answers, or the end of the chain rejects.",
+  "mantra": "Handle it or hand it on.",
+  "pitfalls": [
+    "Forward by calling the successor's approve(), so the request keeps travelling.",
+    "Decide what the end of the chain does: reject, return a default or raise.",
+    "Unlike a decorator, a handler that answers stops the chain; unlike an observer, only one handler acts."
+  ],
+  "anchors": [
+    {
+      "name": "ATM cash withdrawal",
+      "trick": "Each note dispenser pays what it can and passes the remainder down."
+    },
+    {
+      "name": "Expense approval workflow",
+      "trick": "Manager, director and CFO links, each with a spending limit."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    10,
+    12
+  ],
+  "contrastWith": [
+    "lld-observer",
+    "lld-decorator"
+  ],
+  "mutations": [
+    {
+      "line": 12,
+      "replacement": "        return self.successor.title",
+      "explanation": "Names the next approver without asking it, so every amount above the manager's limit lands on the director, even 1,000,000."
+    },
+    {
+      "line": 8,
+      "replacement": "        if amount < self.limit:",
+      "explanation": "Off by one at the limit: a manager may approve exactly 1,000, but this escalates it."
+    }
+  ],
+  "order": 37
+}

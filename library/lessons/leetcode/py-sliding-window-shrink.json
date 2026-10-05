@@ -1,0 +1,85 @@
+{
+  "id": "py-sliding-window-shrink",
+  "title": "Sliding window: shrink loop",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Longest substring with at most k distinct characters. Add text[right]; while the window breaks the rule, remove text[left] and step left. O(n).",
+  "code": [
+    "# Grow on the right; shrink from the left until the window is valid again.",
+    "def longest_with_k_distinct(text, k):",
+    "    counts = {}",
+    "    left = 0",
+    "    best = 0",
+    "    for right, char in enumerate(text):",
+    "        counts[char] = counts.get(char, 0) + 1",
+    "        while len(counts) > k:",
+    "            counts[text[left]] -= 1",
+    "            if counts[text[left]] == 0:",
+    "                del counts[text[left]]",
+    "            left += 1",
+    "        best = max(best, right - left + 1)",
+    "    return best"
+  ],
+  "family": "sliding-window",
+  "triggers": [
+    "longest or shortest window whose count-based rule can break and be restored",
+    "'at most k distinct', 'at most k replacements', 'contains every required character'"
+  ],
+  "prompts": [
+    "A sensor stream tags each reading with a device id. Find the longest run of consecutive readings that involves at most two devices.",
+    "Books on a shelf are in arrival order. What is the longest run of neighbouring books that spans at most three genres?"
+  ],
+  "invariant": "After the while loop, text[left:right + 1] has at most k distinct characters and counts holds exactly its character counts.",
+  "mantra": "Expand to explore, shrink to restore.",
+  "pitfalls": [
+    "Delete a character when its count reaches 0, or len(counts) never drops.",
+    "For longest-window problems 'if' instead of 'while' still passes (the window slides at its best size); minimum-window problems need the 'while'.",
+    "Update best after the shrink, once the window is valid again."
+  ],
+  "anchors": [
+    {
+      "name": "Longest Substring with At Most K Distinct Characters",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Fruit Into Baskets",
+      "trick": "k = 2."
+    },
+    {
+      "name": "Longest Repeating Character Replacement",
+      "trick": "Invalid when window - top count > k; shrink until valid."
+    },
+    {
+      "name": "Minimum Window Substring",
+      "trick": "Shrink while valid and record the smallest window."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    8,
+    10,
+    11
+  ],
+  "contrastWith": [
+    "py-sliding-window",
+    "py-prefix-sum"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(k)"
+  },
+  "mutations": [
+    {
+      "line": 10,
+      "replacement": "                counts[text[left]] = 0",
+      "explanation": "A key left at count 0 still counts as distinct, so the loop shrinks past the window."
+    },
+    {
+      "line": 12,
+      "replacement": "        best = max(best, right - left)",
+      "explanation": "Off by one: the window holds right - left + 1 characters."
+    }
+  ],
+  "order": 2
+}

@@ -1,0 +1,23 @@
+{
+  "id": "sh-git-essentials",
+  "title": "Git everyday workflow",
+  "category": "Terminal commands",
+  "track": "languages",
+  "language": "shell",
+  "summary": "Inspect repository status, switch branches, view commit graphs, and stash changes.",
+  "code": [
+    "# Inspect concise status and current branch",
+    "git status --short --branch",
+    "",
+    "# Create and switch to a new feature branch",
+    "git checkout -b feature/auth-tokens",
+    "",
+    "# View commit history as a compact decorated graph",
+    "git log --oneline --graph --decorate -n 10",
+    "",
+    "# Stash uncommitted changes and restore them later",
+    "git stash push -m \"WIP before rebase\"",
+    "git stash pop"
+  ],
+  "order": 43
+}

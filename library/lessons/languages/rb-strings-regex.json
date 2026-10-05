@@ -1,0 +1,19 @@
+{
+  "id": "rb-strings-regex",
+  "title": "String formatting and regex scanning",
+  "category": "Ruby fundamentals",
+  "track": "languages",
+  "language": "ruby",
+  "summary": "Interpolate strings, match patterns with regular expressions, and extract capture groups.",
+  "code": [
+    "def parse_log_line(line)",
+    "    pattern = /^\\[(\\w+)\\]\\s+(\\d{4}-\\d{2}-\\d{2})\\s+-\\s+(.+)$/",
+    "    match = line.match(pattern)",
+    "    return nil unless match",
+    "",
+    "    level, date, message = match.captures",
+    "    { level: level.downcase.to_sym, date: date, message: message }",
+    "end"
+  ],
+  "order": 59
+}

@@ -1,0 +1,27 @@
+{
+  "id": "rust-result",
+  "title": "Result and error propagation",
+  "category": "Rust fundamentals",
+  "track": "languages",
+  "language": "rust",
+  "summary": "Return parse failures through Result. The question-mark operator propagates an error to the caller.",
+  "code": [
+    "use std::num::ParseIntError;",
+    "",
+    "fn parse_numbers(text: &str) -> Result<Vec<i32>, ParseIntError> {",
+    "    let mut values = Vec::new();",
+    "    for word in text.split_whitespace() {",
+    "        values.push(word.parse::<i32>()?);",
+    "    }",
+    "    Ok(values)",
+    "}",
+    "",
+    "fn main() {",
+    "    match parse_numbers(\"1 2 3\") {",
+    "        Ok(values) => println!(\"{:?}\", values),",
+    "        Err(error) => eprintln!(\"{}\", error),",
+    "    }",
+    "}"
+  ],
+  "order": 73
+}

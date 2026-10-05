@@ -1,0 +1,99 @@
+{
+  "id": "py-tree-dfs",
+  "title": "Tree DFS: return values up",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Diameter of a binary tree: the most edges on any path between two nodes. A post-order helper returns each subtree's height and records the best path through the current node on the way up. O(n). The TreeNode class is shown, not typed.",
+  "code": [
+    "class TreeNode:",
+    "    def __init__(self, value, left=None, right=None):",
+    "        self.value = value",
+    "        self.left = left",
+    "        self.right = right",
+    "",
+    "# Each call returns a height; the best path through a node joins both heights.",
+    "def diameter(root):",
+    "    best = 0",
+    "    def height(node):",
+    "        nonlocal best",
+    "        if node is None:",
+    "            return 0",
+    "        left = height(node.left)",
+    "        right = height(node.right)",
+    "        best = max(best, left + right)",
+    "        return 1 + max(left, right)",
+    "    height(root)",
+    "    return best"
+  ],
+  "family": "tree-dfs",
+  "triggers": [
+    "an answer for the whole tree built from answers for its subtrees",
+    "a path that may bend at any node: combine the left and right results there"
+  ],
+  "prompts": [
+    "Reporting lines form a tree in which each manager has at most two direct reports. How many reporting links separate the two people who are farthest apart?",
+    "A cave system branches like a binary tree from its entrance, and passages never rejoin. Counting passages, how long is the longest route between any two chambers?"
+  ],
+  "invariant": "height(node) returns the number of nodes on the longest downward path from node, and best is the longest path, in edges, through any node finished so far.",
+  "mantra": "Return the height up; record left + right on the way.",
+  "pitfalls": [
+    "What a call returns (height) differs from what it records (diameter): keep both straight.",
+    "Diameter counts edges: left + right, not left + right + 1.",
+    "Use nonlocal, or a one-element list, to update best from the nested function.",
+    "A deep, one-sided tree can hit Python's recursion limit of about 1000."
+  ],
+  "anchors": [
+    {
+      "name": "Diameter of Binary Tree",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Maximum Depth of Binary Tree",
+      "trick": "Only the returned height: 1 + max(left, right)."
+    },
+    {
+      "name": "Balanced Binary Tree",
+      "trick": "Return the height, or -1 once the two sides differ by more than 1."
+    },
+    {
+      "name": "Binary Tree Maximum Path Sum",
+      "trick": "Return value + the better non-negative side; record value + both non-negative sides."
+    }
+  ],
+  "keyLineIndices": [
+    11,
+    12,
+    15,
+    16
+  ],
+  "scaffoldLineIndices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "contrastWith": [
+    "py-tree-bfs",
+    "py-dfs"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(h), h = tree height"
+  },
+  "mutations": [
+    {
+      "line": 16,
+      "replacement": "        return max(left, right)",
+      "explanation": "Never counts the current node, so every height is 0 and the diameter is always 0."
+    },
+    {
+      "line": 15,
+      "replacement": "        best = max(best, left + right + 1)",
+      "explanation": "Counts nodes instead of edges: a single node reports 1 instead of 0."
+    }
+  ],
+  "order": 20
+}

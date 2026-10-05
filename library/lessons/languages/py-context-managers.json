@@ -1,0 +1,23 @@
+{
+  "id": "py-context-managers",
+  "title": "Context managers and cleanup",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Manage setup and teardown with class-based context managers using enter and exit.",
+  "code": [
+    "class ManagedResource:",
+    "    def __init__(self, name):",
+    "        self.name = name",
+    "        self.acquired = False",
+    "",
+    "    def __enter__(self):",
+    "        self.acquired = True",
+    "        return self",
+    "",
+    "    def __exit__(self, exc_type, exc_val, exc_tb):",
+    "        self.acquired = False",
+    "        return False"
+  ],
+  "order": 50
+}

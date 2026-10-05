@@ -1,0 +1,78 @@
+{
+  "id": "py-intervals",
+  "title": "Intervals: merge by start",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Merge overlapping closed intervals. Sort by start; a start past the last merged end opens a new interval, otherwise extend that end. Touching intervals merge, hence '>'. O(n log n).",
+  "code": [
+    "# Sort first, then compare with the last merged interval.",
+    "def merge_intervals(intervals):",
+    "    merged = []",
+    "    for start, end in sorted(intervals):",
+    "        if not merged or start > merged[-1][1]:",
+    "            merged.append([start, end])",
+    "        else:",
+    "            merged[-1][1] = max(merged[-1][1], end)",
+    "    return merged"
+  ],
+  "family": "intervals",
+  "triggers": [
+    "overlapping ranges, bookings or time blocks",
+    "merge, insert into, or find conflicts among intervals"
+  ],
+  "prompts": [
+    "A calendar export lists busy blocks in random order, some overlapping. Produce the fewest blocks that cover exactly the same busy time.",
+    "Several edits highlighted overlapping character ranges in a document. Collapse them into separate, non-overlapping ranges before drawing."
+  ],
+  "invariant": "merged is sorted, pairwise disjoint, and covers exactly the intervals seen so far.",
+  "mantra": "Sort by start; an overlap stretches the last end, a gap opens a new interval.",
+  "pitfalls": [
+    "Closed intervals that touch ([1, 2] and [2, 3]) merge, so the test is start > end, not >=.",
+    "Extend with max(): an interval inside the last one must not shrink it.",
+    "Append a fresh [start, end]; editing an input list changes the caller's data."
+  ],
+  "anchors": [
+    {
+      "name": "Merge Intervals",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Insert Interval",
+      "trick": "Already sorted: copy the ones before, merge the overlaps, copy the rest."
+    },
+    {
+      "name": "Meeting Rooms",
+      "trick": "Sort by start; any start before the previous end is a conflict."
+    },
+    {
+      "name": "Non-overlapping Intervals",
+      "trick": "Different rule: sort by end and keep the earliest finisher."
+    }
+  ],
+  "keyLineIndices": [
+    3,
+    4,
+    7
+  ],
+  "contrastWith": [
+    "py-intervals-by-end"
+  ],
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 4,
+      "replacement": "        if not merged or start >= merged[-1][1]:",
+      "explanation": "Touching closed intervals such as [8, 10] and [10, 12] stay separate."
+    },
+    {
+      "line": 7,
+      "replacement": "            merged[-1][1] = end",
+      "explanation": "An interval inside the last one shrinks it: [1, 6] then [2, 3] becomes [1, 3]."
+    }
+  ],
+  "order": 6
+}

@@ -1,0 +1,81 @@
+{
+  "id": "py-monotonic-increasing",
+  "title": "Monotonic stack: largest rectangle",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Largest rectangle under a histogram. Keep bar indices with rising heights; a shorter bar pops each taller one and measures how far it spans. A trailing 0 flushes the stack. O(n).",
+  "code": [
+    "# Heights rise up the stack; a shorter bar closes every taller one.",
+    "def largest_rectangle(heights):",
+    "    stack = []",
+    "    best = 0",
+    "    for index, height in enumerate(heights + [0]):",
+    "        while stack and heights[stack[-1]] >= height:",
+    "            top = heights[stack.pop()]",
+    "            width = index if not stack else index - stack[-1] - 1",
+    "            best = max(best, top * width)",
+    "        stack.append(index)",
+    "    return best"
+  ],
+  "family": "monotonic-stack",
+  "triggers": [
+    "for each bar, how far it extends left and right before something shorter",
+    "largest area or score limited by the smallest value in a range"
+  ],
+  "prompts": [
+    "A street of equal-width buildings is given as their heights. What is the largest rectangular banner that fits entirely within the buildings' outline?",
+    "Books of equal thickness but different heights stand side by side. What is the largest rectangular label you could stick across their spines without any of it rising above a book?"
+  ],
+  "invariant": "Heights at the stack's indices rise from bottom to top, and a popped bar spans from just after the bar below it to just before index.",
+  "mantra": "A shorter bar pops and measures every taller one.",
+  "pitfalls": [
+    "After a pop, width is index - stack[-1] - 1, or index when the stack is empty.",
+    "Append a sentinel 0 so every bar is popped and measured at the end.",
+    "Store indices: the width comes from positions, the height from heights[index]."
+  ],
+  "anchors": [
+    {
+      "name": "Largest Rectangle in Histogram",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Maximal Rectangle",
+      "trick": "Build each row's histogram of consecutive 1s above it, then run this per row."
+    },
+    {
+      "name": "Sum of Subarray Minimums",
+      "trick": "The same pops count how many subarrays each value is the minimum of."
+    },
+    {
+      "name": "Trapping Rain Water",
+      "trick": "Decreasing stack instead: a taller bar pops and fills the dip between it and the new top."
+    }
+  ],
+  "keyLineIndices": [
+    4,
+    5,
+    7,
+    9
+  ],
+  "contrastWith": [
+    "py-monotonic-stack"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 7,
+      "replacement": "            width = index if not stack else index - stack[-1]",
+      "explanation": "Counts the shorter bar below as part of the span, so every width after a pop is one too wide."
+    },
+    {
+      "line": 4,
+      "replacement": "    for index, height in enumerate(heights):",
+      "explanation": "Without the trailing 0, bars still on the stack are never measured: [1, 2, 3] gives 0 instead of 4."
+    }
+  ],
+  "order": 14
+}

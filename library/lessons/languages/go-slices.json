@@ -1,0 +1,28 @@
+{
+  "id": "go-slices",
+  "title": "Slices, maps and range",
+  "category": "Go fundamentals",
+  "track": "languages",
+  "language": "go",
+  "summary": "Grow a slice with append and count strings in a map. Map lookup returns the zero value for a missing key.",
+  "code": [
+    "package main",
+    "",
+    "import \"fmt\"",
+    "",
+    "func counts(words []string) map[string]int {",
+    "    result := make(map[string]int)",
+    "    for _, word := range words {",
+    "        result[word]++",
+    "    }",
+    "    return result",
+    "}",
+    "",
+    "func main() {",
+    "    words := []string{\"go\", \"rust\"}",
+    "    words = append(words, \"go\")",
+    "    fmt.Println(counts(words)[\"go\"])",
+    "}"
+  ],
+  "order": 60
+}

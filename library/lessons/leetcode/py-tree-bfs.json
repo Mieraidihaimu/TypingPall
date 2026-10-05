@@ -1,0 +1,100 @@
+{
+  "id": "py-tree-bfs",
+  "title": "Tree BFS: level by level",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Node values grouped by depth, left to right. Read len(queue) once at the start of each pass, so the inner loop handles exactly one level. O(n). The TreeNode class is shown, not typed.",
+  "code": [
+    "from collections import deque",
+    "",
+    "class TreeNode:",
+    "    def __init__(self, value, left=None, right=None):",
+    "        self.value = value",
+    "        self.left = left",
+    "        self.right = right",
+    "",
+    "# Read len(queue) once per pass, so each pass handles exactly one level.",
+    "def level_order(root):",
+    "    if root is None:",
+    "        return []",
+    "    levels = []",
+    "    queue = deque([root])",
+    "    while queue:",
+    "        level = []",
+    "        for _ in range(len(queue)):",
+    "            node = queue.popleft()",
+    "            level.append(node.value)",
+    "            if node.left is not None:",
+    "                queue.append(node.left)",
+    "            if node.right is not None:",
+    "                queue.append(node.right)",
+    "        levels.append(level)",
+    "    return levels"
+  ],
+  "family": "bfs",
+  "triggers": [
+    "per-level answers in a tree: each level's values, average, maximum or rightmost node",
+    "the shallowest node, or the minimum depth, that meets a condition"
+  ],
+  "prompts": [
+    "An org chart is a binary tree. Print everyone grouped by how many levels below the CEO they sit, left to right within each row.",
+    "A knockout tournament is stored as a binary tree with the final at the root. List the matches round by round, starting from the final."
+  ],
+  "invariant": "At the start of each pass, queue holds exactly the nodes of one level, in left-to-right order.",
+  "mantra": "Freeze the queue length: one pass, one level.",
+  "pitfalls": [
+    "Read len(queue) once before the inner loop; the loop appends the next level as it goes.",
+    "popleft(), not pop(): a stack mixes levels and order.",
+    "Handle an empty tree before seeding the queue."
+  ],
+  "anchors": [
+    {
+      "name": "Binary Tree Level Order Traversal",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Binary Tree Right Side View",
+      "trick": "Keep the last value of each level."
+    },
+    {
+      "name": "Minimum Depth of Binary Tree",
+      "trick": "Return the level number of the first leaf you dequeue."
+    },
+    {
+      "name": "Binary Tree Zigzag Level Order Traversal",
+      "trick": "Reverse every other level before saving it."
+    }
+  ],
+  "keyLineIndices": [
+    15,
+    16,
+    17,
+    23
+  ],
+  "scaffoldLineIndices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "contrastWith": [
+    "py-bfs",
+    "py-tree-dfs"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 17,
+      "replacement": "            node = queue.pop()",
+      "explanation": "Takes the newest node, which can belong to the next level: levels mix and lose their left-to-right order."
+    }
+  ],
+  "order": 16
+}

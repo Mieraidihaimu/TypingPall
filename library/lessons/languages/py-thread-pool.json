@@ -1,0 +1,20 @@
+{
+  "id": "py-thread-pool",
+  "title": "Thread pool and futures",
+  "category": "Python concurrency",
+  "track": "languages",
+  "language": "python",
+  "summary": "Submit independent tasks and retrieve results in input order. Threads commonly suit blocking I/O; this arithmetic task only demonstrates the API.",
+  "code": [
+    "from concurrent.futures import ThreadPoolExecutor",
+    "",
+    "def square(value):",
+    "    return value * value",
+    "",
+    "def parallel_squares(values):",
+    "    with ThreadPoolExecutor(max_workers=4) as executor:",
+    "        futures = [executor.submit(square, value) for value in values]",
+    "        return [future.result() for future in futures]"
+  ],
+  "order": 76
+}

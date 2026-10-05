@@ -1,0 +1,78 @@
+{
+  "id": "lld-lru-cache",
+  "title": "LRU cache: evict the least recently used",
+  "category": "Design building blocks",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "An OrderedDict keeps keys from least to most recently used. get and put move the key to the end; when the cache overflows, popitem(last=False) evicts from the front. O(1) per operation.",
+  "code": [
+    "# Keys run from least to most recently used: a touch moves a key to the end, eviction takes the front.",
+    "from collections import OrderedDict",
+    "",
+    "class LRUCache:",
+    "    def __init__(self, capacity):",
+    "        self.capacity = capacity",
+    "        self.items = OrderedDict()",
+    "",
+    "    def get(self, key):",
+    "        if key not in self.items:",
+    "            return None",
+    "        self.items.move_to_end(key)",
+    "        return self.items[key]",
+    "",
+    "    def put(self, key, value):",
+    "        self.items[key] = value",
+    "        self.items.move_to_end(key)",
+    "        if len(self.items) > self.capacity:",
+    "            self.items.popitem(last=False)"
+  ],
+  "family": "lru-cache",
+  "triggers": [
+    "a fixed-size cache that evicts whatever was used longest ago",
+    "O(1) get and put that also track recency: a hash map plus an ordered list"
+  ],
+  "prompts": [
+    "A photo app keeps thumbnails for the 200 images viewed most recently. Opening an old image again must protect it from being the next one dropped.",
+    "A database client caches query results but has room for a few hundred. When it's full, it discards the result nobody has asked for in the longest time."
+  ],
+  "invariant": "items holds at most capacity keys ordered from least to most recently used, and every get or put moves its key to the end.",
+  "mantra": "Touch moves to the back; evict from the front.",
+  "pitfalls": [
+    "popitem() takes the newest entry by default; LRU eviction needs popitem(last=False).",
+    "Assigning to an existing key keeps its old position, so move it to the end after updating.",
+    "Without OrderedDict, use a dict of nodes and a doubly linked list with head and tail sentinels."
+  ],
+  "anchors": [
+    {
+      "name": "LRU Cache",
+      "trick": "Exactly this; interviewers may ask for the linked-list version."
+    },
+    {
+      "name": "LFU Cache",
+      "trick": "Group keys by use count, with LRU order inside each count."
+    }
+  ],
+  "keyLineIndices": [
+    11,
+    16,
+    17,
+    18
+  ],
+  "complexity": {
+    "time": "O(1) per get or put",
+    "space": "O(capacity)"
+  },
+  "mutations": [
+    {
+      "line": 18,
+      "replacement": "            self.items.popitem()",
+      "explanation": "popitem() takes from the end by default, evicting the key that was just put instead of the least recently used one."
+    },
+    {
+      "line": 11,
+      "replacement": "        self.items.move_to_end(key, last=False)",
+      "explanation": "Moving a read key to the front marks it least recent, so the key you just used is evicted next."
+    }
+  ],
+  "order": 38
+}

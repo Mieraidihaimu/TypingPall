@@ -1,0 +1,80 @@
+{
+  "id": "lld-rate-limiter",
+  "title": "Rate limiter: token bucket",
+  "category": "Design building blocks",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Tokens refill with elapsed time, capped at capacity; a request spends one whole token or is refused. The clock is passed in so tests control time. O(1) per request.",
+  "code": [
+    "# Refill by elapsed time up to capacity; a request spends one token or is refused.",
+    "class TokenBucket:",
+    "    def __init__(self, capacity, per_second, clock):",
+    "        self.capacity = capacity",
+    "        self.per_second = per_second",
+    "        self.clock = clock",
+    "        self.tokens = capacity",
+    "        self.updated = clock()",
+    "",
+    "    def allow(self):",
+    "        now = self.clock()",
+    "        self.tokens = min(self.capacity, self.tokens + (now - self.updated) * self.per_second)",
+    "        self.updated = now",
+    "        if self.tokens < 1:",
+    "            return False",
+    "        self.tokens -= 1",
+    "        return True"
+  ],
+  "family": "rate-limiter",
+  "triggers": [
+    "allow at most N requests per period with short bursts, per user or per API key",
+    "throttling, quotas and 'too many requests' errors"
+  ],
+  "prompts": [
+    "A public API lets each key make a burst of ten calls, then roughly one call per second. Calls beyond the allowance get an error instead of waiting.",
+    "A game server lets each player fire a few shots in quick succession but limits sustained firing, so scripted clicking gains nothing."
+  ],
+  "invariant": "Before each decision tokens = min(capacity, tokens + elapsed × rate); a request is allowed only when a whole token is available, and it spends that token.",
+  "mantra": "Refill by elapsed time, cap it, spend one.",
+  "pitfalls": [
+    "Cap the refill at capacity, or an idle client banks an unlimited burst.",
+    "Record the refill time on every call, or the same seconds are credited twice.",
+    "Inject the clock so tests control time, and keep one bucket per user or key."
+  ],
+  "anchors": [
+    {
+      "name": "API rate limiter",
+      "trick": "One bucket per key: burst = capacity, sustained rate = refill."
+    },
+    {
+      "name": "Logger Rate Limiter",
+      "trick": "A simpler rule: remember when each message may print again."
+    },
+    {
+      "name": "Design Hit Counter",
+      "trick": "A sliding window of timestamps instead of tokens."
+    }
+  ],
+  "keyLineIndices": [
+    11,
+    12,
+    13,
+    15
+  ],
+  "complexity": {
+    "time": "O(1) per request",
+    "space": "O(1) per bucket"
+  },
+  "mutations": [
+    {
+      "line": 11,
+      "replacement": "        self.tokens = self.tokens + (now - self.updated) * self.per_second",
+      "explanation": "Without the cap, a long idle period banks unlimited tokens and allows a burst far beyond capacity."
+    },
+    {
+      "line": 13,
+      "replacement": "        if self.tokens <= 0:",
+      "explanation": "Allows a request with only part of a token, so the bucket runs into debt and lets traffic through too early."
+    }
+  ],
+  "order": 39
+}

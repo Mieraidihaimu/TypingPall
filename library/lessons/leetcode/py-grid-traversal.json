@@ -1,0 +1,96 @@
+{
+  "id": "py-grid-traversal",
+  "title": "Grid BFS: many sources",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Steps from every open cell to its nearest exit, or -1 for walls and unreachable cells. Seed every exit at distance 0, then expand in four directions; a cell's first visit is final. O(rows × cols).",
+  "code": [
+    "from collections import deque",
+    "",
+    "DIRECTIONS = ((1, 0), (-1, 0), (0, 1), (0, -1))",
+    "",
+    "# All exits start in the queue, so a cell's first visit gives its nearest exit.",
+    "def distances_to_exit(grid):",
+    "    rows, cols = len(grid), len(grid[0])",
+    "    distance = [[-1] * cols for _ in range(rows)]",
+    "    queue = deque()",
+    "    for r in range(rows):",
+    "        for c in range(cols):",
+    "            if grid[r][c] == 'E':",
+    "                distance[r][c] = 0",
+    "                queue.append((r, c))",
+    "    while queue:",
+    "        r, c = queue.popleft()",
+    "        for dr, dc in DIRECTIONS:",
+    "            nr, nc = r + dr, c + dc",
+    "            inside = 0 <= nr < rows and 0 <= nc < cols",
+    "            if inside and grid[nr][nc] != '#' and distance[nr][nc] == -1:",
+    "                distance[nr][nc] = distance[r][c] + 1",
+    "                queue.append((nr, nc))",
+    "    return distance"
+  ],
+  "family": "bfs",
+  "triggers": [
+    "distance to the nearest of many sources on a grid",
+    "something spreads one cell per step from several starting cells at once"
+  ],
+  "prompts": [
+    "A warehouse floor plan marks shelves, open aisles and loading docks. For each open spot, how many steps is it to the closest dock?",
+    "A fire starts in several rooms of a floor plan at once and spreads to neighbouring rooms each minute, never through walls. When does each room catch fire?"
+  ],
+  "invariant": "The queue holds cells in nondecreasing distance, starting with every exit at 0, so the first distance written to a cell is its shortest.",
+  "mantra": "Seed every source, then expand one ring at a time.",
+  "pitfalls": [
+    "Seed all sources before the loop; one BFS per source multiplies the work by the number of sources.",
+    "Check bounds before indexing: 0 <= nr < rows and 0 <= nc < cols.",
+    "Mark a cell when you enqueue it, as in graph BFS.",
+    "Walls and unreachable cells keep -1."
+  ],
+  "anchors": [
+    {
+      "name": "Rotting Oranges",
+      "trick": "Seed every rotten orange; the answer is the largest distance, or -1 if a fresh orange is never reached."
+    },
+    {
+      "name": "01 Matrix",
+      "trick": "Seed every 0 cell; each 1 gets its distance to the nearest 0."
+    },
+    {
+      "name": "Walls and Gates",
+      "trick": "Exactly this, with gates as exits."
+    },
+    {
+      "name": "Shortest Path in Binary Matrix",
+      "trick": "One source and eight directions."
+    }
+  ],
+  "keyLineIndices": [
+    12,
+    13,
+    18,
+    19,
+    20
+  ],
+  "contrastWith": [
+    "py-bfs",
+    "py-dfs"
+  ],
+  "complexity": {
+    "time": "O(rows × cols)",
+    "space": "O(rows × cols)"
+  },
+  "mutations": [
+    {
+      "line": 11,
+      "replacement": "            if grid[r][c] == 'E' and not queue:",
+      "explanation": "Seeds only the first exit. The others count as open cells, so every distance is measured from that one exit."
+    },
+    {
+      "line": 18,
+      "replacement": "            inside = 0 <= nr <= rows and 0 <= nc < cols",
+      "explanation": "Lets nr equal rows, one past the last row, so grid[nr] raises IndexError."
+    }
+  ],
+  "order": 17
+}

@@ -1,0 +1,74 @@
+{
+  "id": "py-top-k",
+  "title": "Heap: top k largest",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "The k largest values, largest first. Keep a min-heap of at most k values; its root is the smallest survivor, the bar a new value must beat. O(n log k).",
+  "code": [
+    "import heapq",
+    "",
+    "# The smallest retained value stays at the heap root.",
+    "def largest_k(values, k):",
+    "    if k <= 0:",
+    "        return []",
+    "    heap = []",
+    "    for value in values:",
+    "        heapq.heappush(heap, value)",
+    "        if len(heap) > k:",
+    "            heapq.heappop(heap)",
+    "    return sorted(heap, reverse=True)"
+  ],
+  "family": "heap",
+  "triggers": [
+    "k largest, smallest, most frequent or closest",
+    "a stream where only the best k matter"
+  ],
+  "prompts": [
+    "A game server receives scores all day. Keep the ten highest scores so far without storing every score.",
+    "From thousands of delivery stops, return the five closest to the depot."
+  ],
+  "invariant": "heap holds the k largest values seen so far, and heap[0] is the smallest of them.",
+  "mantra": "Keep k in a min-heap; the root is the bar to beat.",
+  "pitfalls": [
+    "heapq is min-only: push -value, or (-key, tiebreak, item), for a max-heap.",
+    "Tuples compare field by field; add an index tiebreak when items can't be compared.",
+    "Once the heap is full, heapq.heappushpop(heap, value) pushes and pops in one step.",
+    "Only heap[0] is ordered; sort the heap to return it in order."
+  ],
+  "anchors": [
+    {
+      "name": "Kth Largest Element in an Array",
+      "trick": "Size-k min-heap; heap[0] is the answer."
+    },
+    {
+      "name": "Top K Frequent Elements",
+      "trick": "Counter first, then a size-k heap of (count, value)."
+    },
+    {
+      "name": "K Closest Points to Origin",
+      "trick": "Size-k max-heap keyed by -(x * x + y * y); skip the square root."
+    },
+    {
+      "name": "Merge k Sorted Lists",
+      "trick": "Min-heap of (value, list index, node) frontiers."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    9,
+    10
+  ],
+  "complexity": {
+    "time": "O(n log k)",
+    "space": "O(k)"
+  },
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "        if len(heap) >= k:",
+      "explanation": "Pops as soon as the heap reaches k, so only k - 1 values survive."
+    }
+  ],
+  "order": 22
+}

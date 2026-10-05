@@ -1,0 +1,22 @@
+{
+  "id": "py-generators",
+  "title": "Generators and iteration",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Yield bounded batches without materializing the entire input. Validate batch size before iterating.",
+  "code": [
+    "def batches(items, size):",
+    "    if size <= 0:",
+    "        raise ValueError(\"size must be positive\")",
+    "    batch = []",
+    "    for item in items:",
+    "        batch.append(item)",
+    "        if len(batch) == size:",
+    "            yield batch",
+    "            batch = []",
+    "    if batch:",
+    "        yield batch"
+  ],
+  "order": 48
+}

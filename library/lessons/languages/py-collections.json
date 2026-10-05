@@ -1,0 +1,19 @@
+{
+  "id": "py-collections",
+  "title": "Counting and grouping",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Use Counter for frequencies and defaultdict for grouping by a derived key.",
+  "code": [
+    "from collections import Counter, defaultdict",
+    "",
+    "def summarize_words(words):",
+    "    counts = Counter(words)",
+    "    groups = defaultdict(list)",
+    "    for word in words:",
+    "        groups[len(word)].append(word)",
+    "    return counts, dict(groups)"
+  ],
+  "order": 47
+}

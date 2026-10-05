@@ -1,0 +1,102 @@
+{
+  "id": "py-binary-search",
+  "title": "Binary search: lower bound",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "First index with value >= target, or len(values) if none. Half-open [left, right): too small → left = mid + 1, else right = mid. O(log n).",
+  "code": [
+    "# Exclude mid only when its value is too small.",
+    "def lower_bound(values, target):",
+    "    left, right = 0, len(values)",
+    "    while left < right:",
+    "        mid = left + (right - left) // 2",
+    "        if values[mid] < target:",
+    "            left = mid + 1",
+    "        else:",
+    "            right = mid",
+    "    return left"
+  ],
+  "family": "binary-search",
+  "triggers": [
+    "sorted input + a position, count or insertion point",
+    "first index where a yes/no condition flips to yes",
+    "O(log n) expected on ordered data"
+  ],
+  "prompts": [
+    "Log timestamps are stored in ascending order. Count the entries strictly before a given moment.",
+    "Release versions are kept sorted. Find where a new version goes so the order holds.",
+    "Exam scores are sorted low to high. Find the first position that reaches the pass mark."
+  ],
+  "invariant": "values[:left] < target <= values[right:]; [left, right) is undecided. When it is empty, left is the answer.",
+  "mantra": "Too small: step past mid. Otherwise keep mid.",
+  "pitfalls": [
+    "right starts at len(values), not len(values) - 1, so 'absent' can return len(values).",
+    "Half-open pairs 'while left < right' with 'right = mid'; mixing in <= or mid - 1 reads past the end or skips the answer.",
+    "left = mid (no + 1) stops shrinking once right == left + 1.",
+    "Comparing with <= yields upper bound: first value > target.",
+    "Python ints don't overflow, so (left + right) // 2 is fine; bisect.bisect_left is the built-in."
+  ],
+  "anchors": [
+    {
+      "name": "Search Insert Position",
+      "trick": "Exactly lower_bound; return left."
+    },
+    {
+      "name": "Find First and Last Position of Element in Sorted Array",
+      "trick": "first = lower_bound(t), last = upper_bound(t) - 1; absent if first == n or values[first] != t."
+    },
+    {
+      "name": "Koko Eating Bananas",
+      "trick": "Same loop over speeds [1, max(piles)]; 'values[mid] < target' becomes 'not feasible(mid)'."
+    },
+    {
+      "name": "Time Based Key-Value Store",
+      "trick": "upper_bound on timestamps, then step back one."
+    }
+  ],
+  "keyLineIndices": [
+    2,
+    3,
+    5,
+    8
+  ],
+  "contrastWith": [
+    "py-two-pointers",
+    "py-upper-bound",
+    "py-binary-search-closed",
+    "py-binary-search-answer"
+  ],
+  "complexity": {
+    "time": "O(log n)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 2,
+      "replacement": "    left, right = 0, len(values) - 1",
+      "explanation": "When every value is below target it returns the last index instead of len(values)."
+    },
+    {
+      "line": 3,
+      "replacement": "    while left <= right:",
+      "explanation": "mid can reach len(values) (IndexError), and right = mid can stop shrinking (infinite loop)."
+    },
+    {
+      "line": 5,
+      "replacement": "        if values[mid] <= target:",
+      "explanation": "Becomes upper bound: skips values equal to target."
+    },
+    {
+      "line": 6,
+      "replacement": "            left = mid",
+      "explanation": "No progress when right == left + 1 and values[mid] < target: infinite loop."
+    },
+    {
+      "line": 8,
+      "replacement": "            right = mid - 1",
+      "explanation": "Discards mid even when it is the first match."
+    }
+  ],
+  "order": 8
+}

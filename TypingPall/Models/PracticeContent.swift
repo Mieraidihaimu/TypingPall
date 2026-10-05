@@ -1,7 +1,7 @@
 import Foundation
 
 enum CodeLanguage: String, Codable, CaseIterable, Identifiable {
-    case plainText, python, cpp, rust, go, ruby, shell
+    case plainText, python, cpp, rust, go, ruby, shell, swift, javascript, typescript, sql, java, kotlin
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -12,6 +12,12 @@ enum CodeLanguage: String, Codable, CaseIterable, Identifiable {
         case .go: return "Go"
         case .ruby: return "Ruby"
         case .shell: return "Shell"
+        case .swift: return "Swift"
+        case .javascript: return "JavaScript"
+        case .typescript: return "TypeScript"
+        case .sql: return "SQL"
+        case .java: return "Java"
+        case .kotlin: return "Kotlin"
         }
     }
     static func from(fileExtension: String) -> CodeLanguage {
@@ -22,20 +28,72 @@ enum CodeLanguage: String, Codable, CaseIterable, Identifiable {
         case "go": return .go
         case "rb": return .ruby
         case "sh", "bash", "zsh": return .shell
+        case "swift": return .swift
+        case "js", "jsx", "mjs": return .javascript
+        case "ts", "tsx": return .typescript
+        case "sql": return .sql
+        case "java": return .java
+        case "kt", "kts": return .kotlin
         default: return .plainText
         }
     }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        self = CodeLanguage(rawValue: raw) ?? .plainText
+    }
 }
 
-enum LessonTrack: String, Codable, CaseIterable, Identifiable {
-    case leetcode, lowLevelDesign, languages
+struct LessonTrack: RawRepresentable, Codable, CaseIterable, Identifiable, Hashable, CustomStringConvertible {
+    let rawValue: String
+    init(rawValue: String) { self.rawValue = rawValue }
+    init(_ rawValue: String) { self.rawValue = rawValue }
     var id: String { rawValue }
+    var description: String { rawValue }
+
+    static let leetcode = LessonTrack(rawValue: "leetcode")
+    static let lowLevelDesign = LessonTrack(rawValue: "lowLevelDesign")
+    static let languages = LessonTrack(rawValue: "languages")
+    static let algorithms = LessonTrack(rawValue: "algorithms")
+    static let systemDesign = LessonTrack(rawValue: "systemDesign")
+
     var title: String {
-        switch self {
-        case .leetcode: return "LeetCode"
-        case .lowLevelDesign: return "Low-level design"
-        case .languages: return "Languages & syntax"
+        switch rawValue {
+        case "leetcode": return "LeetCode"
+        case "lowLevelDesign": return "Low-level design"
+        case "languages": return "Languages & syntax"
+        case "algorithms": return "Algorithms"
+        case "systemDesign": return "System design"
+        default:
+            let spaced = rawValue.reduce("") { result, char in
+                char.isUppercase ? result + " " + String(char) : result + String(char)
+            }
+            return spaced
+                .replacingOccurrences(of: "-", with: " ")
+                .replacingOccurrences(of: "_", with: " ")
+                .trimmingCharacters(in: .whitespaces)
+                .capitalized
         }
+    }
+
+    static var allCases: [LessonTrack] {
+        var result: [LessonTrack] = [.leetcode, .lowLevelDesign, .languages]
+        for lesson in PracticeCatalog.lessons {
+            if !result.contains(lesson.track) {
+                result.append(lesson.track)
+            }
+        }
+        return result
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.rawValue = try container.decode(String.self)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
     }
 }
 
@@ -151,8 +209,10 @@ enum CommentFilter {
                     continue
                 }
                 let isHashComment = (language == .python || language == .ruby || language == .shell)
+                let isDashComment = (language == .sql)
                 if (isHashComment && chars[index] == "#") ||
-                    (!isHashComment && matches("//", at: index)) {
+                    (isDashComment && matches("--", at: index)) ||
+                    (!isHashComment && !isDashComment && matches("//", at: index)) {
                     hadComment = true
                     break
                 }

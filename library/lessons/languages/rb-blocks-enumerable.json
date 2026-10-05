@@ -1,0 +1,18 @@
+{
+  "id": "rb-blocks-enumerable",
+  "title": "Blocks and enumeration",
+  "category": "Ruby fundamentals",
+  "track": "languages",
+  "language": "ruby",
+  "summary": "Transform, filter, and fold collections with blocks and the Enumerable module.",
+  "code": [
+    "def analyze_scores(scores)",
+    "    evens = scores.select { |score| score.even? }",
+    "    squares = evens.map { |score| score * score }",
+    "    total = squares.reduce(0) { |sum, value| sum + value }",
+    "    ranked = scores.sort.reverse.each_with_index.to_h",
+    "    [squares, total, ranked]",
+    "end"
+  ],
+  "order": 54
+}

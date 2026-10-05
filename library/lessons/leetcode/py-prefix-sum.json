@@ -1,0 +1,80 @@
+{
+  "id": "py-prefix-sum",
+  "title": "Prefix sums and a hash map",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Count subarrays summing to target, negatives allowed. Seed the empty prefix {0: 1}; look up prefix - target before recording prefix. O(n).",
+  "code": [
+    "# A previous prefix equal to prefix - target starts a match.",
+    "def count_subarrays(values, target):",
+    "    counts = {0: 1}",
+    "    prefix = 0",
+    "    result = 0",
+    "    for value in values:",
+    "        prefix += value",
+    "        result += counts.get(prefix - target, 0)",
+    "        counts[prefix] = counts.get(prefix, 0) + 1",
+    "    return result"
+  ],
+  "family": "prefix-sum",
+  "triggers": [
+    "count (or longest) subarrays whose sum or xor is exactly k",
+    "negative numbers, so a sliding window can't tell when to shrink"
+  ],
+  "prompts": [
+    "Daily balance changes can be positive or negative. Count the runs of consecutive days whose changes net to exactly zero.",
+    "A sensor reports signed adjustments. How many contiguous stretches of readings add up to a given drift?"
+  ],
+  "invariant": "When a value is read, counts[p] is how many earlier prefixes, the empty one included, sum to p.",
+  "mantra": "Look up prefix - target, then record prefix.",
+  "pitfalls": [
+    "Seed {0: 1}, or subarrays that start at index 0 are missed.",
+    "Look up before recording: the other order counts the empty subarray when target is 0.",
+    "Negative values break sliding windows; that's why this uses a map."
+  ],
+  "anchors": [
+    {
+      "name": "Subarray Sum Equals K",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Contiguous Array",
+      "trick": "Treat 0 as -1, store each prefix's first index, find the longest zero-sum span."
+    },
+    {
+      "name": "Continuous Subarray Sum",
+      "trick": "Store prefix % k with its first index; a repeat two or more apart is a hit."
+    },
+    {
+      "name": "Range Sum Query - Immutable",
+      "trick": "prefix[j] - prefix[i] answers each query in O(1)."
+    }
+  ],
+  "keyLineIndices": [
+    2,
+    7,
+    8
+  ],
+  "contrastWith": [
+    "py-sliding-window",
+    "py-sliding-window-shrink"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 2,
+      "replacement": "    counts = {}",
+      "explanation": "Without the empty prefix, subarrays that start at index 0 are never counted."
+    },
+    {
+      "line": 7,
+      "replacement": "        result += counts.get(target - prefix, 0)",
+      "explanation": "Wrong complement: prefix - earlier == target means earlier == prefix - target."
+    }
+  ],
+  "order": 12
+}

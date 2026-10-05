@@ -1,0 +1,27 @@
+{
+  "id": "cpp-raii",
+  "title": "Ownership with unique_ptr",
+  "category": "C++ fundamentals",
+  "track": "languages",
+  "language": "cpp",
+  "summary": "C++17. A unique_ptr owns an object and releases it automatically. Move transfers ownership explicitly.",
+  "code": [
+    "#include <iostream>",
+    "#include <memory>",
+    "#include <utility>",
+    "",
+    "struct Node {",
+    "    int value;",
+    "    std::unique_ptr<Node> next;",
+    "    explicit Node(int value) : value(value) {}",
+    "};",
+    "",
+    "int main() {",
+    "    auto head = std::make_unique<Node>(10);",
+    "    head->next = std::make_unique<Node>(20);",
+    "    auto owner = std::move(head);",
+    "    std::cout << owner->value << ' ' << owner->next->value;",
+    "}"
+  ],
+  "order": 70
+}

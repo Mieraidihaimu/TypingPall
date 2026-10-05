@@ -1,0 +1,78 @@
+{
+  "id": "py-intervals-by-end",
+  "title": "Intervals: sort by end",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Fewest intervals to remove so the rest don't overlap; touching ends are fine. Sort by end and keep each interval that starts at or after the last kept end. O(n log n).",
+  "code": [
+    "# Keep the interval that ends first; it leaves the most room for the rest.",
+    "def min_removals(intervals):",
+    "    kept = 0",
+    "    last_end = float('-inf')",
+    "    for start, end in sorted(intervals, key=lambda interval: interval[1]):",
+    "        if start >= last_end:",
+    "            kept += 1",
+    "            last_end = end",
+    "    return len(intervals) - kept"
+  ],
+  "family": "intervals",
+  "triggers": [
+    "the most non-overlapping intervals, or the fewest removals to get there",
+    "schedule as many activities as possible on one shared resource"
+  ],
+  "prompts": [
+    "A single meeting room has many booking requests, some overlapping. Accept as many as possible; how many must be turned down?",
+    "A festival stage receives set requests with start and end times. Back-to-back sets are fine, overlaps are not. Keep the largest number of sets."
+  ],
+  "invariant": "The kept intervals don't overlap, and no compatible choice of the same number of intervals ends earlier than last_end.",
+  "mantra": "Sort by end; keep what fits after the last kept end.",
+  "pitfalls": [
+    "Sort by end, not start: an early-starting long interval can block many short ones.",
+    "Half-open intervals may touch, so keep when start >= last_end.",
+    "Count the kept intervals and subtract; removing while scanning is error-prone."
+  ],
+  "anchors": [
+    {
+      "name": "Non-overlapping Intervals",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Minimum Number of Arrows to Burst Balloons",
+      "trick": "Same greedy on closed intervals: a new arrow only when start > last_end."
+    },
+    {
+      "name": "Maximum Length of Pair Chain",
+      "trick": "Count the kept pairs; a chain needs start > last_end."
+    },
+    {
+      "name": "Merge Intervals",
+      "trick": "Different rule: sort by start and extend the last end."
+    }
+  ],
+  "keyLineIndices": [
+    4,
+    5,
+    7
+  ],
+  "contrastWith": [
+    "py-intervals"
+  ],
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 4,
+      "replacement": "    for start, end in sorted(intervals):",
+      "explanation": "Sorting by start keeps an early, long interval that blocks shorter ones: [[1, 10], [2, 3], [4, 5]] removes 2 instead of 1."
+    },
+    {
+      "line": 5,
+      "replacement": "        if start > last_end:",
+      "explanation": "Treats touching intervals as overlapping: [[1, 2], [2, 3]] removes 1 instead of 0."
+    }
+  ],
+  "order": 7
+}

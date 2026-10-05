@@ -1,0 +1,25 @@
+{
+  "id": "rust-borrow",
+  "title": "Ownership and borrowing",
+  "category": "Rust fundamentals",
+  "track": "languages",
+  "language": "rust",
+  "summary": "Borrow a str to inspect it and a mutable String to change it. A borrow ends before the next conflicting use.",
+  "code": [
+    "fn first_word(text: &str) -> &str {",
+    "    text.split_whitespace().next().unwrap_or(\"\")",
+    "}",
+    "",
+    "fn add_suffix(text: &mut String) {",
+    "    text.push_str(\" patterns\");",
+    "}",
+    "",
+    "fn main() {",
+    "    let mut text = String::from(\"practice\");",
+    "    println!(\"{}\", first_word(&text));",
+    "    add_suffix(&mut text);",
+    "    println!(\"{}\", text);",
+    "}"
+  ],
+  "order": 72
+}

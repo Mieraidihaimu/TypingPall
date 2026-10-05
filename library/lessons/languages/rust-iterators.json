@@ -1,0 +1,23 @@
+{
+  "id": "rust-iterators",
+  "title": "Iterators and collection",
+  "category": "Rust fundamentals",
+  "track": "languages",
+  "language": "rust",
+  "summary": "Borrow a slice, copy its integers, filter, transform and collect into a vector.",
+  "code": [
+    "fn even_squares(values: &[i32]) -> Vec<i32> {",
+    "    values.iter()",
+    "        .copied()",
+    "        .filter(|value| value % 2 == 0)",
+    "        .map(|value| value * value)",
+    "        .collect()",
+    "}",
+    "",
+    "fn main() {",
+    "    let values = [1, 2, 3, 4];",
+    "    println!(\"{:?}\", even_squares(&values));",
+    "}"
+  ],
+  "order": 74
+}

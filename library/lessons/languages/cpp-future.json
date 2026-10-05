@@ -1,0 +1,24 @@
+{
+  "id": "cpp-future",
+  "title": "Async and future",
+  "category": "C++ concurrency",
+  "track": "languages",
+  "language": "cpp",
+  "summary": "C++17. Request asynchronous execution explicitly, retain the future and collect its value with get.",
+  "code": [
+    "#include <future>",
+    "#include <iostream>",
+    "",
+    "int main() {",
+    "    auto result = std::async(std::launch::async, [] {",
+    "        int total = 0;",
+    "        for (int value = 1; value <= 10; ++value) {",
+    "            total += value;",
+    "        }",
+    "        return total;",
+    "    });",
+    "    std::cout << result.get();",
+    "}"
+  ],
+  "order": 81
+}

@@ -1,0 +1,79 @@
+{
+  "id": "py-coin-change",
+  "title": "Unbounded knapsack: fewest coins",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Fewest coins that make an amount, with unlimited coins of each value, or -1. dp[a] = min(dp[a], dp[a - coin] + 1), walking amounts upward so a coin can be reused. O(len(coins) × amount).",
+  "code": [
+    "# Walk amounts upward so a coin can be reused within the same pass.",
+    "def fewest_coins(coins, amount):",
+    "    inf = float('inf')",
+    "    dp = [0] + [inf] * amount",
+    "    for coin in coins:",
+    "        for a in range(coin, amount + 1):",
+    "            dp[a] = min(dp[a], dp[a - coin] + 1)",
+    "    return dp[amount] if dp[amount] != inf else -1"
+  ],
+  "family": "dynamic-programming",
+  "triggers": [
+    "fewest pieces, or the number of ways, to build a total from reusable parts",
+    "an unlimited supply of each item and a target sum"
+  ],
+  "prompts": [
+    "A vending machine gives change in a few coin values and never runs out of any. What is the smallest number of coins that pays out an exact amount?",
+    "Floor tiles come in a handful of lengths, unlimited of each. Cover a corridor of exact length with as few tiles as possible, or report that it can't be done."
+  ],
+  "invariant": "After a coin is processed, dp[a] is the fewest coins that make a using only the coins seen so far, repeats allowed.",
+  "mantra": "Reuse allowed: walk the amount up, plus one coin.",
+  "pitfalls": [
+    "Seed dp[0] = 0 and every other amount with infinity; amounts never reached stay infinite and become -1.",
+    "Walking amounts upward reuses a coin; walking downward allows each coin once (0/1 knapsack).",
+    "Counting ways adds instead of taking the minimum, with coins in the outer loop so each combination is counted once."
+  ],
+  "anchors": [
+    {
+      "name": "Coin Change",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Coin Change II",
+      "trick": "Count ways: dp[a] += dp[a - coin], coins in the outer loop."
+    },
+    {
+      "name": "Perfect Squares",
+      "trick": "The coins are the squares up to n."
+    },
+    {
+      "name": "Combination Sum IV",
+      "trick": "Amounts in the outer loop count ordered sequences instead."
+    }
+  ],
+  "keyLineIndices": [
+    3,
+    5,
+    6,
+    7
+  ],
+  "contrastWith": [
+    "py-knapsack-01",
+    "py-dp"
+  ],
+  "complexity": {
+    "time": "O(len(coins) × amount)",
+    "space": "O(amount)"
+  },
+  "mutations": [
+    {
+      "line": 6,
+      "replacement": "            dp[a] = min(dp[a], dp[a - coin])",
+      "explanation": "Forgets to count the coin just used, so every reachable amount reports 0 coins."
+    },
+    {
+      "line": 5,
+      "replacement": "        for a in range(amount, coin - 1, -1):",
+      "explanation": "Walking downward allows each coin at most once, so amounts that need a repeated coin look impossible."
+    }
+  ],
+  "order": 26
+}

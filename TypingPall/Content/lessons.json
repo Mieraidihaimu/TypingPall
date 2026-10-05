@@ -485,7 +485,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "First index with value >= target, or len(values) if none. Half-open [left, right): too small \u2192 left = mid + 1, else right = mid. O(log n).",
+    "summary": "First index with value >= target, or len(values) if none. Half-open [left, right): too small → left = mid + 1, else right = mid. O(log n).",
     "code": "# Exclude mid only when its value is too small.\ndef lower_bound(values, target):\n    left, right = 0, len(values)\n    while left < right:\n        mid = left + (right - left) // 2\n        if values[mid] < target:\n            left = mid + 1\n        else:\n            right = mid\n    return left",
     "family": "binary-search",
     "triggers": [
@@ -1109,7 +1109,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "Steps from every open cell to its nearest exit, or -1 for walls and unreachable cells. Seed every exit at distance 0, then expand in four directions; a cell's first visit is final. O(rows \u00d7 cols).",
+    "summary": "Steps from every open cell to its nearest exit, or -1 for walls and unreachable cells. Seed every exit at distance 0, then expand in four directions; a cell's first visit is final. O(rows × cols).",
     "code": "from collections import deque\n\nDIRECTIONS = ((1, 0), (-1, 0), (0, 1), (0, -1))\n\n# All exits start in the queue, so a cell's first visit gives its nearest exit.\ndef distances_to_exit(grid):\n    rows, cols = len(grid), len(grid[0])\n    distance = [[-1] * cols for _ in range(rows)]\n    queue = deque()\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 'E':\n                distance[r][c] = 0\n                queue.append((r, c))\n    while queue:\n        r, c = queue.popleft()\n        for dr, dc in DIRECTIONS:\n            nr, nc = r + dr, c + dc\n            inside = 0 <= nr < rows and 0 <= nc < cols\n            if inside and grid[nr][nc] != '#' and distance[nr][nc] == -1:\n                distance[nr][nc] = distance[r][c] + 1\n                queue.append((nr, nc))\n    return distance",
     "family": "bfs",
     "triggers": [
@@ -1158,8 +1158,8 @@
       "py-dfs"
     ],
     "complexity": {
-      "time": "O(rows \u00d7 cols)",
-      "space": "O(rows \u00d7 cols)"
+      "time": "O(rows × cols)",
+      "space": "O(rows × cols)"
     },
     "mutations": [
       {
@@ -1570,7 +1570,7 @@
       "py-bfs"
     ],
     "complexity": {
-      "time": "O(\u03b1(n)) amortized per call",
+      "time": "O(α(n)) amortized per call",
       "space": "O(n)"
     },
     "mutations": [
@@ -1656,7 +1656,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "Most value from (weight, value) items within a capacity, each item used at most once. One row of best totals by capacity; walk capacities downward so an item never builds on itself. O(n \u00d7 capacity).",
+    "summary": "Most value from (weight, value) items within a capacity, each item used at most once. One row of best totals by capacity; walk capacities downward so an item never builds on itself. O(n × capacity).",
     "code": "# Walk capacities downward so each item is counted at most once.\ndef best_value(items, capacity):\n    best = [0] * (capacity + 1)\n    for weight, value in items:\n        for c in range(capacity, weight - 1, -1):\n            best[c] = max(best[c], best[c - weight] + value)\n    return best[capacity]",
     "family": "dynamic-programming",
     "triggers": [
@@ -1702,7 +1702,7 @@
       "py-dp"
     ],
     "complexity": {
-      "time": "O(n \u00d7 capacity)",
+      "time": "O(n × capacity)",
       "space": "O(capacity)"
     },
     "mutations": [
@@ -1719,7 +1719,7 @@
     "category": "Python interview patterns",
     "track": "leetcode",
     "language": "python",
-    "summary": "Fewest coins that make an amount, with unlimited coins of each value, or -1. dp[a] = min(dp[a], dp[a - coin] + 1), walking amounts upward so a coin can be reused. O(len(coins) \u00d7 amount).",
+    "summary": "Fewest coins that make an amount, with unlimited coins of each value, or -1. dp[a] = min(dp[a], dp[a - coin] + 1), walking amounts upward so a coin can be reused. O(len(coins) × amount).",
     "code": "# Walk amounts upward so a coin can be reused within the same pass.\ndef fewest_coins(coins, amount):\n    inf = float('inf')\n    dp = [0] + [inf] * amount\n    for coin in coins:\n        for a in range(coin, amount + 1):\n            dp[a] = min(dp[a], dp[a - coin] + 1)\n    return dp[amount] if dp[amount] != inf else -1",
     "family": "dynamic-programming",
     "triggers": [
@@ -1766,7 +1766,7 @@
       "py-dp"
     ],
     "complexity": {
-      "time": "O(len(coins) \u00d7 amount)",
+      "time": "O(len(coins) × amount)",
       "space": "O(amount)"
     },
     "mutations": [
@@ -2495,7 +2495,7 @@
       "A public API lets each key make a burst of ten calls, then roughly one call per second. Calls beyond the allowance get an error instead of waiting.",
       "A game server lets each player fire a few shots in quick succession but limits sustained firing, so scripted clicking gains nothing."
     ],
-    "invariant": "Before each decision tokens = min(capacity, tokens + elapsed \u00d7 rate); a request is allowed only when a whole token is available, and it spends that token.",
+    "invariant": "Before each decision tokens = min(capacity, tokens + elapsed × rate); a request is allowed only when a whole token is available, and it spends that token.",
     "mantra": "Refill by elapsed time, cap it, spend one.",
     "pitfalls": [
       "Cap the refill at capacity, or an idle client banks an unlimited burst.",

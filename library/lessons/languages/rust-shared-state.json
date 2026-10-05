@@ -1,0 +1,29 @@
+{
+  "id": "rust-shared-state",
+  "title": "Arc, Mutex and thread joining",
+  "category": "Rust concurrency",
+  "track": "languages",
+  "language": "rust",
+  "summary": "Arc shares ownership across threads; Mutex serializes mutation. This small demo treats a panicked worker or poisoned mutex as fatal.",
+  "code": [
+    "use std::sync::{Arc, Mutex};",
+    "use std::thread;",
+    "",
+    "fn main() {",
+    "    let counter = Arc::new(Mutex::new(0));",
+    "    let mut workers = Vec::new();",
+    "    for _ in 0..4 {",
+    "        let counter = Arc::clone(&counter);",
+    "        workers.push(thread::spawn(move || {",
+    "            let mut value = counter.lock().expect(\"poisoned mutex\");",
+    "            *value += 1;",
+    "        }));",
+    "    }",
+    "    for worker in workers {",
+    "        worker.join().expect(\"worker panicked\");",
+    "    }",
+    "    println!(\"{}\", *counter.lock().expect(\"poisoned mutex\"));",
+    "}"
+  ],
+  "order": 83
+}

@@ -1,0 +1,29 @@
+{
+  "id": "cpp-lambda",
+  "title": "Sorting with a lambda",
+  "category": "C++ fundamentals",
+  "track": "languages",
+  "language": "cpp",
+  "summary": "C++17. Define a strict ordering by score, then name. Comparator parameters borrow their arguments.",
+  "code": [
+    "#include <algorithm>",
+    "#include <iostream>",
+    "#include <string>",
+    "#include <vector>",
+    "",
+    "struct Entry {",
+    "    std::string name;",
+    "    int score;",
+    "};",
+    "",
+    "int main() {",
+    "    std::vector<Entry> entries = {{\"b\", 3}, {\"a\", 3}, {\"c\", 1}};",
+    "    std::sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) {",
+    "        if (a.score != b.score) return a.score > b.score;",
+    "        return a.name < b.name;",
+    "    });",
+    "    for (const auto& entry : entries) std::cout << entry.name << ' ';",
+    "}"
+  ],
+  "order": 71
+}

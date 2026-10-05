@@ -1,0 +1,78 @@
+{
+  "id": "py-bfs",
+  "title": "Graph BFS: shortest hops",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Fewest edges from start to every reachable node. Mark a node when you enqueue it, not when you dequeue it; distances[node] + 1 carries the level, so no per-level loop is needed. O(V + E).",
+  "code": [
+    "from collections import deque",
+    "",
+    "# FIFO order reaches nodes in order of distance.",
+    "def shortest_distances(graph, start):",
+    "    distances = {start: 0}",
+    "    queue = deque([start])",
+    "    while queue:",
+    "        node = queue.popleft()",
+    "        for neighbor in graph.get(node, []):",
+    "            if neighbor not in distances:",
+    "                distances[neighbor] = distances[node] + 1",
+    "                queue.append(neighbor)",
+    "    return distances"
+  ],
+  "family": "bfs",
+  "triggers": [
+    "fewest steps, hops or moves when every edge costs the same",
+    "spread outward level by level from one or many sources"
+  ],
+  "prompts": [
+    "A subway map lists which stations connect directly. Report the fewest rides from your station to each station you can reach.",
+    "In a professional network, list everyone within three introductions of you, with how many introductions each one needs."
+  ],
+  "invariant": "Nodes leave the queue in nondecreasing distance, so the first distance recorded for a node is final.",
+  "mantra": "Mark when you enqueue, not when you dequeue.",
+  "pitfalls": [
+    "Marking on dequeue lets a node enter the queue many times.",
+    "list.pop(0) is O(n); use deque.popleft().",
+    "Per-level work needs for _ in range(len(queue)) inside while queue.",
+    "Weighted edges need Dijkstra, not BFS."
+  ],
+  "anchors": [
+    {
+      "name": "Binary Tree Level Order Traversal",
+      "trick": "Level loop: for _ in range(len(queue)) collects one level."
+    },
+    {
+      "name": "Rotting Oranges",
+      "trick": "Multi-source: enqueue every rotten cell first; minutes = levels."
+    },
+    {
+      "name": "Word Ladder",
+      "trick": "Words are nodes, one-letter changes are edges; BFS gives the fewest steps."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    9,
+    10
+  ],
+  "contrastWith": [
+    "py-dfs",
+    "py-union-find",
+    "py-tree-bfs",
+    "py-grid-traversal",
+    "py-topological-sort"
+  ],
+  "complexity": {
+    "time": "O(V + E)",
+    "space": "O(V)"
+  },
+  "mutations": [
+    {
+      "line": 7,
+      "replacement": "        node = queue.pop()",
+      "explanation": "LIFO order is depth-first: a node reached first along a longer path keeps that longer distance."
+    }
+  ],
+  "order": 15
+}

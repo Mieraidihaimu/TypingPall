@@ -124,7 +124,7 @@ enum CodeHighlighter {
         guard language != .plainText, !code.isEmpty else { return attributed }
 
         let trimmed = code.trimmingCharacters(in: .whitespaces)
-        if trimmed.hasPrefix("//") || trimmed.hasPrefix("#") {
+        if trimmed.hasPrefix("//") || trimmed.hasPrefix("#") || trimmed.hasPrefix("--") {
             attributed.foregroundColor = .secondary
             return attributed
         }
@@ -176,6 +176,16 @@ enum CodeHighlighter {
             return ["def", "end", "class", "module", "return", "if", "elsif", "else", "unless", "while", "until", "for", "in", "do", "yield", "self", "nil", "true", "false", "require", "include"]
         case .shell:
             return ["if", "then", "else", "elif", "fi", "for", "while", "do", "done", "case", "esac", "function", "return", "exit", "echo", "export", "local", "alias"]
+        case .swift:
+            return ["func", "var", "let", "class", "struct", "enum", "protocol", "extension", "init", "deinit", "return", "if", "guard", "else", "while", "for", "in", "switch", "case", "default", "break", "continue", "fallthrough", "import", "public", "private", "fileprivate", "internal", "open", "static", "mutating", "self", "Self", "super", "try", "catch", "throw", "throws", "async", "await", "true", "false", "nil"]
+        case .javascript, .typescript:
+            return ["function", "const", "let", "var", "class", "return", "if", "else", "while", "for", "of", "in", "switch", "case", "default", "break", "continue", "import", "export", "from", "default", "new", "this", "super", "try", "catch", "finally", "throw", "async", "await", "yield", "true", "false", "null", "undefined", "typeof", "instanceof"]
+        case .sql:
+            return ["SELECT", "FROM", "WHERE", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER", "ON", "GROUP", "BY", "ORDER", "HAVING", "LIMIT", "OFFSET", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE", "DROP", "ALTER", "AS", "DISTINCT", "AND", "OR", "NOT", "IN", "IS", "NULL", "select", "from", "where", "join", "left", "right", "inner", "outer", "on", "group", "by", "order", "having", "limit", "offset", "insert", "into", "values", "update", "set", "delete", "create", "table", "drop", "alter", "as", "distinct", "and", "or", "not", "in", "is", "null"]
+        case .java:
+            return ["public", "private", "protected", "class", "interface", "extends", "implements", "static", "final", "void", "return", "if", "else", "while", "for", "switch", "case", "default", "break", "continue", "new", "this", "super", "try", "catch", "finally", "throw", "throws", "import", "package", "true", "false", "null"]
+        case .kotlin:
+            return ["fun", "val", "var", "class", "interface", "object", "return", "if", "else", "while", "for", "in", "when", "is", "as", "break", "continue", "package", "import", "public", "private", "protected", "internal", "override", "open", "data", "sealed", "suspend", "this", "super", "null", "true", "false"]
         case .plainText:
             return []
         }
@@ -191,6 +201,16 @@ enum CodeHighlighter {
             return ["i32", "i64", "u32", "u64", "usize", "isize", "f32", "f64", "bool", "char", "str", "String", "Vec", "Result", "Option"]
         case .go:
             return ["int", "int32", "int64", "uint", "uint32", "uint64", "string", "bool", "byte", "rune", "float32", "float64", "error"]
+        case .swift:
+            return ["Int", "Double", "Float", "Bool", "String", "Character", "Array", "Dictionary", "Set", "Optional", "Result", "Any", "AnyObject"]
+        case .javascript, .typescript:
+            return ["number", "string", "boolean", "object", "symbol", "bigint", "any", "unknown", "never", "void", "Array", "Promise", "Map", "Set", "Record"]
+        case .java:
+            return ["int", "long", "float", "double", "boolean", "char", "byte", "short", "void", "String", "List", "Map", "Set", "ArrayList", "HashMap", "HashSet"]
+        case .kotlin:
+            return ["Int", "Long", "Float", "Double", "Boolean", "Char", "Byte", "Short", "String", "List", "Map", "Set", "Array"]
+        case .sql:
+            return ["INT", "INTEGER", "BIGINT", "VARCHAR", "TEXT", "BOOLEAN", "DATE", "TIMESTAMP", "FLOAT", "DECIMAL", "NUMERIC"]
         default:
             return []
         }

@@ -1,0 +1,31 @@
+{
+  "id": "go-channels",
+  "title": "Goroutines, channels and closing",
+  "category": "Go concurrency",
+  "track": "languages",
+  "language": "go",
+  "summary": "The sender closes the channel after producing all values. range receives until the channel is closed and drained.",
+  "code": [
+    "package main",
+    "",
+    "import \"fmt\"",
+    "",
+    "func squares(values []int) <-chan int {",
+    "    results := make(chan int)",
+    "    go func() {",
+    "        defer close(results)",
+    "        for _, value := range values {",
+    "            results <- value * value",
+    "        }",
+    "    }()",
+    "    return results",
+    "}",
+    "",
+    "func main() {",
+    "    for result := range squares([]int{1, 2, 3}) {",
+    "        fmt.Println(result)",
+    "    }",
+    "}"
+  ],
+  "order": 82
+}

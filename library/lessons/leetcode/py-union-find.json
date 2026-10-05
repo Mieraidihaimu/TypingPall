@@ -1,0 +1,83 @@
+{
+  "id": "py-union-find",
+  "title": "Union-find: path halving, union by size",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Merge groups of nodes 0..n-1 and ask whether two share a group. find() halves the path as it climbs; union() hangs the smaller root under the larger and returns False when already joined. Near O(1) amortized.",
+  "code": [
+    "class UnionFind:",
+    "    def __init__(self, n):",
+    "        self.parent = list(range(n))",
+    "        self.size = [1] * n",
+    "",
+    "    def find(self, node):",
+    "        while node != self.parent[node]:",
+    "            self.parent[node] = self.parent[self.parent[node]]",
+    "            node = self.parent[node]",
+    "        return node",
+    "",
+    "    def union(self, first, second):",
+    "        first, second = self.find(first), self.find(second)",
+    "        if first == second:",
+    "            return False",
+    "        if self.size[first] < self.size[second]:",
+    "            first, second = second, first",
+    "        self.parent[second] = first",
+    "        self.size[first] += self.size[second]",
+    "        return True"
+  ],
+  "family": "union-find",
+  "triggers": [
+    "groups that only ever merge, with 'are x and y connected?' queries",
+    "adding undirected edges one at a time and spotting the first cycle"
+  ],
+  "prompts": [
+    "Accounts that share an email address belong to the same person. After all merges, how many distinct people remain?",
+    "Cables are added between servers one at a time. Report the first cable that closes a loop."
+  ],
+  "invariant": "Following parent pointers from any node reaches its group's root, and size[root] is that group's size.",
+  "mantra": "Find both roots; hang the smaller under the larger.",
+  "pitfalls": [
+    "Union the roots, never the raw nodes.",
+    "This is path halving (parent = grandparent), not full path compression; both give near-constant time.",
+    "Count components as n minus the successful unions.",
+    "union() returning False means the edge closes a cycle."
+  ],
+  "anchors": [
+    {
+      "name": "Number of Provinces",
+      "trick": "Union every connected pair; provinces = n - successful unions."
+    },
+    {
+      "name": "Redundant Connection",
+      "trick": "The first edge whose union returns False."
+    },
+    {
+      "name": "Accounts Merge",
+      "trick": "Union accounts that share an email, then group emails by root."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    12,
+    15,
+    17
+  ],
+  "contrastWith": [
+    "py-dfs",
+    "py-bfs"
+  ],
+  "complexity": {
+    "time": "O(α(n)) amortized per call",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 12,
+      "replacement": "        first, second = self.parent[first], self.parent[second]",
+      "explanation": "Uses parents instead of roots: two nodes deep in one tree look like different groups, and a subtree gets re-hung."
+    }
+  ],
+  "order": 23
+}

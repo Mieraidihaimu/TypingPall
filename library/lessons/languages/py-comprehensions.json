@@ -1,0 +1,16 @@
+{
+  "id": "py-comprehensions",
+  "title": "Comprehensions and enumeration",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Transform and filter sequences; enumerate pairs an index with its value.",
+  "code": [
+    "def describe_even_squares(values):",
+    "    squares = [value * value for value in values if value % 2 == 0]",
+    "    positions = {index: value for index, value in enumerate(squares)}",
+    "    unique = {value for value in squares}",
+    "    return squares, positions, unique"
+  ],
+  "order": 46
+}

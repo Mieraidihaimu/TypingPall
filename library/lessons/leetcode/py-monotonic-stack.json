@@ -1,0 +1,76 @@
+{
+  "id": "py-monotonic-stack",
+  "title": "Monotonic stack: next warmer day",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Days until a warmer temperature, or 0. The stack keeps unresolved days with non-increasing temperatures; a warmer day pops and answers them. Pops only on '<', so equal days keep waiting. O(n).",
+  "code": [
+    "# Resolve earlier days when a warmer temperature arrives.",
+    "def days_until_warmer(temperatures):",
+    "    answer = [0] * len(temperatures)",
+    "    stack = []",
+    "    for day, temperature in enumerate(temperatures):",
+    "        while stack and temperatures[stack[-1]] < temperature:",
+    "            previous = stack.pop()",
+    "            answer[previous] = day - previous",
+    "        stack.append(day)",
+    "    return answer"
+  ],
+  "family": "monotonic-stack",
+  "triggers": [
+    "next greater or next smaller element for every position",
+    "'how many days until', 'first taller to the right'"
+  ],
+  "prompts": [
+    "For each day's share price, report how many days pass until a strictly higher price, or 0 if none comes.",
+    "People stand in a queue facing forward. For each person, how many places ahead is the first taller person?"
+  ],
+  "invariant": "stack holds the days still waiting for a warmer day, temperatures non-increasing from bottom to top.",
+  "mantra": "A warmer day pops and answers every colder day below it.",
+  "pitfalls": [
+    "Store indices, not temperatures: the answer is a distance.",
+    "'<' answers strictly warmer; '<=' also resolves equal days (next greater-or-equal).",
+    "Days still on the stack at the end keep their default 0."
+  ],
+  "anchors": [
+    {
+      "name": "Daily Temperatures",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Next Greater Element II",
+      "trick": "Circular: loop over 2n indices with i % n and push only in the first pass."
+    },
+    {
+      "name": "Largest Rectangle in Histogram",
+      "trick": "Increasing stack; pop on a shorter bar, width = i - stack[-1] - 1."
+    }
+  ],
+  "keyLineIndices": [
+    5,
+    6,
+    7,
+    8
+  ],
+  "contrastWith": [
+    "py-monotonic-increasing"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 5,
+      "replacement": "        while stack and temperatures[stack[-1]] <= temperature:",
+      "explanation": "An equal temperature now counts as warmer: this answers next greater-or-equal."
+    },
+    {
+      "line": 7,
+      "replacement": "            answer[previous] = day",
+      "explanation": "Stores the warmer day's index instead of the distance to it."
+    }
+  ],
+  "order": 13
+}

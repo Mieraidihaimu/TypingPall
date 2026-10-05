@@ -1,0 +1,25 @@
+{
+  "id": "cpp-map",
+  "title": "Hash maps and structured bindings",
+  "category": "C++ fundamentals",
+  "track": "languages",
+  "language": "cpp",
+  "summary": "C++17. Count values with unordered_map. operator[] inserts a zero-initialized count for a new key.",
+  "code": [
+    "#include <iostream>",
+    "#include <string>",
+    "#include <unordered_map>",
+    "#include <vector>",
+    "",
+    "int main() {",
+    "    std::vector<std::string> words = {\"go\", \"rust\", \"go\"};",
+    "    std::unordered_map<std::string, int> counts;",
+    "    for (const auto& word : words) {",
+    "        ++counts[word];",
+    "    }",
+    "    auto [position, inserted] = counts.try_emplace(\"cpp\", 1);",
+    "    std::cout << counts.at(\"go\") << ' ' << position->second;",
+    "}"
+  ],
+  "order": 69
+}

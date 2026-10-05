@@ -1,0 +1,16 @@
+{
+  "track": "languages",
+  "categories": [
+    "Terminal commands",
+    "Python fundamentals",
+    "Ruby fundamentals",
+    "Go fundamentals",
+    "C++ fundamentals",
+    "Rust fundamentals",
+    "Python concurrency",
+    "C++ concurrency",
+    "Go concurrency",
+    "Rust concurrency",
+    "Swift fundamentals"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "sh-system-permissions",
+  "title": "Permissions and environment",
+  "category": "Terminal commands",
+  "track": "languages",
+  "language": "shell",
+  "summary": "Change file modes, inspect disk space, and manage shell environment variables.",
+  "code": [
+    "# Grant execute permissions to the owner and read to others",
+    "chmod 755 deploy.sh",
+    "",
+    "# Change ownership of a directory recursively",
+    "chown -R www-data:www-data /var/www",
+    "",
+    "# Inspect disk filesystem usage in human-readable units",
+    "df -h",
+    "",
+    "# Append a directory to PATH and export an environment variable",
+    "export PATH=\"$HOME/.local/bin:$PATH\"",
+    "export APP_ENV=\"production\""
+  ],
+  "order": 45
+}

@@ -1,0 +1,30 @@
+{
+  "id": "rb-classes-modules",
+  "title": "Classes, attributes and mixins",
+  "category": "Ruby fundamentals",
+  "track": "languages",
+  "language": "ruby",
+  "summary": "Object orientation with attr_reader, instance methods, and module inclusion.",
+  "code": [
+    "module Loggable",
+    "    def log(message)",
+    "        \"[#{self.class.name}] #{message}\"",
+    "    end",
+    "end",
+    "",
+    "class User",
+    "    include Loggable",
+    "    attr_reader :name, :role",
+    "",
+    "    def initialize(name, role = :member)",
+    "        @name = name",
+    "        @role = role",
+    "    end",
+    "",
+    "    def admin?",
+    "        @role == :admin",
+    "    end",
+    "end"
+  ],
+  "order": 55
+}

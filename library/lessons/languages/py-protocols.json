@@ -1,0 +1,29 @@
+{
+  "id": "py-protocols",
+  "title": "Protocols and structural subtyping",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Define static contracts and runtime-checkable interfaces with typing.Protocol.",
+  "code": [
+    "from typing import Protocol, runtime_checkable",
+    "",
+    "@runtime_checkable",
+    "class Renderable(Protocol):",
+    "    def render(self) -> str:",
+    "        ...",
+    "",
+    "class Widget:",
+    "    def __init__(self, label: str):",
+    "        self.label = label",
+    "",
+    "    def render(self) -> str:",
+    "        return f\"[{self.label}]\"",
+    "",
+    "def format_item(item: Renderable) -> str:",
+    "    if isinstance(item, Renderable):",
+    "        return item.render()",
+    "    return str(item)"
+  ],
+  "order": 53
+}

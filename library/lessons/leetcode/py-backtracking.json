@@ -1,0 +1,83 @@
+{
+  "id": "py-backtracking",
+  "title": "Backtracking: subsets",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Every subset of distinct values. Record a copy of path, then for each later index choose it, recurse from index + 1, and undo. O(n * 2^n).",
+  "code": [
+    "# Each recursive call extends a choice made so far.",
+    "def subsets(values):",
+    "    result = []",
+    "    path = []",
+    "    def visit(start):",
+    "        result.append(path.copy())",
+    "        for index in range(start, len(values)):",
+    "            path.append(values[index])",
+    "            visit(index + 1)",
+    "            path.pop()",
+    "    visit(0)",
+    "    return result"
+  ],
+  "family": "backtracking",
+  "triggers": [
+    "list every subset, combination, permutation or arrangement",
+    "choices with undo, and n small enough (about 20) for exponential output"
+  ],
+  "prompts": [
+    "A pizza shop offers a handful of toppings. List every possible topping selection, including a plain pizza.",
+    "A tester wants to try every combination of a few feature flags being switched on. Generate them all."
+  ],
+  "invariant": "On entry to visit(start), path is a subset of values[:start] in index order, and only values[start:] may still be added.",
+  "mantra": "Choose, explore from index + 1, un-choose.",
+  "pitfalls": [
+    "Save path.copy(); saving path itself stores one list that ends up empty.",
+    "visit(index + 1) uses each value once; visit(index) allows reuse; visit(start + 1) is the classic bug.",
+    "Duplicate values: sort first, then skip values[index] == values[index - 1] when index > start."
+  ],
+  "anchors": [
+    {
+      "name": "Subsets",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Subsets II",
+      "trick": "Sort; skip a repeated value when index > start."
+    },
+    {
+      "name": "Combination Sum",
+      "trick": "Recurse with visit(index) to reuse a value; stop when the remainder goes negative."
+    },
+    {
+      "name": "Permutations",
+      "trick": "No start index: loop over every value and skip those in a used set."
+    }
+  ],
+  "keyLineIndices": [
+    5,
+    7,
+    8,
+    9
+  ],
+  "contrastWith": [
+    "py-dfs",
+    "py-dp"
+  ],
+  "complexity": {
+    "time": "O(n * 2^n)",
+    "space": "O(n) besides the output"
+  },
+  "mutations": [
+    {
+      "line": 5,
+      "replacement": "        result.append(path)",
+      "explanation": "Saves the same list object every time; after backtracking, every saved subset is empty."
+    },
+    {
+      "line": 8,
+      "replacement": "            visit(start + 1)",
+      "explanation": "Recurses from the loop start instead of past the chosen index, so values repeat and subsets are duplicated."
+    }
+  ],
+  "order": 21
+}

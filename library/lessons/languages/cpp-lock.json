@@ -1,0 +1,30 @@
+{
+  "id": "cpp-lock",
+  "title": "Mutex and lock_guard",
+  "category": "C++ concurrency",
+  "track": "languages",
+  "language": "cpp",
+  "summary": "C++17. Hold a scoped mutex guard around shared state. Join both threads before reading the counter.",
+  "code": [
+    "#include <iostream>",
+    "#include <mutex>",
+    "#include <thread>",
+    "",
+    "int main() {",
+    "    std::mutex mutex;",
+    "    int count = 0;",
+    "    auto increment = [&] {",
+    "        for (int i = 0; i < 100; ++i) {",
+    "            std::lock_guard<std::mutex> lock(mutex);",
+    "            ++count;",
+    "        }",
+    "    };",
+    "    std::thread first(increment);",
+    "    std::thread second(increment);",
+    "    first.join();",
+    "    second.join();",
+    "    std::cout << count;",
+    "}"
+  ],
+  "order": 79
+}

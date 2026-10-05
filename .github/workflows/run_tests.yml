@@ -17,6 +17,11 @@ jobs:
           persist-credentials: false
       - name: Toolchain
         run: xcodebuild -version
+      - name: Validate practice library
+        run: |
+          python3 scripts/library.py build --check
+          python3 scripts/library.py validate
+          python3 scripts/check_lessons.py
       - name: Unit tests, UI tests and universal Release build
         run: ./scripts/check.sh
       - name: Test results

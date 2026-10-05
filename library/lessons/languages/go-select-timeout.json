@@ -1,0 +1,32 @@
+{
+  "id": "go-select-timeout",
+  "title": "Select and channel timeouts",
+  "category": "Go fundamentals",
+  "track": "languages",
+  "language": "go",
+  "summary": "Coordinate channel communication with non-blocking select and time.After.",
+  "code": [
+    "package main",
+    "",
+    "import (",
+    "    \"fmt\"",
+    "    \"time\"",
+    ")",
+    "",
+    "func fetchResult(ch chan<- string) {",
+    "    ch <- \"data-ready\"",
+    "}",
+    "",
+    "func main() {",
+    "    ch := make(chan string, 1)",
+    "    fetchResult(ch)",
+    "    select {",
+    "    case msg := <-ch:",
+    "        fmt.Println(msg)",
+    "    case <-time.After(100 * time.Millisecond):",
+    "        fmt.Println(\"timeout\")",
+    "    }",
+    "}"
+  ],
+  "order": 67
+}

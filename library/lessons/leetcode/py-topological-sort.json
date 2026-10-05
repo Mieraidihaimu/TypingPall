@@ -1,0 +1,92 @@
+{
+  "id": "py-topological-sort",
+  "title": "Topological sort: Kahn's algorithm",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "An order of courses 0..n-1 that respects every (before, after) prerequisite, or [] if there is a cycle. Start with the courses that have none; finishing one lowers each dependent's in-degree, and a dependent at 0 is ready. O(V + E).",
+  "code": [
+    "from collections import deque",
+    "",
+    "# Take any course with no unmet prerequisites; leftovers sit on a cycle.",
+    "def course_order(n, prerequisites):",
+    "    graph = [[] for _ in range(n)]",
+    "    indegree = [0] * n",
+    "    for before, after in prerequisites:",
+    "        graph[before].append(after)",
+    "        indegree[after] += 1",
+    "    queue = deque(node for node in range(n) if indegree[node] == 0)",
+    "    order = []",
+    "    while queue:",
+    "        before = queue.popleft()",
+    "        order.append(before)",
+    "        for after in graph[before]:",
+    "            indegree[after] -= 1",
+    "            if indegree[after] == 0:",
+    "                queue.append(after)",
+    "    return order if len(order) == n else []"
+  ],
+  "family": "topological-sort",
+  "triggers": [
+    "order tasks so every dependency comes first",
+    "decide whether dependencies contain a cycle"
+  ],
+  "prompts": [
+    "A build system knows which modules need which others compiled first. Produce a compile order, or report that none exists.",
+    "A recipe lists steps and which steps must finish before others can start. Find an order to do them all, or show that the recipe is impossible."
+  ],
+  "invariant": "Every course in the queue or in order has all of its prerequisites earlier in order.",
+  "mantra": "Start with no prerequisites; a course is ready when its in-degree hits 0.",
+  "pitfalls": [
+    "Count every in-degree before seeding the queue.",
+    "Fewer than n courses in order means the rest sit on a cycle: return [].",
+    "Edges point from prerequisite to dependent; reversing them reverses the order.",
+    "Many valid orders can exist; check the edges rather than one expected list."
+  ],
+  "anchors": [
+    {
+      "name": "Course Schedule",
+      "trick": "Only ask whether len(order) == n."
+    },
+    {
+      "name": "Course Schedule II",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Alien Dictionary",
+      "trick": "The first differing letters of adjacent words give the edges; then sort."
+    },
+    {
+      "name": "Parallel Courses",
+      "trick": "Process the queue level by level; the number of levels is the number of semesters."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    9,
+    15,
+    16,
+    18
+  ],
+  "contrastWith": [
+    "py-bfs",
+    "py-dfs"
+  ],
+  "complexity": {
+    "time": "O(V + E)",
+    "space": "O(V + E)"
+  },
+  "mutations": [
+    {
+      "line": 18,
+      "replacement": "    return order",
+      "explanation": "On a cycle it returns a partial order instead of [], hiding the courses that can never be taken."
+    },
+    {
+      "line": 15,
+      "replacement": "            indegree[before] -= 1",
+      "explanation": "Decrements the finished course instead of its dependent, so dependents never reach 0 and valid schedules come back empty."
+    }
+  ],
+  "order": 18
+}

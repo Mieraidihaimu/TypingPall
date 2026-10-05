@@ -1,0 +1,23 @@
+{
+  "id": "py-asyncio",
+  "title": "Async tasks with gather",
+  "category": "Python concurrency",
+  "track": "languages",
+  "language": "python",
+  "summary": "Await cooperative work without blocking the event loop. gather returns results in argument order. Run the demo from a normal Python script.",
+  "code": [
+    "import asyncio",
+    "",
+    "async def work(value):",
+    "    await asyncio.sleep(0)",
+    "    return value * 2",
+    "",
+    "async def run_batch(values):",
+    "    tasks = [work(value) for value in values]",
+    "    return await asyncio.gather(*tasks)",
+    "",
+    "if __name__ == \"__main__\":",
+    "    print(asyncio.run(run_batch([1, 2, 3])))"
+  ],
+  "order": 78
+}

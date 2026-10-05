@@ -1,0 +1,83 @@
+{
+  "id": "py-dfs",
+  "title": "Graph DFS: iterative reachability",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Every node reachable from start, using an explicit stack instead of recursion. A node is marked when popped, so it may be pushed twice; BFS marks on enqueue instead. O(V + E).",
+  "code": [
+    "# Track visited nodes so cycles cannot cause an infinite traversal.",
+    "def reachable_nodes(graph, start):",
+    "    visited = set()",
+    "    stack = [start]",
+    "    while stack:",
+    "        node = stack.pop()",
+    "        if node in visited:",
+    "            continue",
+    "        visited.add(node)",
+    "        for neighbor in graph.get(node, []):",
+    "            if neighbor not in visited:",
+    "                stack.append(neighbor)",
+    "    return visited"
+  ],
+  "family": "dfs",
+  "triggers": [
+    "reachability or connected components: can A reach B, how many groups",
+    "follow one branch to the end before backing up: cycles, ordering, flood fill"
+  ],
+  "prompts": [
+    "Installing one package pulls in its dependencies, and theirs in turn. List every package that installing a given one brings along.",
+    "Rooms are linked by one-way doors. Starting in the lobby, which rooms can a visitor ever reach?"
+  ],
+  "invariant": "visited holds exactly the expanded nodes, and every node on the stack is reachable from start.",
+  "mantra": "Pop, skip if seen, mark, push the unseen neighbours.",
+  "pitfalls": [
+    "Marking on pop allows duplicates on the stack, so the 'if node in visited: continue' guard is required.",
+    "Recursive DFS is shorter, but Python's default recursion limit is about 1000 frames.",
+    "Cycle detection in a directed graph needs three states: unvisited, on the current path, done."
+  ],
+  "anchors": [
+    {
+      "name": "Number of Islands",
+      "trick": "Start a DFS from each unvisited land cell; count the starts."
+    },
+    {
+      "name": "Clone Graph",
+      "trick": "The original-to-copy map doubles as the visited set."
+    },
+    {
+      "name": "Course Schedule",
+      "trick": "Three-state DFS: reaching an on-path node means a cycle."
+    },
+    {
+      "name": "Keys and Rooms",
+      "trick": "Exactly this: is every room reachable from room 0?"
+    }
+  ],
+  "keyLineIndices": [
+    5,
+    6,
+    7,
+    8
+  ],
+  "contrastWith": [
+    "py-bfs",
+    "py-backtracking",
+    "py-union-find",
+    "py-tree-dfs",
+    "py-grid-traversal",
+    "py-topological-sort"
+  ],
+  "complexity": {
+    "time": "O(V + E)",
+    "space": "O(V + E)"
+  },
+  "mutations": [
+    {
+      "line": 5,
+      "replacement": "        node = stack[-1]",
+      "explanation": "Peeks instead of popping: once the top node is visited, the loop spins on it forever."
+    }
+  ],
+  "order": 19
+}

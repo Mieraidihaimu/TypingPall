@@ -1,0 +1,80 @@
+{
+  "id": "py-two-pointers",
+  "title": "Two pointers: sorted pair sum",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Indices of two values in a sorted list that sum to target, or None. Too small: values[left] can't pair with anything left, so drop it; too big: drop values[right]. O(n), O(1) space.",
+  "code": [
+    "# Move inward using the sorted order.",
+    "def pair_sum(values, target):",
+    "    left, right = 0, len(values) - 1",
+    "    while left < right:",
+    "        total = values[left] + values[right]",
+    "        if total == target:",
+    "            return left, right",
+    "        if total < target:",
+    "            left += 1",
+    "        else:",
+    "            right -= 1",
+    "    return None"
+  ],
+  "family": "two-pointers",
+  "triggers": [
+    "sorted input and a pair or triple with a target sum or difference",
+    "discard candidates from both ends in O(1) extra space"
+  ],
+  "prompts": [
+    "Gift cards come in sorted denominations. Find two different cards that together cover a bill exactly.",
+    "Package weights are listed in increasing order. Pick two different packages whose weights exactly fill the space left on a truck."
+  ],
+  "invariant": "Every pair that can still reach target lies inside values[left..right]; everything outside has been ruled out.",
+  "mantra": "Sum too small: move left up. Too big: move right down.",
+  "pitfalls": [
+    "Only valid on sorted input; sorting first loses the original indices.",
+    "while left < right, not <=: an element can't pair with itself.",
+    "3Sum: sort, fix one value, run this on the rest, and skip equal neighbours."
+  ],
+  "anchors": [
+    {
+      "name": "Two Sum II - Input Array Is Sorted",
+      "trick": "Exactly this; the answer uses 1-based indices."
+    },
+    {
+      "name": "3Sum",
+      "trick": "Fix i, two-pointer the rest, skip duplicates of i and of left."
+    },
+    {
+      "name": "Container With Most Water",
+      "trick": "Move the shorter side inward: the taller one can't help a narrower container."
+    }
+  ],
+  "keyLineIndices": [
+    3,
+    7,
+    8,
+    10
+  ],
+  "contrastWith": [
+    "py-sliding-window",
+    "py-binary-search",
+    "py-fast-slow"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 3,
+      "replacement": "    while left <= right:",
+      "explanation": "Lets left meet right, so one element pairs with itself when twice its value equals target."
+    },
+    {
+      "line": 7,
+      "replacement": "        if total > target:",
+      "explanation": "Moves the wrong pointer: a sum that is too small drops the largest value and misses real pairs."
+    }
+  ],
+  "order": 3
+}

@@ -1,0 +1,70 @@
+{
+  "id": "lld-observer",
+  "title": "Observer: notify every subscriber",
+  "category": "Behavioral patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Subscribers hand the feed a callback and get back a function that unsubscribes them. publish() loops over a copy of the list, so a callback can unsubscribe mid-publish without skipping its neighbour.",
+  "code": [
+    "# The feed calls every subscriber without knowing what they do; it loops over a copy.",
+    "class PriceFeed:",
+    "    def __init__(self):",
+    "        self.subscribers = []",
+    "",
+    "    def subscribe(self, callback):",
+    "        self.subscribers.append(callback)",
+    "        return lambda: self.subscribers.remove(callback)",
+    "",
+    "    def publish(self, price):",
+    "        for callback in list(self.subscribers):",
+    "            callback(price)"
+  ],
+  "family": "observer",
+  "triggers": [
+    "one change must reach many dependents, and the source shouldn't know who they are",
+    "subscribe and unsubscribe, listeners, event handlers: 'notify everyone when X changes'"
+  ],
+  "prompts": [
+    "When a flight's gate changes, the departure board, the mobile app and the crew pager all need the new gate. Next quarter a chat bot will want it too, and the gate system must not change.",
+    "A spreadsheet cell feeds several charts. Whenever the value changes every chart showing it redraws, and closing a chart stops its updates."
+  ],
+  "invariant": "publish calls each callback that was subscribed when it started, exactly once, and the feed never depends on what a callback does.",
+  "mantra": "Keep a list; notify a copy.",
+  "pitfalls": [
+    "Loop over a copy: a callback that unsubscribes during publish would make the live loop skip its neighbour.",
+    "Unsubscribe removes this callback; forgotten subscriptions keep their objects alive.",
+    "A slow or failing callback holds up the rest; real systems queue or isolate them."
+  ],
+  "anchors": [
+    {
+      "name": "Stock price alerts",
+      "trick": "Traders subscribe to a ticker; each price update notifies them."
+    },
+    {
+      "name": "Notification service",
+      "trick": "Order events fan out to email, SMS and analytics subscribers."
+    }
+  ],
+  "keyLineIndices": [
+    6,
+    7,
+    10,
+    11
+  ],
+  "contrastWith": [
+    "lld-chain"
+  ],
+  "mutations": [
+    {
+      "line": 10,
+      "replacement": "        for callback in self.subscribers:",
+      "explanation": "Loops over the live list: a subscriber that unsubscribes during publish makes the loop skip the next one."
+    },
+    {
+      "line": 7,
+      "replacement": "        return lambda: self.subscribers.pop()",
+      "explanation": "Unsubscribing removes whoever subscribed last, not this callback."
+    }
+  ],
+  "order": 35
+}

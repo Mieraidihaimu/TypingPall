@@ -1,0 +1,72 @@
+{
+  "id": "py-knapsack-01",
+  "title": "0/1 knapsack: capacity loop backward",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Most value from (weight, value) items within a capacity, each item used at most once. One row of best totals by capacity; walk capacities downward so an item never builds on itself. O(n × capacity).",
+  "code": [
+    "# Walk capacities downward so each item is counted at most once.",
+    "def best_value(items, capacity):",
+    "    best = [0] * (capacity + 1)",
+    "    for weight, value in items:",
+    "        for c in range(capacity, weight - 1, -1):",
+    "            best[c] = max(best[c], best[c - weight] + value)",
+    "    return best[capacity]"
+  ],
+  "family": "dynamic-programming",
+  "triggers": [
+    "choose a subset of items under a weight, cost or size budget, each item at most once",
+    "can some subset reach exactly this sum?"
+  ],
+  "prompts": [
+    "A hiker's pack holds a fixed weight. Each piece of gear has a weight and a usefulness score, and there is only one of each. Pack the most useful load.",
+    "A studio has a fixed number of hours this week and a list of possible commissions, each with the hours it needs and a fee. Each can be taken at most once. Maximize the fees."
+  ],
+  "invariant": "After an item is processed, best[c] is the most value that fits in capacity c using only the items seen so far, each at most once.",
+  "mantra": "Each item once: walk capacity down.",
+  "pitfalls": [
+    "Walking capacity upward reuses the item in the same pass; that is unbounded knapsack.",
+    "The loop stops at weight: smaller capacities can't hold the item.",
+    "best starts at 0 everywhere because taking nothing is always allowed."
+  ],
+  "anchors": [
+    {
+      "name": "Partition Equal Subset Sum",
+      "trick": "Boolean version: can a subset reach sum // 2? Same backward loop."
+    },
+    {
+      "name": "Target Sum",
+      "trick": "Count subsets that sum to (total + target) / 2 with the same backward loop."
+    },
+    {
+      "name": "Last Stone Weight II",
+      "trick": "Find the reachable subset sum closest to half the total."
+    },
+    {
+      "name": "Ones and Zeroes",
+      "trick": "Two capacities, zeros and ones, both walked backward."
+    }
+  ],
+  "keyLineIndices": [
+    2,
+    4,
+    5
+  ],
+  "contrastWith": [
+    "py-coin-change",
+    "py-dp"
+  ],
+  "complexity": {
+    "time": "O(n × capacity)",
+    "space": "O(capacity)"
+  },
+  "mutations": [
+    {
+      "line": 4,
+      "replacement": "        for c in range(weight, capacity + 1):",
+      "explanation": "Walking upward lets best[c - weight] already include this item, so one item can be taken many times."
+    }
+  ],
+  "order": 25
+}

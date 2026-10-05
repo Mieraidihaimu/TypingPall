@@ -1,0 +1,88 @@
+{
+  "id": "lld-factory",
+  "title": "Factory: a registry of creators",
+  "category": "Creational patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "create(kind) looks the class up in a registry that each class joins with @register, so a new channel never edits create(). An unknown kind raises instead of quietly falling back.",
+  "code": [
+    "# Each class registers itself, so create() never grows an if/elif.",
+    "CHANNELS = {}",
+    "",
+    "def register(kind):",
+    "    def add(cls):",
+    "        CHANNELS[kind] = cls",
+    "        return cls",
+    "    return add",
+    "",
+    "@register('email')",
+    "class Email:",
+    "    def send(self, to, text):",
+    "        return f'email {to}: {text}'",
+    "",
+    "@register('sms')",
+    "class Sms:",
+    "    def send(self, to, text):",
+    "        return f'sms {to}: {text[:160]}'",
+    "",
+    "def create(kind):",
+    "    if kind not in CHANNELS:",
+    "        raise ValueError(f'unknown channel: {kind}')",
+    "    return CHANNELS[kind]()"
+  ],
+  "family": "factory",
+  "triggers": [
+    "the caller knows a kind, name or config value, not the class to construct",
+    "an if/elif that picks a class by a type string and grows with every new type"
+  ],
+  "prompts": [
+    "A settings file lists export formats by name, such as csv or json. The app must construct the right exporter for each name, and adding a format must not touch the code that reads the settings.",
+    "A game level file names its enemies by type, such as goblin or archer. The loader must create the right object for each name, and other developers will add enemy types without editing the loader."
+  ],
+  "invariant": "create() reads only the registry: every kind it can build was registered by its class, and any other kind raises.",
+  "mantra": "Look the class up; don't branch on the name.",
+  "pitfalls": [
+    "A class decorator must return the class, or the module-level name becomes None.",
+    "Return CHANNELS[kind](), a new instance, not the class itself.",
+    "Raise on an unknown kind; a silent default turns typos into wrong behaviour."
+  ],
+  "anchors": [
+    {
+      "name": "Notification service",
+      "trick": "Each channel name maps to a sender class that registers itself."
+    },
+    {
+      "name": "Parking lot",
+      "trick": "One factory call turns a vehicle type into the matching spot or ticket."
+    }
+  ],
+  "keyLineIndices": [
+    5,
+    6,
+    20,
+    22
+  ],
+  "scaffoldLineIndices": [
+    14,
+    15,
+    16,
+    17
+  ],
+  "contrastWith": [
+    "lld-builder",
+    "lld-singleton"
+  ],
+  "mutations": [
+    {
+      "line": 22,
+      "replacement": "    return CHANNELS[kind]",
+      "explanation": "Returns the class instead of a new instance, so callers get no object to send with."
+    },
+    {
+      "line": 21,
+      "replacement": "        kind = 'email'",
+      "explanation": "Falls back to email for an unknown kind, hiding typos that should fail loudly."
+    }
+  ],
+  "order": 27
+}

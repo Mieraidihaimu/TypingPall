@@ -1,0 +1,33 @@
+{
+  "id": "rust-enums",
+  "title": "Enums and pattern matching",
+  "category": "Rust fundamentals",
+  "track": "languages",
+  "language": "rust",
+  "summary": "Model distinct events with an enum and handle every variant with match.",
+  "code": [
+    "enum Event {",
+    "    Insert(String),",
+    "    Remove(usize),",
+    "    Clear,",
+    "}",
+    "",
+    "fn apply(event: Event, items: &mut Vec<String>) {",
+    "    match event {",
+    "        Event::Insert(value) => items.push(value),",
+    "        Event::Remove(index) if index < items.len() => { items.remove(index); }",
+    "        Event::Remove(_) => {}",
+    "        Event::Clear => items.clear(),",
+    "    }",
+    "}",
+    "",
+    "fn main() {",
+    "    let mut items = Vec::new();",
+    "    apply(Event::Insert(String::from(\"pattern\")), &mut items);",
+    "    apply(Event::Remove(0), &mut items);",
+    "    apply(Event::Clear, &mut items);",
+    "    println!(\"{}\", items.len());",
+    "}"
+  ],
+  "order": 75
+}

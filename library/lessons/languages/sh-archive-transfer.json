@@ -1,0 +1,24 @@
+{
+  "id": "sh-archive-transfer",
+  "title": "Archives and remote transfers",
+  "category": "Terminal commands",
+  "track": "languages",
+  "language": "shell",
+  "summary": "Compress and unpack tarballs, synchronize directories with rsync, and test HTTP endpoints.",
+  "code": [
+    "# Create a gzip compressed archive of a project directory",
+    "tar -czvf release.tar.gz ./dist",
+    "",
+    "# Extract an archive to a destination folder",
+    "tar -xzvf release.tar.gz -C /opt/app",
+    "",
+    "# Synchronize files while preserving permissions and showing progress",
+    "rsync -avzP --exclude='.git' ./build/ user@remote:/var/www/app/",
+    "",
+    "# Query an API endpoint with custom headers and payload",
+    "curl -sSL -X POST https://api.example.com/v1/events \\",
+    "    -H \"Content-Type: application/json\" \\",
+    "    -d '{\"status\":\"deployed\"}'"
+  ],
+  "order": 44
+}

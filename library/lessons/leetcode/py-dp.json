@@ -1,0 +1,80 @@
+{
+  "id": "py-dp",
+  "title": "1D DP: take or skip",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Largest sum of nonnegative values with no two adjacent. dp[i] = max(dp[i-1], dp[i-2] + values[i]), rolled into two variables. O(n) time, O(1) space.",
+  "code": [
+    "# Choose between skipping this value and taking it.",
+    "def max_nonadjacent_sum(values):",
+    "    previous_two = 0",
+    "    previous_one = 0",
+    "    for value in values:",
+    "        current = max(previous_one, previous_two + value)",
+    "        previous_two = previous_one",
+    "        previous_one = current",
+    "    return previous_one"
+  ],
+  "family": "dynamic-programming",
+  "triggers": [
+    "maximize, minimize or count over choices where taking one blocks its neighbour",
+    "a recursion that recomputes the same prefix or suffix"
+  ],
+  "prompts": [
+    "A runner may train on any day but never two days in a row, and each day's session has a fitness score. Maximize the total score.",
+    "Billboard slots along a road each pay a fee, but neighbouring slots can't both be rented. Choose slots to maximize income."
+  ],
+  "invariant": "After each value, previous_one is the best total for the prefix so far and previous_two the best for the prefix one shorter.",
+  "mantra": "Take it plus two back, or skip it and keep one back.",
+  "pitfalls": [
+    "Shift previous_two before overwriting previous_one, or use a tuple assignment.",
+    "Write the full recurrence and base case first, then roll the table into variables.",
+    "If at least one value must be taken, the empty-choice base of 0 is wrong for all-negative input."
+  ],
+  "anchors": [
+    {
+      "name": "House Robber",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "House Robber II",
+      "trick": "Circular street: best of values[1:] and values[:-1]."
+    },
+    {
+      "name": "Climbing Stairs",
+      "trick": "Same two-variable roll with + instead of max."
+    },
+    {
+      "name": "Min Cost Climbing Stairs",
+      "trick": "dp[i] = cost[i] + min(dp[i-1], dp[i-2])."
+    }
+  ],
+  "keyLineIndices": [
+    5,
+    6,
+    7
+  ],
+  "contrastWith": [
+    "py-backtracking",
+    "py-knapsack-01",
+    "py-coin-change"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 5,
+      "replacement": "        current = max(previous_one, previous_one + value)",
+      "explanation": "Adds value to a total that may already include its neighbour."
+    },
+    {
+      "line": 6,
+      "replacement": "        previous_two = current",
+      "explanation": "Both variables end up holding dp[i], so the next value is added next to its neighbour."
+    }
+  ],
+  "order": 24
+}

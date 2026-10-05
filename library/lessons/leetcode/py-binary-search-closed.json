@@ -1,0 +1,80 @@
+{
+  "id": "py-binary-search-closed",
+  "title": "Binary search: closed interval",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Index of target in a sorted list, or -1. Closed [left, right]: return on a match, otherwise discard mid with mid + 1 or mid - 1. O(log n).",
+  "code": [
+    "# Search a closed interval [left, right]; check mid, then exclude it.",
+    "def find_index(values, target):",
+    "    left, right = 0, len(values) - 1",
+    "    while left <= right:",
+    "        mid = left + (right - left) // 2",
+    "        if values[mid] == target:",
+    "            return mid",
+    "        if values[mid] < target:",
+    "            left = mid + 1",
+    "        else:",
+    "            right = mid - 1",
+    "    return -1"
+  ],
+  "family": "binary-search",
+  "triggers": [
+    "does this exact value exist in sorted data, and where",
+    "any matching index will do, and a miss returns a sentinel"
+  ],
+  "prompts": [
+    "Issued ticket numbers are kept in sorted order. Check whether a presented ticket was really issued, and report its position.",
+    "A sorted list of employee badge IDs: find where a scanned badge appears, or report that it is unknown."
+  ],
+  "invariant": "If target is present, it lies in values[left..right] inclusive; everything outside has been ruled out.",
+  "mantra": "Closed interval: check mid, then step past it on both sides.",
+  "pitfalls": [
+    "Closed [left, right] pairs 'while left <= right' with mid + 1 and mid - 1; half-open pairs '<' with right = mid.",
+    "With duplicates it returns some matching index, not the first; use lower bound for the first.",
+    "right starts at len(values) - 1 because right itself is still a candidate."
+  ],
+  "anchors": [
+    {
+      "name": "Binary Search",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Search a 2D Matrix",
+      "trick": "Treat the rows as one sorted list: index i is row i // cols, column i % cols."
+    },
+    {
+      "name": "Search in Rotated Sorted Array",
+      "trick": "Same closed loop; first decide which half is sorted, then whether target lies in it."
+    }
+  ],
+  "keyLineIndices": [
+    2,
+    3,
+    8,
+    10
+  ],
+  "contrastWith": [
+    "py-binary-search",
+    "py-upper-bound",
+    "py-binary-search-answer"
+  ],
+  "complexity": {
+    "time": "O(log n)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 3,
+      "replacement": "    while left < right:",
+      "explanation": "Stops before checking the last candidate: [3] with target 3 returns -1."
+    },
+    {
+      "line": 10,
+      "replacement": "            right = mid",
+      "explanation": "When left == right and values[mid] > target, nothing changes and the loop never ends."
+    }
+  ],
+  "order": 10
+}

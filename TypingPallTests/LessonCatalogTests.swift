@@ -192,4 +192,37 @@ final class ScaffoldPracticeTests: XCTestCase {
         XCTAssertEqual(model.currentLine, "def has_cycle(head):")
         XCTAssertEqual(model.practiceLines.count, 8)
     }
+
+    func testCustomTrackAndLanguageDecodingSucceedsWithoutError() throws {
+        let json = """
+        [
+            {
+                "id": "ts-memoize",
+                "title": "Memoize decorator",
+                "category": "TypeScript utilities",
+                "track": "webDevelopment",
+                "language": "typescript",
+                "summary": "Cache function results.",
+                "code": "function memoize() {}"
+            },
+            {
+                "id": "unknown-lang",
+                "title": "Future language",
+                "category": "Experimental",
+                "track": "systemDesign",
+                "language": "nonExistentLanguage",
+                "summary": "Future proofing.",
+                "code": "fn main() {}"
+            }
+        ]
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode([PracticeLesson].self, from: json)
+        XCTAssertEqual(decoded.count, 2)
+        XCTAssertEqual(decoded[0].track.title, "Web Development")
+        XCTAssertEqual(decoded[0].language, .typescript)
+        XCTAssertEqual(decoded[1].track.title, "System design")
+        XCTAssertEqual(decoded[1].language, .plainText)
+    }
 }
+

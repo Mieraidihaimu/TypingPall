@@ -1,0 +1,32 @@
+{
+  "id": "go-json-tags",
+  "title": "Struct tags and JSON marshaling",
+  "category": "Go fundamentals",
+  "track": "languages",
+  "language": "go",
+  "summary": "Serialize and deserialize struct fields with json tags and omit options.",
+  "code": [
+    "package main",
+    "",
+    "import (",
+    "    \"encoding/json\"",
+    "    \"fmt\"",
+    ")",
+    "",
+    "type Config struct {",
+    "    Host    string `json:\"host\"`",
+    "    Port    int    `json:\"port\"`",
+    "    Enabled bool   `json:\"enabled,omitempty\"`",
+    "}",
+    "",
+    "func main() {",
+    "    raw := `{\"host\":\"localhost\",\"port\":8080}`",
+    "    var cfg Config",
+    "    if err := json.Unmarshal([]byte(raw), &cfg); err != nil {",
+    "        return",
+    "    }",
+    "    fmt.Printf(\"%s:%d\\n\", cfg.Host, cfg.Port)",
+    "}"
+  ],
+  "order": 66
+}

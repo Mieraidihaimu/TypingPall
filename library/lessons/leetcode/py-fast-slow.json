@@ -1,0 +1,91 @@
+{
+  "id": "py-fast-slow",
+  "title": "Fast and slow pointers",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Detect a cycle in a linked list in O(1) space. Slow moves one node, fast moves two; inside a cycle fast gains a node per step, so they meet. The Node class is shown, not typed.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, value, next_node=None):",
+    "        self.value = value",
+    "        self.next = next_node",
+    "",
+    "# A meeting means a cycle exists.",
+    "def has_cycle(head):",
+    "    slow = fast = head",
+    "    while fast is not None and fast.next is not None:",
+    "        slow = slow.next",
+    "        fast = fast.next.next",
+    "        if slow is fast:",
+    "            return True",
+    "    return False"
+  ],
+  "family": "fast-slow-pointers",
+  "triggers": [
+    "cycle, middle or kth-from-end of a linked list in O(1) space",
+    "a sequence where next = f(current) might loop forever"
+  ],
+  "prompts": [
+    "Each kiosk in a museum points visitors to the next kiosk. Starting at the entrance, could someone who follows the signs walk in circles forever?",
+    "Each short link redirects to another link. Using constant memory, decide whether following redirects from one link ever loops."
+  ],
+  "invariant": "Once both pointers are inside a cycle, the gap between them shrinks by one node per step.",
+  "mantra": "Slow one, fast two; meeting means a loop.",
+  "pitfalls": [
+    "Check fast and fast.next before reading fast.next.next.",
+    "Compare nodes with 'is': equal values are not the same node.",
+    "Cycle start: after they meet, restart one pointer at head and move both one step at a time."
+  ],
+  "anchors": [
+    {
+      "name": "Linked List Cycle",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Linked List Cycle II",
+      "trick": "After meeting, reset one pointer to head; they meet again at the cycle start."
+    },
+    {
+      "name": "Middle of the Linked List",
+      "trick": "When fast runs out, slow is at the middle."
+    },
+    {
+      "name": "Happy Number",
+      "trick": "The list is n -> sum of squared digits; detect the loop the same way."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    10,
+    11
+  ],
+  "scaffoldLineIndices": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "contrastWith": [
+    "py-two-pointers",
+    "py-reverse-list"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 10,
+      "replacement": "        fast = fast.next",
+      "explanation": "Fast no longer gains on slow: both land on the second node together, so every list of two or more nodes looks cyclic."
+    },
+    {
+      "line": 8,
+      "replacement": "    while fast is not None:",
+      "explanation": "On a list with an odd number of nodes fast.next is None, so fast.next.next crashes."
+    }
+  ],
+  "order": 4
+}

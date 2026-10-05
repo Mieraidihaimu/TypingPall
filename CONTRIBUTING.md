@@ -19,7 +19,9 @@ Useful places to start:
 | Practice flow and progress | `TypingPall/Views/TypingScreenView/` |
 | Active native editor | `TypingPall/Views/Editor/TextKit2TypingEditor.swift` |
 | Lesson catalog and comment filtering | `TypingPall/Models/PracticeContent.swift` |
-| Built-in examples | `TypingPall/Content/lessons.json` |
+| Modular practice library | `library/lessons/` |
+| Built-in catalog bundle | `TypingPall/Content/lessons.json` |
+| Library CLI & authoring tool | `scripts/library.py` |
 | Saved scripts and migration | `TypingPall/Persistence.swift` |
 | Tests | `TypingPallTests/` and `TypingPallUITests/` |
 
@@ -27,7 +29,38 @@ Earlier editor and statistics experiments remain outside the app's Sources phase
 
 ## Add or improve a lesson
 
-Each entry in `lessons.json` has a unique `id`, a short `title`, a `category`, a `track` (`leetcode`, `lowLevelDesign`, or `languages`), a supported `language` (`python`, `cpp`, `rust`, or `go`), a `summary`, and `code`. The library groups lessons by track, then by category, so a category belongs to exactly one track.
+TypingPall organizes lessons in modular files under `library/lessons/<track>/<id>.json`, making it easy to create focused pull requests with clean diffs and zero merge conflicts. See [library/README.md](library/README.md) for full details.
+
+Each lesson has a unique `id`, a short `title`, a `category`, a `track` (`leetcode`, `lowLevelDesign`, `languages`, or a new track like `algorithms`), a supported `language` (`python`, `cpp`, `rust`, `go`, `swift`, `typescript`, `sql`, etc.), a `summary`, and `code`.
+
+### 1. Scaffold or add your lesson
+
+You can use the interactive wizard:
+```sh
+python3 scripts/library.py add
+```
+
+Or pass arguments directly with your source code file:
+```sh
+python3 scripts/library.py add \
+  --track leetcode \
+  --category "Sliding window" \
+  --title "Longest Substring Without Repeating Characters" \
+  --language python \
+  --summary "Sliding window with last-seen hash map. O(n)." \
+  --code-file path/to/solution.py
+```
+
+### 2. Validate and build
+
+```sh
+python3 scripts/library.py validate
+python3 scripts/library.py build
+```
+
+This compiles your changes from `library/lessons/` into `TypingPall/Content/lessons.json`.
+
+### Guidelines for lesson content
 
 Write original examples that focus on one idea and fit comfortably into a practice session. Explain non-obvious behavior in comments and state complexity only when it is accurate. Avoid copying proprietary problem statements or solutions. C++, Rust, and Go examples should be runnable programs; Python examples should be safe to import.
 
@@ -37,10 +70,9 @@ LeetCode and low-level design lessons also carry optional recall metadata: `fami
 - Line indices are 0-based into `code`. `keyLineIndices` and mutation lines must be typed lines: not blank, not a comment, not scaffold. Scaffold lines are shown but never typed.
 - Each `mutations` entry keeps the line's indentation and must fail the lesson's check; `check_lessons.py` runs every planted bug.
 - `contrastWith` links must be mutual.
-- Keep the file in the form `json.dumps(lessons, indent=2, ensure_ascii=False)` writes, plus a final newline.
 - UI tests rely on the "Sliding window" title and code, and on the monotonic-stack lesson's "next greater" trigger.
 
-Add a check in `scripts/check_lessons.py` (Python) or an `EXPECTED` output (C++/Rust/Go). Counts are derived, so nothing else needs updating.
+Add a check in `scripts/check_lessons.py` (Python) or an `EXPECTED` output (C++/Rust/Go).
 
 ```sh
 python3 scripts/check_lessons.py --require-all

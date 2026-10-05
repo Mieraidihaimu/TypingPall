@@ -1,0 +1,24 @@
+{
+  "id": "rb-error-handling",
+  "title": "Exceptions and rescue blocks",
+  "category": "Ruby fundamentals",
+  "track": "languages",
+  "language": "ruby",
+  "summary": "Handle errors with begin, rescue, ensure, and custom exception classes.",
+  "code": [
+    "class ValidationError < StandardError; end",
+    "",
+    "def parse_user_age(raw)",
+    "    begin",
+    "        age = Integer(raw)",
+    "        raise ValidationError, \"age must be positive\" if age < 0",
+    "        age",
+    "    rescue ArgumentError",
+    "        raise ValidationError, \"invalid numeric string\"",
+    "    ensure",
+    "        # Cleanup or telemetry runs unconditionally",
+    "    end",
+    "end"
+  ],
+  "order": 57
+}

@@ -1,0 +1,95 @@
+{
+  "id": "lld-decorator",
+  "title": "Decorator: wrap to add behaviour",
+  "category": "Structural patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Cheese and HappyHour wrap anything with cost() and describe() and offer the same two methods, so they stack in any order. Each calls through, then adds its part. The base pizza is given.",
+  "code": [
+    "# A wrapper keeps the interface of what it wraps, so wrappers stack in any order.",
+    "class Pizza:",
+    "    def cost(self):",
+    "        return 8.0",
+    "",
+    "    def describe(self):",
+    "        return 'pizza'",
+    "",
+    "class Cheese:",
+    "    def __init__(self, item):",
+    "        self.item = item",
+    "",
+    "    def cost(self):",
+    "        return self.item.cost() + 1.5",
+    "",
+    "    def describe(self):",
+    "        return self.item.describe() + ', cheese'",
+    "",
+    "class HappyHour:",
+    "    def __init__(self, item):",
+    "        self.item = item",
+    "",
+    "    def cost(self):",
+    "        return self.item.cost() * 0.8",
+    "",
+    "    def describe(self):",
+    "        return self.item.describe() + ' (happy hour)'"
+  ],
+  "family": "decorator",
+  "triggers": [
+    "add optional features to an object at runtime, in any combination, without a subclass per combination",
+    "wrappers that keep the same interface: logging, caching, retries, add-ons"
+  ],
+  "prompts": [
+    "An HTTP client needs optional retries, request logging and auth headers. Teams combine them differently, and nobody wants a class for every combination.",
+    "A document exporter can add a header, a footer and page numbers in any combination the user ticks, and new options keep arriving."
+  ],
+  "invariant": "Every wrapper offers the wrapped object's methods and calls through to it, adding its own part before or after.",
+  "mantra": "Same interface in and out: call through, then add.",
+  "pitfalls": [
+    "A wrapper that never calls the wrapped object replaces it instead of decorating it.",
+    "Order matters: HappyHour(Cheese(pizza)) discounts the cheese too; Cheese(HappyHour(pizza)) doesn't.",
+    "A subclass per combination (CheesePizza, CheeseHappyHourPizza, ...) explodes; wrap objects instead."
+  ],
+  "anchors": [
+    {
+      "name": "Coffee or pizza ordering",
+      "trick": "Each add-on wraps the item and adds its price and name."
+    },
+    {
+      "name": "Notification service",
+      "trick": "Wrap a base notifier with SMS and Slack senders in any combination."
+    }
+  ],
+  "keyLineIndices": [
+    10,
+    13,
+    16,
+    23
+  ],
+  "scaffoldLineIndices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "contrastWith": [
+    "lld-adapter",
+    "lld-composite",
+    "lld-chain"
+  ],
+  "mutations": [
+    {
+      "line": 13,
+      "replacement": "        return 1.5",
+      "explanation": "Returns only its own price; a decorator must call through to the wrapped item and add to its result."
+    },
+    {
+      "line": 26,
+      "replacement": "        return 'pizza (happy hour)'",
+      "explanation": "Hard-codes the base instead of asking the wrapped item, so every topping underneath vanishes from the description."
+    }
+  ],
+  "order": 31
+}

@@ -1,0 +1,74 @@
+{
+  "id": "py-sliding-window",
+  "title": "Sliding window",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Longest run of text with no repeated character. On a repeat, jump left past that character's last index; max() ignores sightings already left of the window. O(n).",
+  "code": [
+    "# Keep a window with no repeated characters.",
+    "def longest_unique(text):",
+    "    last_seen = {}",
+    "    left = 0",
+    "    best = 0",
+    "    for right, char in enumerate(text):",
+    "        if char in last_seen:",
+    "            left = max(left, last_seen[char] + 1)",
+    "        last_seen[char] = right",
+    "        best = max(best, right - left + 1)",
+    "    return best"
+  ],
+  "family": "sliding-window",
+  "triggers": [
+    "longest or shortest contiguous substring or subarray under a constraint",
+    "'no repeats', 'at most k distinct', 'at most k changes'"
+  ],
+  "prompts": [
+    "A badge reader logs door codes in order. Find the longest stretch of consecutive swipes in which no code appears twice.",
+    "A radio station never repeats a song within one block. Given the play history, how long is the longest block that already obeys that rule?"
+  ],
+  "invariant": "text[left:right + 1] has no repeated character, and last_seen maps each character to its latest index so far.",
+  "mantra": "Expand right; on a repeat, jump left past its last sighting, never backwards.",
+  "pitfalls": [
+    "Without max(left, ...), a sighting from before the window drags left backwards ('abba').",
+    "Record last_seen[char] after moving left, or every character collides with itself.",
+    "The window holds right - left + 1 characters."
+  ],
+  "anchors": [
+    {
+      "name": "Longest Substring Without Repeating Characters",
+      "trick": "Exactly this: last-seen map plus jump."
+    },
+    {
+      "name": "Longest Repeating Character Replacement",
+      "trick": "Shrink variant: valid while window length - top count <= k."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    8,
+    9
+  ],
+  "contrastWith": [
+    "py-two-pointers",
+    "py-prefix-sum",
+    "py-sliding-window-shrink"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(min(n, alphabet))"
+  },
+  "mutations": [
+    {
+      "line": 7,
+      "replacement": "            left = last_seen[char] + 1",
+      "explanation": "Without max(), a repeat seen before the window moves left backwards and admits duplicates: 'abba' gives 3."
+    },
+    {
+      "line": 9,
+      "replacement": "        best = max(best, right - left)",
+      "explanation": "Off by one: the window from left to right holds right - left + 1 characters."
+    }
+  ],
+  "order": 1
+}

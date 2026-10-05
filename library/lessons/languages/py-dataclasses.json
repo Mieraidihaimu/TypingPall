@@ -1,0 +1,20 @@
+{
+  "id": "py-dataclasses",
+  "title": "Dataclasses and sorting",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Represent structured data and sort by a tuple of keys. A fresh sorted list leaves the input unchanged.",
+  "code": [
+    "from dataclasses import dataclass",
+    "",
+    "@dataclass(frozen=True)",
+    "class Task:",
+    "    name: str",
+    "    priority: int",
+    "",
+    "def prioritize(tasks):",
+    "    return sorted(tasks, key=lambda task: (-task.priority, task.name))"
+  ],
+  "order": 49
+}

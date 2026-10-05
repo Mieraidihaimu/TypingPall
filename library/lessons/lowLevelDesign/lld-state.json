@@ -1,0 +1,84 @@
+{
+  "id": "lld-state",
+  "title": "State: let the current state answer",
+  "category": "Behavioral patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "A vending machine hands each event to its current state object. Idle accepts a coin and switches to Paid; Paid dispenses and switches back. The machine never checks a status flag.",
+  "code": [
+    "# Each state answers the events and picks the next state; the machine never checks a flag.",
+    "class Idle:",
+    "    def insert_coin(self, machine):",
+    "        machine.state = Paid()",
+    "        return 'coin accepted'",
+    "",
+    "    def press(self, machine):",
+    "        return 'insert a coin first'",
+    "",
+    "class Paid:",
+    "    def insert_coin(self, machine):",
+    "        return 'coin returned'",
+    "",
+    "    def press(self, machine):",
+    "        machine.state = Idle()",
+    "        return 'dispensed'",
+    "",
+    "class VendingMachine:",
+    "    def __init__(self):",
+    "        self.state = Idle()",
+    "",
+    "    def insert_coin(self):",
+    "        return self.state.insert_coin(self)",
+    "",
+    "    def press(self):",
+    "        return self.state.press(self)"
+  ],
+  "family": "state",
+  "triggers": [
+    "the same call behaves differently depending on the object's current mode, with rules for which mode comes next",
+    "status flags checked by if/elif in every method: vending machines, order lifecycles, traffic lights"
+  ],
+  "prompts": [
+    "A turnstile ignores pushes until a ticket is scanned, lets exactly one person through, then locks again. Extra scans while it's unlocked must not bank extra passes.",
+    "A document moves from draft to review to published. Editing is allowed only in draft, approving only in review, and each step decides where the document goes next."
+  ],
+  "invariant": "The machine always holds exactly one state object; each event is answered by that state, and only states change machine.state.",
+  "mantra": "Ask the state; the state picks the next state.",
+  "pitfalls": [
+    "Assign machine.state, not self.state: the state is handed the machine so it can switch it.",
+    "Every state answers every event, even if only to refuse it.",
+    "If the caller picks the object and it never replaces itself, that's Strategy."
+  ],
+  "anchors": [
+    {
+      "name": "Vending machine",
+      "trick": "Idle, paid and sold-out states each handle coin and button events."
+    },
+    {
+      "name": "Elevator system",
+      "trick": "Idle, moving and doors-open states decide what each button press does."
+    }
+  ],
+  "keyLineIndices": [
+    3,
+    14,
+    22,
+    25
+  ],
+  "contrastWith": [
+    "lld-strategy"
+  ],
+  "mutations": [
+    {
+      "line": 3,
+      "replacement": "        self.state = Paid()",
+      "explanation": "Sets an attribute on the state object instead of the machine, so the machine never leaves Idle."
+    },
+    {
+      "line": 14,
+      "replacement": "        machine.state = Paid()",
+      "explanation": "Stays paid after dispensing, so every later press dispenses for free."
+    }
+  ],
+  "order": 34
+}

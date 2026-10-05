@@ -1,0 +1,30 @@
+{
+  "id": "go-generics",
+  "title": "Generics and type parameters",
+  "category": "Go fundamentals",
+  "track": "languages",
+  "language": "go",
+  "summary": "Write reusable type-safe slice operations with type parameters and constraints.",
+  "code": [
+    "package main",
+    "",
+    "import \"fmt\"",
+    "",
+    "func Filter[T any](items []T, predicate func(T) bool) []T {",
+    "    var result []T",
+    "    for _, item := range items {",
+    "        if predicate(item) {",
+    "            result = append(result, item)",
+    "        }",
+    "    }",
+    "    return result",
+    "}",
+    "",
+    "func main() {",
+    "    numbers := []int{1, 2, 3, 4, 5, 6}",
+    "    evens := Filter(numbers, func(n int) bool { return n%2 == 0 })",
+    "    fmt.Printf(\"%d %d\\n\", len(evens), evens[0])",
+    "}"
+  ],
+  "order": 65
+}

@@ -1,0 +1,89 @@
+{
+  "id": "lld-builder",
+  "title": "Builder: assemble, then validate once",
+  "category": "Creational patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Each step returns the builder, so optional parts chain in any order. build() rejects a query with no columns and hands back an immutable snapshot that later steps can't change.",
+  "code": [
+    "# Chain optional parts in any order; build() checks them once and returns a finished query.",
+    "from collections import namedtuple",
+    "",
+    "Query = namedtuple('Query', 'table columns filters limit')",
+    "",
+    "class QueryBuilder:",
+    "    def __init__(self, table):",
+    "        self.table = table",
+    "        self.columns = []",
+    "        self.filters = []",
+    "        self.limit = None",
+    "",
+    "    def select(self, *columns):",
+    "        self.columns.extend(columns)",
+    "        return self",
+    "",
+    "    def where(self, condition):",
+    "        self.filters.append(condition)",
+    "        return self",
+    "",
+    "    def take(self, count):",
+    "        self.limit = count",
+    "        return self",
+    "",
+    "    def build(self):",
+    "        if not self.columns:",
+    "            raise ValueError('select at least one column')",
+    "        return Query(self.table, tuple(self.columns), tuple(self.filters), self.limit)"
+  ],
+  "family": "builder",
+  "triggers": [
+    "an object with many optional parts, set in any order, that must be valid once finished",
+    "a constructor with a long list of mostly optional parameters"
+  ],
+  "prompts": [
+    "A report screen lets users pick columns, add any number of filters and optionally cap the row count, in whatever order they click. A report with no columns chosen must be refused before it runs.",
+    "A game lets players set up a character across several screens: name, class, starting items. Nothing should exist until the final screen confirms the choices are valid."
+  ],
+  "invariant": "Every step returns the builder; only build() creates a query, after one validation, and the query never shares a list with the builder.",
+  "mantra": "Set in any order, check once, hand back a copy.",
+  "pitfalls": [
+    "Each step must return self, or the chain breaks at the next call.",
+    "Copy lists into the product with tuple(); a shared list lets later steps change a finished query.",
+    "Don't name a method after a field: with self.limit as data, a limit() method would be hidden."
+  ],
+  "anchors": [
+    {
+      "name": "Pizza or burger ordering",
+      "trick": "Add toppings step by step; build() validates and prices the order."
+    },
+    {
+      "name": "HTTP client request",
+      "trick": "Headers, body and timeout chained before one build()."
+    }
+  ],
+  "keyLineIndices": [
+    14,
+    25,
+    27
+  ],
+  "scaffoldLineIndices": [
+    1,
+    3
+  ],
+  "contrastWith": [
+    "lld-factory"
+  ],
+  "mutations": [
+    {
+      "line": 27,
+      "replacement": "        return Query(self.table, self.columns, tuple(self.filters), self.limit)",
+      "explanation": "Hands out the builder's own list, so selecting another column later changes a query that was already built."
+    },
+    {
+      "line": 25,
+      "replacement": "        if self.columns is None:",
+      "explanation": "An empty list is not None, so the check never fires and a query with no columns gets built."
+    }
+  ],
+  "order": 28
+}

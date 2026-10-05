@@ -1,0 +1,92 @@
+{
+  "id": "lld-command",
+  "title": "Command: actions you can undo",
+  "category": "Behavioral patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Each edit is an object with do() and undo(). The editor keeps two stacks: undo moves the last command from done to undone, redo moves it back, and a new command clears redo.",
+  "code": [
+    "# Every edit knows how to undo itself; two stacks give undo and redo.",
+    "class Insert:",
+    "    def __init__(self, position, text):",
+    "        self.position = position",
+    "        self.text = text",
+    "",
+    "    def do(self, doc):",
+    "        return doc[:self.position] + self.text + doc[self.position:]",
+    "",
+    "    def undo(self, doc):",
+    "        return doc[:self.position] + doc[self.position + len(self.text):]",
+    "",
+    "class Editor:",
+    "    def __init__(self):",
+    "        self.doc = ''",
+    "        self.done = []",
+    "        self.undone = []",
+    "",
+    "    def run(self, command):",
+    "        self.doc = command.do(self.doc)",
+    "        self.done.append(command)",
+    "        self.undone.clear()",
+    "",
+    "    def undo(self):",
+    "        if self.done:",
+    "            command = self.done.pop()",
+    "            self.doc = command.undo(self.doc)",
+    "            self.undone.append(command)",
+    "",
+    "    def redo(self):",
+    "        if self.undone:",
+    "            command = self.undone.pop()",
+    "            self.doc = command.do(self.doc)",
+    "            self.done.append(command)"
+  ],
+  "family": "command",
+  "triggers": [
+    "undo and redo, macros, or a log of user actions that must be stored and replayed",
+    "separate what triggers an action (a button, shortcut or menu) from the code that performs it"
+  ],
+  "prompts": [
+    "A drawing app lets users move, recolour and delete shapes, then step backwards and forwards through those changes as far as they like.",
+    "A smart-home hub records the actions a scene performs, so one tap can roll the whole scene back in reverse order."
+  ],
+  "invariant": "done holds applied commands in order and undone holds undone ones; undo and redo move one command between them, and a new command empties undone.",
+  "mantra": "Every action knows its inverse; a new action clears redo.",
+  "pitfalls": [
+    "A new command must clear the redo stack; redoing old commands onto newer text corrupts it.",
+    "undo must reverse exactly what do changed: the whole inserted text, at its position.",
+    "Undo in reverse order by popping from the end of the history."
+  ],
+  "anchors": [
+    {
+      "name": "Text editor with undo and redo",
+      "trick": "Insert and delete commands on two stacks."
+    },
+    {
+      "name": "Remote control or smart home",
+      "trick": "Buttons hold commands; the last command can be undone."
+    }
+  ],
+  "keyLineIndices": [
+    10,
+    21,
+    26,
+    27
+  ],
+  "contrastWith": [
+    "lld-strategy"
+  ],
+  "mutations": [
+    {
+      "line": 21,
+      "replacement": "        self.done.clear()",
+      "explanation": "Clears the undo history instead of the redo stack, so nothing before this edit can be undone."
+    },
+    {
+      "line": 10,
+      "replacement": "        return doc[:self.position] + doc[self.position + 1:]",
+      "explanation": "Undo removes one character instead of the whole inserted text."
+    }
+  ],
+  "order": 36
+}

@@ -1,0 +1,9 @@
+{
+  "track": "lowLevelDesign",
+  "categories": [
+    "Creational patterns",
+    "Structural patterns",
+    "Behavioral patterns",
+    "Design building blocks"
+  ]
+}

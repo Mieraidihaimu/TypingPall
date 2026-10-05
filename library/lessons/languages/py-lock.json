@@ -1,0 +1,27 @@
+{
+  "id": "py-lock",
+  "title": "Protecting shared state",
+  "category": "Python concurrency",
+  "track": "languages",
+  "language": "python",
+  "summary": "A lock protects the complete read-modify-write operation. Join every worker before observing the final result.",
+  "code": [
+    "from threading import Lock, Thread",
+    "",
+    "def shared_counter():",
+    "    lock = Lock()",
+    "    count = 0",
+    "    def increment():",
+    "        nonlocal count",
+    "        for _ in range(100):",
+    "            with lock:",
+    "                count += 1",
+    "    workers = [Thread(target=increment) for _ in range(4)]",
+    "    for worker in workers:",
+    "        worker.start()",
+    "    for worker in workers:",
+    "        worker.join()",
+    "    return count"
+  ],
+  "order": 77
+}

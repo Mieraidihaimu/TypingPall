@@ -1,0 +1,19 @@
+{
+  "id": "sh-file-search",
+  "title": "Find and search files",
+  "category": "Terminal commands",
+  "track": "languages",
+  "language": "shell",
+  "summary": "Find files by pattern and modification time, with recursive grep across codebases.",
+  "code": [
+    "# Find files by pattern and modification time",
+    "find . -type f -name \"*.log\" -mtime +7",
+    "",
+    "# Search recursively for a string with line numbers",
+    "grep -rni --exclude-dir=node_modules \"connection refused\" ./src",
+    "",
+    "# Find and count files matching an extension",
+    "find ./data -type f -name \"*.json\" | wc -l"
+  ],
+  "order": 40
+}

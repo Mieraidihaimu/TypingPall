@@ -1,0 +1,19 @@
+{
+  "id": "sh-text-pipelines",
+  "title": "Text processing and pipelines",
+  "category": "Terminal commands",
+  "track": "languages",
+  "language": "shell",
+  "summary": "Stream and filter output using pipes, awk column projection, sort, and uniq.",
+  "code": [
+    "# Extract the first column, sort, and count unique occurrences",
+    "cat access.log | awk '{print $1}' | sort | uniq -c | sort -nr",
+    "",
+    "# Replace occurrences inline across configuration files",
+    "sed -i '' 's/localhost:5432/db.internal:5432/g' config.env",
+    "",
+    "# Inspect top 10 largest directories",
+    "du -sh ./* | sort -hr | head -n 10"
+  ],
+  "order": 41
+}

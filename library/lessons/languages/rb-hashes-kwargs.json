@@ -1,0 +1,22 @@
+{
+  "id": "rb-hashes-kwargs",
+  "title": "Hashes and keyword arguments",
+  "category": "Ruby fundamentals",
+  "track": "languages",
+  "language": "ruby",
+  "summary": "Work with symbol keys, keyword arguments, default options, and hash transforms.",
+  "code": [
+    "def configure_server(host:, port: 8080, **options)",
+    "    config = {",
+    "        host: host,",
+    "        port: port,",
+    "        timeout: options.fetch(:timeout, 30),",
+    "        ssl: options.fetch(:ssl, false)",
+    "    }",
+    "    config.transform_keys(&:to_s)",
+    "end",
+    "",
+    "settings = configure_server(host: \"api.internal\", ssl: true)"
+  ],
+  "order": 56
+}

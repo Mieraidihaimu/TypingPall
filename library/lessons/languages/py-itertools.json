@@ -1,0 +1,18 @@
+{
+  "id": "py-itertools",
+  "title": "Itertools and grouped streams",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Sort, group contiguous keys, and flatten nested sequences with itertools.",
+  "code": [
+    "from itertools import chain, groupby",
+    "",
+    "def group_and_flatten(records):",
+    "    sorted_records = sorted(records, key=lambda item: item[0])",
+    "    grouped = {key: [val for _, val in items] for key, items in groupby(sorted_records, key=lambda item: item[0])}",
+    "    flattened = list(chain.from_iterable(grouped.values()))",
+    "    return grouped, flattened"
+  ],
+  "order": 52
+}

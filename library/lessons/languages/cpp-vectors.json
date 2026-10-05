@@ -1,0 +1,29 @@
+{
+  "id": "cpp-vectors",
+  "title": "Vectors, references and range loops",
+  "category": "C++ fundamentals",
+  "track": "languages",
+  "language": "cpp",
+  "summary": "C++17. Borrow a vector through a const reference and produce a new vector. Practice bounds-free range iteration.",
+  "code": [
+    "#include <iostream>",
+    "#include <vector>",
+    "",
+    "std::vector<int> positiveValues(const std::vector<int>& values) {",
+    "    std::vector<int> result;",
+    "    for (int value : values) {",
+    "        if (value > 0) {",
+    "            result.push_back(value);",
+    "        }",
+    "    }",
+    "    return result;",
+    "}",
+    "",
+    "int main() {",
+    "    for (int value : positiveValues({-1, 2, 0, 3})) {",
+    "        std::cout << value << ' ';",
+    "    }",
+    "}"
+  ],
+  "order": 68
+}

@@ -1,0 +1,21 @@
+{
+  "id": "rb-procs-lambdas",
+  "title": "Procs, lambdas and closures",
+  "category": "Ruby fundamentals",
+  "track": "languages",
+  "language": "ruby",
+  "summary": "Define callable objects with lambda syntax and pass blocks with the ampersand operator.",
+  "code": [
+    "def build_filter(min_length)",
+    "    ->(word) { word.length >= min_length }",
+    "end",
+    "",
+    "def filter_words(words, &predicate)",
+    "    words.select(&predicate)",
+    "end",
+    "",
+    "is_long = build_filter(5)",
+    "result = filter_words([\"ruby\", \"syntax\", \"practice\"], &is_long)"
+  ],
+  "order": 58
+}

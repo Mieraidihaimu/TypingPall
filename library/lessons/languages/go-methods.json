@@ -1,0 +1,32 @@
+{
+  "id": "go-methods",
+  "title": "Structs and pointer receivers",
+  "category": "Go fundamentals",
+  "track": "languages",
+  "language": "go",
+  "summary": "A pointer receiver mutates the original struct. A value receiver can inspect a copy.",
+  "code": [
+    "package main",
+    "",
+    "import \"fmt\"",
+    "",
+    "type Counter struct {",
+    "    value int",
+    "}",
+    "",
+    "func (counter *Counter) Add(delta int) {",
+    "    counter.value += delta",
+    "}",
+    "",
+    "func (counter Counter) Value() int {",
+    "    return counter.value",
+    "}",
+    "",
+    "func main() {",
+    "    counter := Counter{}",
+    "    counter.Add(3)",
+    "    fmt.Println(counter.Value())",
+    "}"
+  ],
+  "order": 62
+}

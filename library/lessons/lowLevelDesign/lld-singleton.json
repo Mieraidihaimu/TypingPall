@@ -1,0 +1,67 @@
+{
+  "id": "lld-singleton",
+  "title": "Singleton: one shared instance",
+  "category": "Creational patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Config() always returns the same object. Check, take the class lock, check again, then build once. Settings are created in __new__ because __init__ would run again on every call.",
+  "code": [
+    "# Check, lock, check again: two threads arriving together still create one instance.",
+    "from threading import Lock",
+    "",
+    "class Config:",
+    "    _instance = None",
+    "    _lock = Lock()",
+    "",
+    "    def __new__(cls):",
+    "        if cls._instance is None:",
+    "            with cls._lock:",
+    "                if cls._instance is None:",
+    "                    cls._instance = super().__new__(cls)",
+    "                    cls._instance.settings = {}",
+    "        return cls._instance"
+  ],
+  "family": "singleton",
+  "triggers": [
+    "exactly one shared object for the whole process, such as a config, registry or connection pool",
+    "'only one may ever exist', even when several threads ask for it at the same moment"
+  ],
+  "prompts": [
+    "Every part of an app reads feature switches from one in-memory table loaded on first use. Separate tables would disagree, so every module must receive the very same table.",
+    "A print spooler must keep exactly one job queue, no matter how many worker threads ask for it first."
+  ],
+  "invariant": "At most one instance is ever created, under the class lock, and every call returns that same object.",
+  "mantra": "Check, lock, check again, then build once.",
+  "pitfalls": [
+    "Share one class-level lock; a lock made inside __new__ is new on every call and guards nothing.",
+    "Without the second check, a thread that waited for the lock builds another instance.",
+    "Python runs __init__ after every Config() call; set state up once in __new__, or later calls wipe it."
+  ],
+  "anchors": [
+    {
+      "name": "Logger",
+      "trick": "One shared logger whose handlers are configured once."
+    },
+    {
+      "name": "Parking lot",
+      "trick": "One ParkingLot object owns every floor and spot."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    9,
+    10,
+    11
+  ],
+  "contrastWith": [
+    "lld-factory"
+  ],
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "            with Lock():",
+      "explanation": "A lock created on each call is never shared, so two threads can still build two instances."
+    }
+  ],
+  "order": 29
+}

@@ -1,0 +1,24 @@
+{
+  "id": "py-decorators",
+  "title": "Decorators and function wrapping",
+  "category": "Python fundamentals",
+  "track": "languages",
+  "language": "python",
+  "summary": "Preserve function metadata and wrap behavior using functools.wraps.",
+  "code": [
+    "from functools import wraps",
+    "",
+    "def logged_call(func):",
+    "    @wraps(func)",
+    "    def wrapper(*args, **kwargs):",
+    "        result = func(*args, **kwargs)",
+    "        return result",
+    "    return wrapper",
+    "",
+    "@logged_call",
+    "def calculate_total(prices, tax_rate=0.05):",
+    "    subtotal = sum(prices)",
+    "    return round(subtotal * (1 + tax_rate), 2)"
+  ],
+  "order": 51
+}

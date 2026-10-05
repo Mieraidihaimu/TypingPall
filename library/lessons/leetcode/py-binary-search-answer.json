@@ -1,0 +1,85 @@
+{
+  "id": "py-binary-search-answer",
+  "title": "Binary search: search on answer",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Slowest speed that finishes every load within hours (one load per hour, partial hours count). feasible(speed) flips once from no to yes, so binary search the speed. O(n log m).",
+  "code": [
+    "# Feasibility only improves as speed grows, so search for the first feasible speed.",
+    "def min_speed(loads, hours):",
+    "    def feasible(speed):",
+    "        return sum((load + speed - 1) // speed for load in loads) <= hours",
+    "    left, right = 1, max(loads)",
+    "    while left < right:",
+    "        mid = (left + right) // 2",
+    "        if feasible(mid):",
+    "            right = mid",
+    "        else:",
+    "            left = mid + 1",
+    "    return left"
+  ],
+  "family": "binary-search",
+  "triggers": [
+    "'smallest capacity, speed or days such that...' or 'minimize the maximum'",
+    "a yes/no feasibility test that flips once as the answer grows"
+  ],
+  "prompts": [
+    "A print shop must finish all orders within a fixed number of hours. Each hour the press works on a single order at one pages-per-hour rate, and a partial hour counts as a full one. What is the slowest rate that meets the deadline?",
+    "Parcels leave in their original order over a fixed number of days, each day's truck carrying as many as fit. What is the smallest truck capacity that finishes on time?"
+  ],
+  "invariant": "Every speed below left is infeasible and right is feasible; when they meet, left is the smallest feasible speed.",
+  "mantra": "If feasibility is monotonic, binary search the answer, not the array.",
+  "pitfalls": [
+    "Search the answer range [1, max(loads)], not the input indices.",
+    "Ceiling division: (load + speed - 1) // speed; floor loses the partial hour.",
+    "feasible(mid) keeps mid (right = mid); otherwise left = mid + 1."
+  ],
+  "anchors": [
+    {
+      "name": "Koko Eating Bananas",
+      "trick": "Exactly this."
+    },
+    {
+      "name": "Capacity To Ship Packages Within D Days",
+      "trick": "Range [max(weights), sum(weights)]; feasible = greedy day count."
+    },
+    {
+      "name": "Split Array Largest Sum",
+      "trick": "Minimize the largest part with the same greedy feasibility."
+    }
+  ],
+  "keyLineIndices": [
+    3,
+    4,
+    7,
+    8
+  ],
+  "contrastWith": [
+    "py-binary-search",
+    "py-upper-bound",
+    "py-binary-search-closed"
+  ],
+  "complexity": {
+    "time": "O(n log m), m = max(loads)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 3,
+      "replacement": "        return sum(load // speed for load in loads) <= hours",
+      "explanation": "Floor division drops the partial hour a leftover load still costs, so too slow a speed looks feasible."
+    },
+    {
+      "line": 4,
+      "replacement": "    left, right = 0, max(loads)",
+      "explanation": "Speed 0 is not a speed: mid can be 0 and feasible() divides by it."
+    },
+    {
+      "line": 8,
+      "replacement": "            right = mid - 1",
+      "explanation": "Throws away mid even when it is the smallest feasible speed."
+    }
+  ],
+  "order": 11
+}

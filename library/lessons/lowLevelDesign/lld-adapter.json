@@ -1,0 +1,85 @@
+{
+  "id": "lld-adapter",
+  "title": "Adapter: translate an interface you can't change",
+  "category": "Structural patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "The checkout calls pay(dollars); the vendor's SDK wants cents and reports declines in a dict. The adapter converts units and raises on a decline. The vendor class is given; you type the adapter.",
+  "code": [
+    "# Checkout calls pay(dollars); the vendor wants cents. The adapter translates both ways.",
+    "class VendorGateway:",
+    "    def __init__(self):",
+    "        self.charges = []",
+    "",
+    "    def submit_charge(self, cents, currency):",
+    "        self.charges.append((cents, currency))",
+    "        return {'ok': cents > 0, 'id': f'ch_{len(self.charges)}'}",
+    "",
+    "class GatewayAdapter:",
+    "    def __init__(self, gateway):",
+    "        self.gateway = gateway",
+    "",
+    "    def pay(self, dollars):",
+    "        result = self.gateway.submit_charge(round(dollars * 100), 'USD')",
+    "        if not result['ok']:",
+    "            raise ValueError('charge declined')",
+    "        return result['id']"
+  ],
+  "family": "adapter",
+  "triggers": [
+    "existing code expects one interface, and a library or legacy class offers a different one you can't edit",
+    "translating units, names or result shapes at a boundary, such as cents and dollars or status codes and exceptions"
+  ],
+  "prompts": [
+    "Your app logs through log(level, message), but the monitoring vendor's client only offers emit(severity_code, payload). Make the app's calls reach the vendor without changing either side.",
+    "A new thermometer driver reports Fahrenheit through read_f(), while every dashboard calls celsius(). Plug the new device in without touching the dashboards."
+  ],
+  "invariant": "Callers see only pay(dollars); every unit, name and failure translation happens inside the adapter, and the vendor class is never edited.",
+  "mantra": "Wrap it, translate it, never edit it.",
+  "pitfalls": [
+    "Convert units with round(dollars * 100); int() truncates 0.29 * 100 to 28.",
+    "Translate failures too: raise your own error instead of leaking the vendor's status dict.",
+    "Hold the vendor object rather than subclassing it, so its whole API doesn't leak into yours."
+  ],
+  "anchors": [
+    {
+      "name": "Payment gateway integration",
+      "trick": "One adapter per provider behind a single pay() interface."
+    },
+    {
+      "name": "Third-party logging or maps SDK",
+      "trick": "Adapt the vendor's calls so the rest of the code never imports the SDK."
+    }
+  ],
+  "keyLineIndices": [
+    11,
+    14,
+    15,
+    17
+  ],
+  "scaffoldLineIndices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "contrastWith": [
+    "lld-decorator"
+  ],
+  "mutations": [
+    {
+      "line": 14,
+      "replacement": "        result = self.gateway.submit_charge(dollars, 'USD')",
+      "explanation": "Passes dollars where the vendor expects cents, so a $12.34 payment charges 12.34 cents."
+    },
+    {
+      "line": 15,
+      "replacement": "        if not result:",
+      "explanation": "A non-empty dict is always truthy, so declined charges come back as successes."
+    }
+  ],
+  "order": 30
+}

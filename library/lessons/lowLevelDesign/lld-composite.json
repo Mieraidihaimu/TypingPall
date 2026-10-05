@@ -1,0 +1,77 @@
+{
+  "id": "lld-composite",
+  "title": "Composite: one interface for parts and wholes",
+  "category": "Structural patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "A File and a Folder both answer size(). A folder sums whatever its children answer, so nesting works at any depth and callers never check which one they hold.",
+  "code": [
+    "# Files and folders answer the same size(), so callers never check which one they hold.",
+    "class File:",
+    "    def __init__(self, name, size):",
+    "        self.name = name",
+    "        self.bytes = size",
+    "",
+    "    def size(self):",
+    "        return self.bytes",
+    "",
+    "class Folder:",
+    "    def __init__(self, name):",
+    "        self.name = name",
+    "        self.children = []",
+    "",
+    "    def add(self, item):",
+    "        self.children.append(item)",
+    "        return self",
+    "",
+    "    def size(self):",
+    "        return sum(child.size() for child in self.children)"
+  ],
+  "family": "composite",
+  "triggers": [
+    "a tree of parts and wholes where callers want one operation on a single item or a whole group",
+    "recursive structures: folders and files, menus and submenus, org charts, nested expressions"
+  ],
+  "prompts": [
+    "A drawing app lets users group shapes, and groups can hold other groups. Moving or measuring a group must work exactly like moving or measuring a single shape.",
+    "An org chart rolls up salary cost: a manager's cost includes everyone below them at any depth, while an individual's cost is just their own salary."
+  ],
+  "invariant": "File and Folder answer the same size(); a folder's answer is the sum of its children's answers, at any depth.",
+  "mantra": "Leaves answer; groups ask their children.",
+  "pitfalls": [
+    "isinstance checks in the folder or the caller defeat the pattern; give leaf and group the same method.",
+    "Call child.size(), not child.bytes, or nested folders count as nothing.",
+    "Don't store an attribute named like a method: self.size = size would hide size()."
+  ],
+  "anchors": [
+    {
+      "name": "File system",
+      "trick": "Folder.size() sums its children; File.size() returns its bytes."
+    },
+    {
+      "name": "Restaurant menu",
+      "trick": "Menus hold items and submenus; print or price the whole tree with one call."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    12,
+    19
+  ],
+  "contrastWith": [
+    "lld-decorator"
+  ],
+  "mutations": [
+    {
+      "line": 19,
+      "replacement": "        return sum(child.bytes for child in self.children if isinstance(child, File))",
+      "explanation": "Counts only the files directly inside; nested folders add nothing because the folder stopped asking its children."
+    },
+    {
+      "line": 16,
+      "replacement": "        return item",
+      "explanation": "Returns the child, so a chained add() puts the next item inside it, or fails on a file."
+    }
+  ],
+  "order": 32
+}

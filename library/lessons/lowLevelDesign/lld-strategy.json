@@ -1,0 +1,80 @@
+{
+  "id": "lld-strategy",
+  "title": "Strategy: swap the rule, keep the caller",
+  "category": "Behavioral patterns",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Checkout holds a pricing object and calls its apply(); the caller picks the rule and can swap it at runtime. A new discount is a new class, never a new branch in Checkout.",
+  "code": [
+    "# Checkout calls apply() on whatever rule it was given; a new rule is a new class.",
+    "class FullPrice:",
+    "    def apply(self, prices):",
+    "        return sum(prices)",
+    "",
+    "class PercentOff:",
+    "    def __init__(self, percent):",
+    "        self.percent = percent",
+    "",
+    "    def apply(self, prices):",
+    "        return sum(prices) * (100 - self.percent) / 100",
+    "",
+    "class CheapestFree:",
+    "    def apply(self, prices):",
+    "        return sum(prices) - min(prices, default=0)",
+    "",
+    "class Checkout:",
+    "    def __init__(self, pricing):",
+    "        self.pricing = pricing",
+    "",
+    "    def total(self, prices):",
+    "        return round(self.pricing.apply(prices), 2)"
+  ],
+  "family": "strategy",
+  "triggers": [
+    "several interchangeable ways to do one job, chosen by the caller or by config at runtime",
+    "an if/elif on a mode or type value inside one method that keeps growing"
+  ],
+  "prompts": [
+    "A maps app offers fastest, shortest and no-toll routes. The navigation screen asks for a route without knowing which rule the user picked, and a scenic option is coming next month.",
+    "A warehouse picks orders by arrival, by priority or by shelf location, and managers switch the rule during the day without restarting anything."
+  ],
+  "invariant": "Checkout knows only the apply() interface; the caller chooses the rule, and adding a rule never edits Checkout.",
+  "mantra": "Pass the rule in; never branch on it.",
+  "pitfalls": [
+    "The context must call the strategy it holds; a hard-coded rule makes swapping pointless.",
+    "Strategies don't pick their successor; when the object switches itself, that's State.",
+    "In Python a plain function can be the strategy; a class helps when the rule has settings, like a percent."
+  ],
+  "anchors": [
+    {
+      "name": "Parking lot",
+      "trick": "A fee strategy per vehicle type or time of day, passed into the ticket."
+    },
+    {
+      "name": "Splitwise",
+      "trick": "Equal, exact and percentage splits as interchangeable split strategies."
+    }
+  ],
+  "keyLineIndices": [
+    10,
+    18,
+    21
+  ],
+  "contrastWith": [
+    "lld-state",
+    "lld-command"
+  ],
+  "mutations": [
+    {
+      "line": 21,
+      "replacement": "        return round(FullPrice().apply(prices), 2)",
+      "explanation": "Checkout ignores the rule it was given and hard-codes one, so swapping strategies changes nothing."
+    },
+    {
+      "line": 10,
+      "replacement": "        return sum(prices) * self.percent / 100",
+      "explanation": "Charges the discount instead of what's left: 25% off becomes paying 25%."
+    }
+  ],
+  "order": 33
+}

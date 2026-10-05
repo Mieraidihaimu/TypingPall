@@ -1,0 +1,73 @@
+{
+  "id": "py-upper-bound",
+  "title": "Binary search: upper bound",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "First index with value > target, or len(values) if none. The lower-bound loop with one change: step past mid while its value is at most target. O(log n).",
+  "code": [
+    "# Step past mid while its value is at most target.",
+    "def upper_bound(values, target):",
+    "    left, right = 0, len(values)",
+    "    while left < right:",
+    "        mid = left + (right - left) // 2",
+    "        if values[mid] <= target:",
+    "            left = mid + 1",
+    "        else:",
+    "            right = mid",
+    "    return left"
+  ],
+  "family": "binary-search",
+  "triggers": [
+    "first position after every copy of a value",
+    "how many values are at most x, or where to insert after equal keys"
+  ],
+  "prompts": [
+    "A catalogue lists prices from cheapest to dearest. Count how many items a shopper can afford with a fixed budget.",
+    "Train departure times are sorted. A passenger reaches the platform at a given time; find the first train that leaves strictly later."
+  ],
+  "invariant": "values[:left] <= target < values[right:]; [left, right) is undecided. When it is empty, left is the answer.",
+  "mantra": "At most target: step past mid. Otherwise keep mid.",
+  "pitfalls": [
+    "upper_bound(t) - lower_bound(t) counts the copies of t.",
+    "The last copy of t sits at upper_bound(t) - 1, if that index is valid and holds t.",
+    "bisect.bisect_right is the built-in."
+  ],
+  "anchors": [
+    {
+      "name": "Find First and Last Position of Element in Sorted Array",
+      "trick": "last = upper_bound(t) - 1; check that it holds t."
+    },
+    {
+      "name": "Time Based Key-Value Store",
+      "trick": "upper_bound on timestamps, then step back one."
+    },
+    {
+      "name": "Find Smallest Letter Greater Than Target",
+      "trick": "upper_bound over the letters; wrap to index 0 when it returns len(letters)."
+    }
+  ],
+  "keyLineIndices": [
+    2,
+    5,
+    6,
+    8
+  ],
+  "contrastWith": [
+    "py-binary-search",
+    "py-binary-search-closed",
+    "py-binary-search-answer"
+  ],
+  "complexity": {
+    "time": "O(log n)",
+    "space": "O(1)"
+  },
+  "mutations": [
+    {
+      "line": 5,
+      "replacement": "        if values[mid] < target:",
+      "explanation": "Becomes lower bound: stops at the first copy of target instead of stepping past every copy."
+    }
+  ],
+  "order": 9
+}
