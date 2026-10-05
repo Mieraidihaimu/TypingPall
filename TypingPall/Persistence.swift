@@ -13,7 +13,10 @@ final class PersistenceController: ObservableObject {
         // Preserve the existing model, store name and location for existing users.
         container = NSPersistentContainer(name: "TypingPall", managedObjectModel: Self.model)
         if let description = container.persistentStoreDescriptions.first {
-            if inMemory { description.type = NSInMemoryStoreType }
+            if inMemory {
+                description.url = URL(fileURLWithPath: "/dev/null")
+                description.type = NSInMemoryStoreType
+            }
             if let storeURL { description.url = storeURL }
             description.shouldMigrateStoreAutomatically = true
             description.shouldInferMappingModelAutomatically = true
