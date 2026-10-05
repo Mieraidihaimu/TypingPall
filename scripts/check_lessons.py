@@ -19,6 +19,7 @@ import types
 
 ROOT = Path(__file__).resolve().parents[1]
 LESSONS = json.loads((ROOT / 'TypingPall/Content/lessons.json').read_text())
+LESSONS_BY_ID = {lesson['id']: lesson for lesson in LESSONS}
 TRACKS = {'leetcode', 'lowLevelDesign', 'languages'}
 CHECKS = {}
 MUTATION_TIMEOUT_SECONDS = 3
@@ -666,16 +667,25 @@ def load_module(lesson_id, code):
 
 
 def run_check(lesson_id, code):
-    CHECKS[lesson_id](load_module(lesson_id, code), random.Random(42))
+    if lesson_id in CHECKS:
+        CHECKS[lesson_id](load_module(lesson_id, code), random.Random(42))
+    elif lesson_id in LESSONS_BY_ID and 'test' in LESSONS_BY_ID[lesson_id]:
+        test_val = LESSONS_BY_ID[lesson_id]['test']
+        test_code = '\n'.join(test_val) if isinstance(test_val, list) else test_val
+        module = load_module(lesson_id, code)
+        exec(compile(test_code, f"{lesson_id}-test", 'exec'), module.__dict__)
+    else:
+        raise KeyError(f"No check or test defined for lesson '{lesson_id}'")
 
 
 def check_python():
     python_ids = {lesson['id'] for lesson in LESSONS if lesson['language'] == 'python'}
-    assert python_ids == CHECKS.keys(), ('unchecked', sorted(python_ids - CHECKS.keys()), 'unknown', sorted(CHECKS.keys() - python_ids))
+    missing = [lid for lid in python_ids if lid not in CHECKS and 'test' not in LESSONS_BY_ID.get(lid, {})]
+    assert not missing, ('unchecked python lessons', sorted(missing))
     for lesson in LESSONS:
-        if lesson['id'] in CHECKS:
+        if lesson['language'] == 'python':
             run_check(lesson['id'], lesson['code'])
-    print(f'PASS: {len(python_ids)} Python lessons, including randomized algorithm checks')
+    print(f'PASS: {len(python_ids)} Python lessons, including randomized algorithm and self-contained checks')
 
 
 def typed_lines(lesson):
@@ -707,7 +717,7 @@ def check_metadata():
         for other in lesson.get('contrastWith', []):
             assert other != where and where in by_id.get(other, {}).get('contrastWith', []), (where, 'contrastWith must be mutual', other)
         for mutation in lesson.get('mutations', []):
-            assert where in CHECKS and mutation['line'] in typed, (where, 'mutation', mutation['line'])
+            assert (where in CHECKS or 'test' in lesson) and mutation['line'] in typed, (where, 'mutation', mutation['line'])
             original, replacement = lines[mutation['line']], mutation['replacement']
             assert replacement != original and indentation(replacement) == indentation(original), (where, 'mutation', mutation['line'])
     print(f"PASS: metadata for {sum('family' in lesson for lesson in LESSONS)} pattern lessons")

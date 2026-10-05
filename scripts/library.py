@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import re
 import sys
+import types
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -530,6 +531,284 @@ def cmd_add(args: argparse.Namespace) -> None:
 
 
 # ==========================================
+# COMMAND: ingest
+# ==========================================
+def extract_components_from_source(source_text: str, language: str) -> Tuple[List[str], List[str], str, str]:
+    """Returns (code_lines, test_lines, summary, title)."""
+    raw_lines = source_text.strip().split("\n")
+
+    # 1. Look for test delimiter
+    test_start = None
+    is_main_block = False
+    for idx, l in enumerate(raw_lines):
+        stripped = l.strip()
+        if stripped.startswith("if __name__ == '__main__':") or stripped.startswith('if __name__ == "__main__":'):
+            test_start = idx
+            is_main_block = True
+            break
+        elif stripped.startswith("# test:") or stripped.startswith("# tests:") or stripped.startswith("# --- test"):
+            test_start = idx
+            break
+        elif stripped.startswith("def test_"):
+            test_start = idx
+            break
+
+    if test_start is not None:
+        code_lines = raw_lines[:test_start]
+        test_raw = raw_lines[test_start + 1:] if is_main_block else raw_lines[test_start:]
+        test_lines = []
+        for tl in test_raw:
+            if is_main_block and tl.startswith("    "):
+                test_lines.append(tl[4:])
+            else:
+                test_lines.append(tl)
+    else:
+        code_lines = raw_lines
+        test_lines = []
+
+    # Clean trailing whitespace / blank lines
+    while code_lines and not code_lines[-1].strip():
+        code_lines.pop()
+    while test_lines and not test_lines[-1].strip():
+        test_lines.pop()
+
+    # 2. Extract summary from top comment or docstring
+    summary = ""
+    for line in code_lines:
+        s = line.strip()
+        if s.startswith("#"):
+            candidate = s.lstrip("#").strip()
+            if candidate and not candidate.startswith("!") and not candidate.startswith("-"):
+                summary = candidate
+                break
+        elif s.startswith('"""') or s.startswith("'''"):
+            summary = s.strip("\"'").strip()
+            break
+        elif s:
+            break
+
+    # 3. Extract title from class or function
+    title = ""
+    for line in code_lines:
+        s = line.strip()
+        class_match = re.match(r"^class\s+([A-Za-z0-9_]+)", s)
+        func_match = re.match(r"^def\s+([A-Za-z0-9_]+)", s)
+        if class_match:
+            name = class_match.group(1)
+            # CamelCase to Words
+            title = re.sub(r"([A-Z])", r" \1", name).strip()
+            break
+        elif func_match:
+            name = func_match.group(1)
+            # snake_case to Words
+            title = name.replace("_", " ").capitalize()
+            break
+
+    return code_lines, test_lines, summary, title
+
+
+def select_key_lines(code_lines: List[str], language: str) -> List[int]:
+    comment = comment_prefix_for(language)
+    scored = []
+    for idx, line in enumerate(code_lines):
+        stripped = line.strip()
+        if not stripped or stripped.startswith(comment) or stripped.startswith("def ") or stripped.startswith("class "):
+            continue
+        score = 0
+        if any(op in line for op in (" % ", " // ")): score += 4
+        if any(fn in line for fn in ("min(", "max(", "sum(")): score += 3
+        if any(m in line for m in (".append(", ".add(", ".pop(", ".discard(", ".remove(")): score += 3
+        if any(k in line for k in ("while ", "for ", "elif ")): score += 2
+        if any(k in line for k in ("return ", "if ")): score += 1
+        if score > 0:
+            scored.append((score, idx))
+
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    return sorted([idx for _, idx in scored[:3]])
+
+
+def auto_generate_mutation(code_lines: List[str], test_lines: List[str]) -> Optional[Dict[str, Any]]:
+    if not test_lines:
+        return None
+    test_code = "\n".join(test_lines)
+    orig_code = "\n".join(code_lines)
+
+    def test_eval(code_str: str) -> bool:
+        mod = types.ModuleType("mutation_test_module")
+        try:
+            exec(compile(code_str, "code", "exec"), mod.__dict__)
+            exec(compile(test_code, "test", "exec"), mod.__dict__)
+            return True
+        except Exception:
+            return False
+
+    # Check clean code first
+    if not test_eval(orig_code):
+        return None
+
+    # Candidate mutation patterns
+    for idx, line in enumerate(code_lines):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped.startswith("def ") or stripped.startswith("class "):
+            continue
+        indent = get_indentation(line)
+
+        candidates = []
+        if " % " in line:
+            candidates.append((line.replace(" % ", " // ", 1), "Replaces modulo with integer division"))
+            candidates.append((line.replace(" % ", " + ", 1), "Replaces modulo with addition"))
+        if " + " in line:
+            candidates.append((line.replace(" + ", " - ", 1), "Replaces addition with subtraction"))
+        if " - " in line:
+            candidates.append((line.replace(" - ", " + ", 1), "Replaces subtraction with addition"))
+        if "min(" in line:
+            candidates.append((line.replace("min(", "max(", 1), "Replaces min with max"))
+        if "max(" in line:
+            candidates.append((line.replace("max(", "min(", 1), "Replaces max with min"))
+        if " == " in line:
+            candidates.append((line.replace(" == ", " != ", 1), "Inverts equality check"))
+        if " != " in line:
+            candidates.append((line.replace(" != ", " == ", 1), "Inverts inequality check"))
+        if " < " in line:
+            candidates.append((line.replace(" < ", " <= ", 1), "Off-by-one comparison check"))
+        if " > " in line:
+            candidates.append((line.replace(" > ", " >= ", 1), "Off-by-one comparison check"))
+        if "if not " in line:
+            candidates.append((line.replace("if not ", "if ", 1), "Inverts conditional check"))
+        if "not in" in line:
+            candidates.append((line.replace("not in", "in", 1), "Inverts membership check"))
+        elif " in " in line:
+            candidates.append((line.replace(" in ", " not in ", 1), "Inverts membership check"))
+        if " and " in line:
+            candidates.append((line.replace(" and ", " or ", 1), "Replaces logical AND with OR"))
+
+        candidates.append((indent + "pass", "Skips required state update or operation"))
+
+        for repl, expl in candidates:
+            if repl == line:
+                continue
+            mutated_lines = list(code_lines)
+            mutated_lines[idx] = repl
+            mutated_code = "\n".join(mutated_lines)
+            if not test_eval(mutated_code):
+                return {
+                    "line": idx,
+                    "replacement": repl,
+                    "explanation": expl
+                }
+    return None
+
+
+def cmd_ingest(args: argparse.Namespace) -> None:
+    """Ingest raw code, automatically separating code and tests, generating metadata, key lines, and mutations."""
+    raw_text = ""
+    language = args.language or "python"
+
+    if args.file:
+        file_path = Path(args.file)
+        if not file_path.exists():
+            print(f"Error: file '{args.file}' not found.", file=sys.stderr)
+            sys.exit(1)
+        raw_text = file_path.read_text(encoding="utf-8")
+        ext = file_path.suffix.lstrip(".").lower()
+        if not args.language:
+            ext_map = {"py": "python", "swift": "swift", "go": "go", "rs": "rust", "cpp": "cpp", "rb": "ruby", "sh": "shell"}
+            language = ext_map.get(ext, "python")
+    else:
+        if sys.stdin.isatty():
+            print("=== TypingPall: Ingest Code to Practice Lesson ===")
+            print("Paste your code below (with if __name__ == '__main__': tests if available), then press Ctrl+D / EOF:")
+        raw_text = sys.stdin.read()
+
+    if not raw_text.strip():
+        print("Error: No code provided to ingest.", file=sys.stderr)
+        sys.exit(1)
+
+    code_lines, test_lines, extracted_summary, extracted_title = extract_components_from_source(raw_text, language)
+
+    title = args.title or extracted_title or "Practice pattern"
+    summary = args.summary or extracted_summary or f"Implementation of {title}."
+
+    has_class = any(l.strip().startswith("class ") for l in code_lines)
+    default_track = "lowLevelDesign" if has_class else "leetcode"
+    track = args.track or default_track
+
+    default_cat_map = {
+        "lowLevelDesign": "Design building blocks",
+        "leetcode": "Python interview patterns",
+        "languages": "Python fundamentals"
+    }
+    category = args.category or default_cat_map.get(track, "Design building blocks")
+
+    lid = args.id
+    if not lid:
+        prefix = "lld-" if track == "lowLevelDesign" else ("py-" if language == "python" else f"{language[:3]}-")
+        lid = f"{prefix}{slugify(title)}"
+
+    key_lines = select_key_lines(code_lines, language)
+
+    mutations = []
+    auto_mut = auto_generate_mutation(code_lines, test_lines)
+    if auto_mut:
+        mutations.append(auto_mut)
+
+    lesson_data: Dict[str, Any] = {
+        "id": lid,
+        "title": title,
+        "category": category,
+        "track": track,
+        "language": language,
+        "summary": summary,
+        "code": code_lines
+    }
+    if key_lines:
+        lesson_data["keyLineIndices"] = key_lines
+    if mutations:
+        lesson_data["mutations"] = mutations
+    if test_lines:
+        lesson_data["test"] = test_lines
+
+    if args.family:
+        lesson_data["family"] = args.family
+    elif track in ("leetcode", "lowLevelDesign"):
+        lesson_data["family"] = slugify(title)
+
+    if args.mantra:
+        lesson_data["mantra"] = args.mantra
+    if args.invariant:
+        lesson_data["invariant"] = args.invariant
+
+    track_dir = LESSONS_DIR / track
+    track_dir.mkdir(parents=True, exist_ok=True)
+    dest_path = track_dir / f"{lid}.json"
+    dest_path.write_text(json.dumps(lesson_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    print(f"\n🎉 Successfully ingested lesson: {lid}")
+    print(f"  • Title: {title}")
+    print(f"  • Track: {track} | Category: {category}")
+    print(f"  • Code lines: {len(code_lines)}")
+    print(f"  • Test assertions: {'Extracted (' + str(len(test_lines)) + ' lines)' if test_lines else 'None'}")
+    print(f"  • Key lines: {key_lines}")
+    print(f"  • Planted bug mutation: {'Generated (line ' + str(auto_mut['line']) + ')' if auto_mut else 'None'}")
+    print(f"  • File saved: {dest_path}")
+
+    track_json = track_dir / "track.json"
+    cat_list = []
+    if track_json.exists():
+        cat_list = json.loads(track_json.read_text(encoding="utf-8")).get("categories", [])
+    if category not in cat_list:
+        cat_list.append(category)
+        track_json.write_text(
+            json.dumps({"track": track, "categories": cat_list}, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8"
+        )
+
+    print("\nRebuilding and validating library...")
+    cmd_build(argparse.Namespace(check=False))
+    cmd_validate(argparse.Namespace())
+
+
+# ==========================================
 # COMMAND: stats
 # ==========================================
 def cmd_stats(args: argparse.Namespace) -> None:
@@ -588,8 +867,18 @@ def main() -> None:
     p_add.add_argument("--code", help="Inline code string")
     p_add.add_argument("--key-lines", help="Comma-separated key line indices")
     p_add.add_argument("--family", help="Pattern family (e.g. sliding-window)")
-    p_add.add_argument("--mantra", help="Mantra rule of thumb")
-    p_add.add_argument("--invariant", help="Pattern invariant")
+    # ingest
+    p_ingest = subparsers.add_parser("ingest", help="Paste or load code to automatically generate lesson JSON with inline tests")
+    p_ingest.add_argument("file", nargs="?", help="Source code file path (or read from stdin / paste)")
+    p_ingest.add_argument("--id", help="Unique lesson ID")
+    p_ingest.add_argument("--title", help="Lesson title")
+    p_ingest.add_argument("--track", help="Track name")
+    p_ingest.add_argument("--category", help="Category name")
+    p_ingest.add_argument("--language", help="Code language")
+    p_ingest.add_argument("--summary", help="Summary text")
+    p_ingest.add_argument("--family", help="Pattern family")
+    p_ingest.add_argument("--mantra", help="Mantra rule of thumb")
+    p_ingest.add_argument("--invariant", help="Pattern invariant")
 
     args = parser.parse_args()
 
@@ -603,6 +892,8 @@ def main() -> None:
         cmd_stats(args)
     elif args.command == "add":
         cmd_add(args)
+    elif args.command == "ingest":
+        cmd_ingest(args)
 
 
 if __name__ == "__main__":
