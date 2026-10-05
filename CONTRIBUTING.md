@@ -33,14 +33,24 @@ TypingPall organizes lessons in modular files under `library/lessons/<track>/<id
 
 Each lesson has a unique `id`, a short `title`, a `category`, a `track` (`leetcode`, `lowLevelDesign`, `languages`, or a new track like `algorithms`), a supported `language` (`python`, `cpp`, `rust`, `go`, `swift`, `typescript`, `sql`, etc.), a `summary`, and `code`.
 
-### 1. Scaffold or add your lesson
+### 1. Ingest from normal code (Fastest)
 
-You can use the interactive wizard:
+Write normal code with assertions at the bottom, then run:
+```sh
+python3 scripts/library.py ingest path/to/solution.py
+# Or pipe from clipboard:
+pbpaste | python3 scripts/library.py ingest
+```
+
+This automatically extracts code and assertions, generates key lines and a verified planted-bug mutation, compiles the catalog, and validates everything in one step.
+
+### 2. Or use the interactive wizard / flags
+
 ```sh
 python3 scripts/library.py add
 ```
 
-Or pass arguments directly with your source code file:
+Or pass arguments directly:
 ```sh
 python3 scripts/library.py add \
   --track leetcode \
@@ -51,7 +61,7 @@ python3 scripts/library.py add \
   --code-file path/to/solution.py
 ```
 
-### 2. Validate and build
+### 3. Validate and build
 
 ```sh
 python3 scripts/library.py validate
