@@ -211,6 +211,9 @@ struct TheoryInspectorView: View {
             }
             .padding(16)
         }
-        .frame(minWidth: 280, idealWidth: 300, maxWidth: 340)
+        // The split-view host owns sizing; scroll content must not change its bounds.
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+        .inspectorColumnWidth(min: 280, ideal: 300, max: 340)
+        .accessibilityIdentifier("theoryInspector")
     }
 }

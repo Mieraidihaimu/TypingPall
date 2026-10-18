@@ -61,6 +61,29 @@ final class TypingPallUITests: XCTestCase {
         XCTAssertTrue(app.textViews["practiceInput"].exists)
     }
 
+    func testWorkspaceSurvivesZenAndInspectorToggles() {
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let input = app.textViews["practiceInput"]
+        let progress = app.staticTexts["patternProgress"]
+        let inspector = app.scrollViews["theoryInspector"]
+        XCTAssertTrue(input.waitForExistence(timeout: 10))
+        XCTAssertTrue(inspector.waitForExistence(timeout: 5))
+        for _ in 0..<3 {
+            app.buttons["Zen Focus"].click()
+            XCTAssertTrue(progress.waitForExistence(timeout: 5), "Zen Focus keeps the practice canvas alive")
+            XCTAssertFalse(app.textFields["sidebarSearch"].exists, "Zen Focus hides the sidebar")
+            app.buttons["Zen Focus"].click()
+            XCTAssertTrue(app.textFields["sidebarSearch"].waitForExistence(timeout: 5), "Leaving Zen Focus restores the sidebar")
+            XCTAssertTrue(inspector.waitForExistence(timeout: 5), "Leaving Zen Focus restores the inspector")
+            app.buttons["Inspector"].click()
+            let inspectorHidden = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: inspector)
+            wait(for: [inspectorHidden], timeout: 5)
+            app.buttons["Inspector"].click()
+            XCTAssertTrue(inspector.waitForExistence(timeout: 5))
+            XCTAssertTrue(input.waitForExistence(timeout: 5), "Inspector changes keep the practice canvas alive")
+        }
+    }
+
     func testSavedScriptAppearsInSidebarAndCanBeReopened() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-ux.lastScriptLanguage", "plainText"])
         let addScript = app.buttons["Add Script"]

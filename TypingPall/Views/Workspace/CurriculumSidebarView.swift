@@ -102,9 +102,9 @@ struct CurriculumSidebarView: View {
         case .allPatterns:
             base = allLessons
         case .leetcode:
-            base = allLessons.filter { $0.track == .algorithms }
+            base = allLessons.filter { $0.track == .leetcode }
         case .lld:
-            base = allLessons.filter { $0.track == .systemDesign }
+            base = allLessons.filter { $0.track == .lowLevelDesign }
         case .myScripts:
             base = []
         }
@@ -242,7 +242,8 @@ struct CurriculumSidebarView: View {
             }
         }
         .listStyle(.sidebar)
-        .frame(minWidth: 220, idealWidth: 250, maxWidth: 280)
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+        .navigationSplitViewColumnWidth(min: 220, ideal: 250, max: 280)
         .onChange(of: activeSmartFilter) { _ in searchQuery = "" }
         .onChange(of: selection) { newSelection in
             switch newSelection {

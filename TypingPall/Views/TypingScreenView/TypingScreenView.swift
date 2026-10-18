@@ -13,6 +13,7 @@ struct TypingScreenView: View {
     @State private var savedScripts: [HistoryRecordDTO] = []
     @State private var activeSmartFilter: SmartFilter = .allPatterns
     @State private var selectedDrill: DrillDestination? = nil
+    @State private var sidebarVisibility: NavigationSplitViewVisibility = .all
     @State private var isShowingInspector: Bool = true
     @State private var isZenMode: Bool = false
 
@@ -27,38 +28,39 @@ struct TypingScreenView: View {
 
     var body: some View {
         ZStack {
-            NavigationSplitView {
-                if !isZenMode {
-                    CurriculumSidebarView(
-                        viewModel: viewModel,
-                        selection: $sidebarSelection,
-                        activeSmartFilter: $activeSmartFilter,
-                        selectedDrill: $selectedDrill,
-                        savedScripts: savedScripts,
-                        onSelectScript: loadSavedScript,
-                        onSelectLesson: { lesson in
-                            selectedDrill = nil
-                            loadLesson(lesson)
-                        },
-                        onSelectBugHunt: { lesson in
-                            selectedDrill = .bugHunt
+            NavigationSplitView(columnVisibility: Binding(
+                get: { isZenMode ? .detailOnly : sidebarVisibility },
+                set: { if !isZenMode { sidebarVisibility = $0 } }
+            )) {
+                CurriculumSidebarView(
+                    viewModel: viewModel,
+                    selection: $sidebarSelection,
+                    activeSmartFilter: $activeSmartFilter,
+                    selectedDrill: $selectedDrill,
+                    savedScripts: savedScripts,
+                    onSelectScript: loadSavedScript,
+                    onSelectLesson: { lesson in
+                        selectedDrill = nil
+                        loadLesson(lesson)
+                    },
+                    onSelectBugHunt: { lesson in
+                        selectedDrill = .bugHunt
+                        startBugHunt(lesson)
+                    },
+                    onSelectDrill: { drill in
+                        selectedDrill = drill
+                        if drill == .bugHunt, let lesson = viewModel.currentLesson {
                             startBugHunt(lesson)
-                        },
-                        onSelectDrill: { drill in
-                            selectedDrill = drill
-                            if drill == .bugHunt, let lesson = viewModel.currentLesson {
-                                startBugHunt(lesson)
-                            }
-                        },
-                        onAddScript: showScriptSheet
-                    )
-                }
+                        }
+                    },
+                    onAddScript: showScriptSheet
+                )
             } detail: {
                 centralStudioCanvas
             }
             .inspector(isPresented: Binding(
                 get: { isShowingInspector && !isZenMode },
-                set: { isShowingInspector = $0 }
+                set: { if !isZenMode { isShowingInspector = $0 } }
             )) {
                 TheoryInspectorView(viewModel: viewModel)
             }
@@ -73,7 +75,7 @@ struct TypingScreenView: View {
             )
         }
         .background(modeShortcuts)
-        .frame(minWidth: 840, idealWidth: 1160, minHeight: 600, idealHeight: 760)
+        .frame(minWidth: 1000, idealWidth: 1160, minHeight: 600, idealHeight: 760)
         .navigationTitle(viewModel.lessonTitle)
         .modifier(SubtitleModifier(text: viewModel.lessonSubtitle))
         .sheet(isPresented: $viewModel.isShowingPlaceholderText) { scriptSheet }
@@ -257,7 +259,8 @@ struct TypingScreenView: View {
             }
         }
         .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Keep content-dependent minimum sizes out of AppKit's split-view sizing loop.
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
         .background(TypingPalette.windowBackground)
     }
 
