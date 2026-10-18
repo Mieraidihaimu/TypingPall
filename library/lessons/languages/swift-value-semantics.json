@@ -1,0 +1,46 @@
+{
+  "id": "swift-value-semantics",
+  "title": "Array copies and inout updates",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Contrast a local array copy with an explicit inout update to the caller. Arrays provide value semantics.",
+  "code": [
+    "func appending(_ value: Int, to numbers: [Int]) -> [Int] {",
+    "    var copy = numbers",
+    "    copy.append(value)",
+    "    return copy",
+    "}",
+    "",
+    "func appendInPlace(_ value: Int, to numbers: inout [Int]) {",
+    "    numbers.append(value)",
+    "}"
+  ],
+  "family": "value-semantics",
+  "triggers": [
+    "choose between returning an updated value and mutating the caller"
+  ],
+  "prompts": [
+    "Provide both a copying append and an append that updates a caller-owned array."
+  ],
+  "invariant": "The copying function leaves its input unchanged; inout writes back to the caller.",
+  "mantra": "Copy for a new value; use & for an explicit update.",
+  "pitfalls": [
+    "Copy-on-write is an optimization and does not change array value semantics.",
+    "inout arguments require a mutable variable and an ampersand."
+  ],
+  "keyLineIndices": [
+    1,
+    6
+  ],
+  "test": [
+    "var original = [1, 2]",
+    "let extended = appending(3, to: original)",
+    "precondition(original == [1, 2])",
+    "precondition(extended == [1, 2, 3])",
+    "appendInPlace(4, to: &original)",
+    "precondition(original == [1, 2, 4])",
+    "precondition(appending(1, to: []) == [1])"
+  ],
+  "order": 104
+}

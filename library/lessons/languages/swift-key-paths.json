@@ -1,0 +1,53 @@
+{
+  "id": "swift-key-paths",
+  "title": "Key paths as reusable property access",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Pass typed property references with KeyPath and WritableKeyPath to read and update models generically.",
+  "code": [
+    "struct Contact {",
+    "    var name: String",
+    "    var city: String",
+    "}",
+    "",
+    "func values<Root, Value>(",
+    "    from roots: [Root], at path: KeyPath<Root, Value>",
+    ") -> [Value] {",
+    "    roots.map { $0[keyPath: path] }",
+    "}",
+    "",
+    "func update<Root, Value>(",
+    "    _ root: inout Root,",
+    "    at path: WritableKeyPath<Root, Value>, to value: Value",
+    ") {",
+    "    root[keyPath: path] = value",
+    "}"
+  ],
+  "family": "key-paths",
+  "triggers": [
+    "pass a property accessor as a typed value to generic code"
+  ],
+  "prompts": [
+    "Extract contact names and update a chosen writable field through reusable functions."
+  ],
+  "invariant": "The key path fixes the root type, property type and write capability at compile time.",
+  "mantra": "Read with KeyPath; write with WritableKeyPath.",
+  "pitfalls": [
+    "A read-only KeyPath cannot be used for assignment.",
+    "Updating a struct through inout requires & at the call site."
+  ],
+  "keyLineIndices": [
+    6,
+    13,
+    15
+  ],
+  "test": [
+    "var contact = Contact(name: \"Ada\", city: \"London\")",
+    "precondition(values(from: [contact], at: \\Contact.name) == [\"Ada\"])",
+    "update(&contact, at: \\Contact.city, to: \"Bath\")",
+    "precondition(contact.city == \"Bath\" && contact.name == \"Ada\")",
+    "precondition(values(from: [Contact](), at: \\Contact.name).isEmpty)"
+  ],
+  "order": 119
+}

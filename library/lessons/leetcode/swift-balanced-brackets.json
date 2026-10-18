@@ -1,0 +1,62 @@
+{
+  "id": "swift-balanced-brackets",
+  "title": "Bracket validation with a stack",
+  "category": "Swift interview patterns",
+  "track": "leetcode",
+  "language": "swift",
+  "summary": "Push opening brackets and require every closing bracket to match the most recent opener. Other characters are ignored.",
+  "code": [
+    "func hasBalancedBrackets(_ text: String) -> Bool {",
+    "    let openers: Set<Character> = [\"(\", \"[\", \"{\"]",
+    "    let pairs: [Character: Character] = [\")\": \"(\", \"]\": \"[\", \"}\": \"{\"]",
+    "    var stack: [Character] = []",
+    "    for character in text {",
+    "        if openers.contains(character) {",
+    "            stack.append(character)",
+    "        } else if let expected = pairs[character] {",
+    "            guard stack.popLast() == expected else { return false }",
+    "        }",
+    "    }",
+    "    return stack.isEmpty",
+    "}"
+  ],
+  "family": "balanced-brackets",
+  "triggers": [
+    "nested opening and closing delimiters must match in reverse order",
+    "properly nested delimiters where the latest opener must close first"
+  ],
+  "prompts": [
+    "Validate nested brackets in text while ignoring nonbracket characters.",
+    "A formula contains round, square and curly brackets. Reject a closer that does not match the most recent unmatched opener."
+  ],
+  "invariant": "The stack contains unmatched opening brackets in encounter order.",
+  "mantra": "Push openers; match closers; finish empty.",
+  "pitfalls": [
+    "Equal counts alone do not prove valid nesting.",
+    "This is bracket matching, not a source-code parser; quotes and comments receive no special handling."
+  ],
+  "keyLineIndices": [
+    6,
+    8,
+    11
+  ],
+  "test": [
+    "for text in [\"\", \"()[]{}\", \"{a + [b * (c)]}\"] {",
+    "    precondition(hasBalancedBrackets(text))",
+    "}",
+    "for text in [\"(\", \")\", \"([)]\", \"(()\", \"a}b\"] {",
+    "    precondition(!hasBalancedBrackets(text))",
+    "}"
+  ],
+  "order": 134,
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "anchors": [
+    {
+      "name": "Valid Parentheses",
+      "trick": "A stack checks nesting order as well as delimiter types."
+    }
+  ]
+}

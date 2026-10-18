@@ -1,0 +1,45 @@
+{
+  "id": "swift-defer-cleanup",
+  "title": "defer and guaranteed scope cleanup",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Restore a temporary flag with defer on both the success path and an early return.",
+  "code": [
+    "final class ImportSession {",
+    "    private(set) var isBusy = false",
+    "",
+    "    func run(_ text: String) -> String? {",
+    "        isBusy = true",
+    "        defer { isBusy = false }",
+    "        guard !text.isEmpty else { return nil }",
+    "        return text.uppercased()",
+    "    }",
+    "}"
+  ],
+  "family": "defer-cleanup",
+  "triggers": [
+    "temporary state must be restored whenever a scope exits"
+  ],
+  "prompts": [
+    "Clear an import-in-progress flag even when validation returns early."
+  ],
+  "invariant": "The synchronous run method leaves isBusy false before returning.",
+  "mantra": "Set up; register cleanup; do the work.",
+  "pitfalls": [
+    "defer executes when its scope exits, not where it is declared.",
+    "This synchronous class is not a synchronization primitive for concurrent access."
+  ],
+  "keyLineIndices": [
+    5,
+    6
+  ],
+  "test": [
+    "let session = ImportSession()",
+    "precondition(session.run(\"swift\") == \"SWIFT\")",
+    "precondition(!session.isBusy)",
+    "precondition(session.run(\"\") == nil)",
+    "precondition(!session.isBusy)"
+  ],
+  "order": 117
+}

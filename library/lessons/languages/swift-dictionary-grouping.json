@@ -1,0 +1,45 @@
+{
+  "id": "swift-dictionary-grouping",
+  "title": "Dictionary defaults and grouping",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Count repeated words with a default subscript and group words by character count.",
+  "code": [
+    "func wordCounts(_ words: [String]) -> [String: Int] {",
+    "    var counts: [String: Int] = [:]",
+    "    for word in words {",
+    "        counts[word, default: 0] += 1",
+    "    }",
+    "    return counts",
+    "}",
+    "",
+    "func wordsByLength(_ words: [String]) -> [Int: [String]] {",
+    "    Dictionary(grouping: words, by: { $0.count })",
+    "}"
+  ],
+  "family": "dictionary-grouping",
+  "triggers": [
+    "count occurrences or partition values by a derived key"
+  ],
+  "prompts": [
+    "Build word frequencies and length groups for a vocabulary list."
+  ],
+  "invariant": "Each encountered word increments one count and belongs to one length group.",
+  "mantra": "Default missing counts; group by the derived key.",
+  "pitfalls": [
+    "Dictionary iteration order is not a display ordering guarantee.",
+    "Dictionary(grouping:) retains duplicates within each group."
+  ],
+  "keyLineIndices": [
+    3,
+    9
+  ],
+  "test": [
+    "precondition(wordCounts([\"go\", \"swift\", \"go\"]) == [\"go\": 2, \"swift\": 1])",
+    "precondition(wordCounts([]).isEmpty)",
+    "precondition(wordsByLength([\"a\", \"to\", \"be\"])[2] == [\"to\", \"be\"])",
+    "precondition(wordsByLength([]).isEmpty)"
+  ],
+  "order": 109
+}

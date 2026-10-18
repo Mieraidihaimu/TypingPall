@@ -28,7 +28,7 @@ Reading an algorithm is one step. Writing it again helps you notice the details.
 
 To check whether you can spot a pattern before writing it, press **⇧⌘D**: the *Which pattern?* drill shows a short scenario, then the cues that identify the answer.
 
-- **Built-in lessons in three tracks** (LeetCode, Low-level design, Languages & syntax) across Python, C++, Rust, Go, Ruby, and Shell, with search and topic filters.
+- **Built-in lessons in three tracks** (LeetCode, Low-level design, Languages & syntax) across Python, Swift, C++, Rust, Go, Ruby, and Shell, with search and topic filters.
 - **LeetCode and design patterns include recall notes** (cues, invariant, pitfalls, anchors, mantra), and library search matches the cues.
 - **Practice from memory.** Key lines (⌘2) and Recall (⌘3) hide code, check each line when you press Return, offer one-token hints on request (⌘'), and grade the attempt without timing it.
 - **Optional comment skipping** lets you focus on code while the full reference stays visible.
@@ -64,6 +64,7 @@ Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. T
 | Track | Collection | Examples |
 | --- | --- | --- |
 | LeetCode | Python interview patterns | Sliding window, two pointers, binary search, BFS, DFS, tree and grid traversal, topological sort, backtracking, union-find, knapsack and other dynamic programming |
+| LeetCode | Swift interview patterns | Lower-bound binary search, Unicode sliding window, interval merging, BFS, bracket matching, coin-change dynamic programming |
 | Low-level design | Creational, structural and behavioral patterns | Factory, builder, singleton, adapter, decorator, composite, strategy, state, observer, command, chain of responsibility |
 | Low-level design | Design building blocks | LRU cache, token-bucket rate limiter |
 | Languages & syntax | Terminal commands | File search, text pipelines, process inspection, git workflows, archiving |
@@ -72,6 +73,8 @@ Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. T
 | Languages & syntax | Go fundamentals | Slices, errors, methods, interfaces, defer/recover, generics, JSON struct tags, timeouts |
 | Languages & syntax | C++ fundamentals | Vectors, hash maps, ownership, lambda sorting |
 | Languages & syntax | Rust fundamentals | Borrowing, `Result`, iterators, enums |
+| Languages & syntax | Swift fundamentals | Optionals, enums, value semantics, closures, collections, Unicode strings, protocols, generics, errors, Codable, key paths, property wrappers, ARC, sequences |
+| Languages & syntax | Swift concurrency | Async/await, async let, task groups, actors, cooperative cancellation, AsyncStream |
 | Languages & syntax | Concurrency across four languages | Thread pools, async tasks, mutexes, condition variables, channels |
 
 ![The lesson library with a sliding-window Python example, searchable topics, and a code preview](screenshots/library.jpg)
@@ -96,6 +99,9 @@ Browse the original examples in [lessons.json](TypingPall/Content/lessons.json).
 Indentation remains visible in the reference, but leading spaces and tabs are excluded from the typing target. Internal and trailing spaces still count. Blank lines advance with Return, and the final line completes the pattern only after confirmation.
 
 Imports accept UTF-8 files up to 1 MB and 20,000 normalized characters. Line endings are normalized, tabs expand to your configured width, and Unicode is preserved. The practice input accepts one line at a time; paste complete snippets into **Add Script**. Saved patterns survive relaunches; your current practice position does not.
+
+**Save & Practice** adds your script to **My Scripts** in the sidebar and selects it.
+Choose **My Scripts** to search and reopen saved scripts; imported files appear there too.
 
 Comment filtering supports Python, Ruby, Shell, C++, Rust, and Go. Select **Plain text** for other languages, or turn off **Skip comments** in **Options** to practice the complete text. Changing an option mid-pattern keeps your place. Python docstrings stay in the exercise.
 

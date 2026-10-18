@@ -1,0 +1,50 @@
+{
+  "id": "swift-mutating-methods",
+  "title": "Structs and mutating methods",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Keep a value type encapsulated with private(set) and update stored properties in mutating methods.",
+  "code": [
+    "struct StepCounter {",
+    "    private(set) var steps = 0",
+    "",
+    "    mutating func record(_ count: Int) {",
+    "        guard count > 0 else { return }",
+    "        steps += count",
+    "    }",
+    "",
+    "    mutating func reset() {",
+    "        steps = 0",
+    "    }",
+    "}"
+  ],
+  "family": "mutating-methods",
+  "triggers": [
+    "a struct owns state that callers may read but must not change directly"
+  ],
+  "prompts": [
+    "Count positive steps and expose a reset operation without allowing arbitrary external writes."
+  ],
+  "invariant": "The step count stays nonnegative and changes only through the struct methods.",
+  "mantra": "Read publicly; mutate through methods.",
+  "pitfalls": [
+    "Methods that change struct properties need mutating.",
+    "A let binding prevents mutation of the entire struct value."
+  ],
+  "keyLineIndices": [
+    1,
+    3,
+    5
+  ],
+  "test": [
+    "var counter = StepCounter()",
+    "counter.record(12)",
+    "counter.record(-4)",
+    "counter.record(0)",
+    "precondition(counter.steps == 12)",
+    "counter.reset()",
+    "precondition(counter.steps == 0)"
+  ],
+  "order": 103
+}

@@ -1,0 +1,53 @@
+{
+  "id": "swift-pattern-matching",
+  "title": "Switch patterns, ranges and where clauses",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Classify coordinate tuples with ordered switch patterns, value bindings and a where condition.",
+  "code": [
+    "func classify(_ point: (Int, Int)) -> String {",
+    "    switch point {",
+    "    case (0, 0):",
+    "        return \"origin\"",
+    "    case (_, 0):",
+    "        return \"x-axis\"",
+    "    case (0, _):",
+    "        return \"y-axis\"",
+    "    case let (x, y) where x == y:",
+    "        return \"diagonal\"",
+    "    case (-2...2, -2...2):",
+    "        return \"near origin\"",
+    "    default:",
+    "        return \"elsewhere\"",
+    "    }",
+    "}"
+  ],
+  "family": "pattern-matching",
+  "triggers": [
+    "classify structured values with overlapping conditions"
+  ],
+  "prompts": [
+    "Label a point as an origin, axis, diagonal, nearby point or outlier."
+  ],
+  "invariant": "The first matching case determines the label.",
+  "mantra": "Match the most specific case before broader patterns.",
+  "pitfalls": [
+    "Placing the range pattern first would consume the origin and nearby axis points.",
+    "A wildcard ignores a value; a binding names it for use in a condition."
+  ],
+  "keyLineIndices": [
+    2,
+    8,
+    10
+  ],
+  "test": [
+    "precondition(classify((0, 0)) == \"origin\")",
+    "precondition(classify((4, 0)) == \"x-axis\")",
+    "precondition(classify((0, -3)) == \"y-axis\")",
+    "precondition(classify((9, 9)) == \"diagonal\")",
+    "precondition(classify((1, -2)) == \"near origin\")",
+    "precondition(classify((9, -3)) == \"elsewhere\")"
+  ],
+  "order": 123
+}

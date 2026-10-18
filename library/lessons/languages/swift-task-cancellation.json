@@ -1,0 +1,59 @@
+{
+  "id": "swift-task-cancellation",
+  "title": "Cooperative task cancellation",
+  "category": "Swift concurrency",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Check cancellation during chunked work and propagate CancellationError instead of returning a partial result.",
+  "code": [
+    "func cancellableTotal(_ values: [Int]) async throws -> Int {",
+    "    var total = 0",
+    "    for value in values {",
+    "        try Task.checkCancellation()",
+    "        total += value",
+    "        await Task.yield()",
+    "    }",
+    "    try Task.checkCancellation()",
+    "    return total",
+    "}"
+  ],
+  "family": "task-cancellation",
+  "triggers": [
+    "long-running async work must stop when its task is cancelled"
+  ],
+  "prompts": [
+    "Sum a batch cooperatively and throw if the task is cancelled, even for an empty batch."
+  ],
+  "invariant": "A successful result follows a cancellation check after all processed values.",
+  "mantra": "Check; work; yield; check again before returning.",
+  "pitfalls": [
+    "Cancellation sets a flag; it does not forcibly terminate task execution.",
+    "Task.yield does not throw on cancellation.",
+    "Use totals that fit in Int."
+  ],
+  "keyLineIndices": [
+    3,
+    5
+  ],
+  "test": [
+    "let total = try await cancellableTotal([1, 2, 3])",
+    "precondition(total == 6)",
+    "let cancelled = Task { () throws -> Int in",
+    "    withUnsafeCurrentTask { $0?.cancel() }",
+    "    return try await cancellableTotal([1, 2, 3])",
+    "}",
+    "do {",
+    "    _ = try await cancelled.value",
+    "    preconditionFailure(\"Expected cancellation\")",
+    "} catch is CancellationError { }",
+    "let emptyCancelled = Task { () throws -> Int in",
+    "    withUnsafeCurrentTask { $0?.cancel() }",
+    "    return try await cancellableTotal([])",
+    "}",
+    "do {",
+    "    _ = try await emptyCancelled.value",
+    "    preconditionFailure(\"Expected cancellation for empty input\")",
+    "} catch is CancellationError { }"
+  ],
+  "order": 128
+}

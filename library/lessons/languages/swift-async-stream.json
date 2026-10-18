@@ -1,0 +1,52 @@
+{
+  "id": "swift-async-stream",
+  "title": "AsyncStream production and consumption",
+  "category": "Swift concurrency",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Bridge a finite callback-style producer into an asynchronous sequence and finish it explicitly.",
+  "code": [
+    "func eventStream(_ events: [String]) -> AsyncStream<String> {",
+    "    AsyncStream { continuation in",
+    "        for event in events {",
+    "            continuation.yield(event)",
+    "        }",
+    "        continuation.finish()",
+    "    }",
+    "}",
+    "",
+    "func collectEvents(_ events: [String]) async -> [String] {",
+    "    var received: [String] = []",
+    "    for await event in eventStream(events) {",
+    "        received.append(event)",
+    "    }",
+    "    return received",
+    "}"
+  ],
+  "family": "async-stream",
+  "triggers": [
+    "adapt a finite producer to for-await consumption"
+  ],
+  "prompts": [
+    "Collect a finite stream of editor events in the order they were produced."
+  ],
+  "invariant": "All yielded events are buffered in order and the finished stream eventually ends.",
+  "mantra": "Yield events; finish production; consume with for await.",
+  "pitfalls": [
+    "Without finish, a finite consumer may wait indefinitely.",
+    "This small finite example uses default unbounded buffering; continuous producers need a buffering and cleanup policy."
+  ],
+  "keyLineIndices": [
+    1,
+    3,
+    5,
+    11
+  ],
+  "test": [
+    "let events = await collectEvents([\"open\", \"edit\", \"save\"])",
+    "let empty = await collectEvents([])",
+    "precondition(events == [\"open\", \"edit\", \"save\"])",
+    "precondition(empty.isEmpty)"
+  ],
+  "order": 129
+}

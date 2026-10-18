@@ -1783,6 +1783,320 @@
     ]
   },
   {
+    "id": "swift-binary-search",
+    "title": "Binary search: lower bound",
+    "category": "Swift interview patterns",
+    "track": "leetcode",
+    "language": "swift",
+    "summary": "Search a sorted array with a half-open interval to find the first index whose value is at least the target.",
+    "code": "func lowerBound(_ values: [Int], target: Int) -> Int {\n    var left = 0\n    var right = values.count\n    while left < right {\n        let middle = left + (right - left) / 2\n        if values[middle] < target {\n            left = middle + 1\n        } else {\n            right = middle\n        }\n    }\n    return left\n}",
+    "family": "binary-search",
+    "triggers": [
+      "find the first value at least a target in a sorted array with duplicates",
+      "insertion position before duplicates or the first index satisfying a monotone predicate"
+    ],
+    "prompts": [
+      "Find the insertion index before equal elements in an ascending array.",
+      "A sorted release list contains repeated version codes. Find where a new code belongs before equal entries."
+    ],
+    "invariant": "All indices below left contain values below target; all indices at or above right contain values at least target.",
+    "mantra": "Keep [left, right); discard only what is proved too small.",
+    "pitfalls": [
+      "The returned index may equal count and must not be subscripted without checking.",
+      "The input must be sorted in ascending order."
+    ],
+    "keyLineIndices": [
+      3,
+      6,
+      8
+    ],
+    "test": [
+      "for values in [[], [2], [1, 2, 2, 4], [-5, -1, 0, 9]] {",
+      "    for target in -7...11 {",
+      "        let expected = values.firstIndex(where: { $0 >= target }) ?? values.count",
+      "        precondition(lowerBound(values, target: target) == expected)",
+      "    }",
+      "}"
+    ],
+    "complexity": {
+      "time": "O(log n)",
+      "space": "O(1)"
+    },
+    "anchors": [
+      {
+        "name": "Search Insert Position",
+        "trick": "Keep a half-open search interval and return its meeting point."
+      }
+    ]
+  },
+  {
+    "id": "swift-sliding-window",
+    "title": "Sliding window over Swift characters",
+    "category": "Swift interview patterns",
+    "track": "leetcode",
+    "language": "swift",
+    "summary": "Traverse text as Characters and track last-seen positions to find a longest substring without repeats.",
+    "code": "func longestUnique(_ text: String) -> Int {\n    var lastSeen: [Character: Int] = [:]\n    var left = 0\n    var best = 0\n    for (right, character) in text.enumerated() {\n        if let previous = lastSeen[character] {\n            left = max(left, previous + 1)\n        }\n        lastSeen[character] = right\n        best = max(best, right - left + 1)\n    }\n    return best\n}",
+    "family": "sliding-window",
+    "triggers": [
+      "longest contiguous stretch with no repeated character",
+      "longest substring with no duplicates using last-seen indices"
+    ],
+    "prompts": [
+      "Find the longest run of distinct displayed characters, including emoji.",
+      "A playlist may not repeat a song within a block. Find the longest existing block that obeys the rule."
+    ],
+    "invariant": "The inclusive window from left to right contains no repeated Character.",
+    "mantra": "Expand right; jump left past repeats; never move left backwards.",
+    "pitfalls": [
+      "Without max, an old sighting before the window can move left backwards.",
+      "enumerated provides traversal offsets, not String.Index values."
+    ],
+    "keyLineIndices": [
+      6,
+      8,
+      9
+    ],
+    "test": [
+      "precondition(longestUnique(\"\") == 0)",
+      "precondition(longestUnique(\"abba\") == 2)",
+      "precondition(longestUnique(\"abcabcbb\") == 3)",
+      "precondition(longestUnique(\"bbbbb\") == 1)",
+      "precondition(longestUnique(\"🙂é🙂a\") == 3)",
+      "for length in 0...7 {",
+      "    for mask in 0..<(1 << length) {",
+      "        let chars: [Character] = (0..<length).map { mask & (1 << $0) == 0 ? \"a\" : \"b\" }",
+      "        var expected = 0",
+      "        for start in 0..<chars.count {",
+      "            for end in (start + 1)...chars.count {",
+      "                let slice = chars[start..<end]",
+      "                if Set(slice).count == slice.count { expected = max(expected, slice.count) }",
+      "            }",
+      "        }",
+      "        precondition(longestUnique(String(chars)) == expected)",
+      "    }",
+      "}"
+    ],
+    "complexity": {
+      "time": "O(n) expected in characters, excluding variable Unicode hashing costs",
+      "space": "O(k) distinct characters"
+    },
+    "anchors": [
+      {
+        "name": "Longest Substring Without Repeating Characters",
+        "trick": "Jump left past the repeated character without ever moving left backwards."
+      }
+    ]
+  },
+  {
+    "id": "swift-merge-intervals",
+    "title": "Sort and merge overlapping intervals",
+    "category": "Swift interview patterns",
+    "track": "leetcode",
+    "language": "swift",
+    "summary": "Sort closed intervals by start and merge each overlap into the last result interval.",
+    "code": "struct Interval: Equatable {\n    let start: Int\n    let end: Int\n}\n\nfunc merged(_ intervals: [Interval]) -> [Interval] {\n    let sorted = intervals.sorted { $0.start < $1.start }\n    var result: [Interval] = []\n    for interval in sorted {\n        if let last = result.last, interval.start <= last.end {\n            result[result.count - 1] = Interval(\n                start: last.start, end: max(last.end, interval.end)\n            )\n        } else {\n            result.append(interval)\n        }\n    }\n    return result\n}",
+    "family": "intervals",
+    "triggers": [
+      "combine overlapping closed ranges, including touching endpoints",
+      "sort ranges and consolidate overlaps, including shared endpoints"
+    ],
+    "prompts": [
+      "Consolidate occupied time ranges into nonoverlapping intervals.",
+      "A room has several closed reservation ranges. Combine overlaps into a minimal occupied-range list."
+    ],
+    "invariant": "The result is ordered and disjoint; only its final interval can overlap the next sorted input.",
+    "mantra": "Sort by start; compare with the tail; extend or append.",
+    "pitfalls": [
+      "Inputs must satisfy start <= end.",
+      "Use max for the end so a nested interval cannot shrink the merged range.",
+      "Closed intervals that touch are merged."
+    ],
+    "keyLineIndices": [
+      9,
+      11,
+      14
+    ],
+    "test": [
+      "precondition(merged([]).isEmpty)",
+      "let input = [Interval(start: 8, end: 10), Interval(start: 1, end: 3), Interval(start: 2, end: 6), Interval(start: 10, end: 12)]",
+      "precondition(merged(input) == [Interval(start: 1, end: 6), Interval(start: 8, end: 12)])",
+      "precondition(merged([Interval(start: 1, end: 9), Interval(start: 2, end: 3)]) == [Interval(start: 1, end: 9)])",
+      "precondition(merged([Interval(start: 2, end: 2)]) == [Interval(start: 2, end: 2)])",
+      "precondition(input[0].start == 8)"
+    ],
+    "complexity": {
+      "time": "O(n log n)",
+      "space": "O(n)"
+    },
+    "anchors": [
+      {
+        "name": "Merge Intervals",
+        "trick": "Sort by start and extend the current tail to the maximum end."
+      }
+    ]
+  },
+  {
+    "id": "swift-breadth-first-search",
+    "title": "BFS with an array and head index",
+    "category": "Swift interview patterns",
+    "track": "leetcode",
+    "language": "swift",
+    "summary": "Compute shortest unweighted graph distances with a queue and mark vertices when enqueuing them.",
+    "code": "func distances(in graph: [Int: [Int]], from start: Int) -> [Int: Int] {\n    var distance = [start: 0]\n    var queue = [start]\n    var head = 0\n    while head < queue.count {\n        let node = queue[head]\n        head += 1\n        let nextDistance = distance[node, default: 0] + 1\n        for neighbor in graph[node, default: []] {\n            guard distance[neighbor] == nil else { continue }\n            distance[neighbor] = nextDistance\n            queue.append(neighbor)\n        }\n    }\n    return distance\n}",
+    "family": "bfs",
+    "triggers": [
+      "shortest hop counts in a graph with equal edge weights",
+      "minimum number of equal-cost transitions from a start state, with cycles or duplicate edges"
+    ],
+    "prompts": [
+      "Find reachable vertices and their minimum hop counts, including graphs with cycles.",
+      "A transit map gives direct stops with equal travel cost. Compute the fewest hops from one stop to every reachable stop."
+    ],
+    "invariant": "Queued vertices already have their shortest distance and are enqueued only once.",
+    "mantra": "Visit on enqueue; advance the head; discover one layer at a time.",
+    "pitfalls": [
+      "Array.removeFirst repeatedly shifts elements; a head index avoids that cost.",
+      "Marking only on dequeue allows duplicate queue entries.",
+      "BFS does not solve general weighted shortest paths."
+    ],
+    "keyLineIndices": [
+      4,
+      9,
+      10
+    ],
+    "test": [
+      "let graph = [0: [1, 2, 1], 1: [0, 3], 2: [3], 3: [3], 9: []]",
+      "precondition(distances(in: graph, from: 0) == [0: 0, 1: 1, 2: 1, 3: 2])",
+      "precondition(distances(in: graph, from: 9) == [9: 0])",
+      "precondition(distances(in: [:], from: 7) == [7: 0])"
+    ],
+    "complexity": {
+      "time": "O(V + E) expected",
+      "space": "O(V)"
+    },
+    "anchors": [
+      {
+        "name": "Shortest Path in Binary Matrix",
+        "trick": "Treat valid cells as vertices and legal moves as unweighted edges; BFS discovers shortest hop counts."
+      }
+    ]
+  },
+  {
+    "id": "swift-balanced-brackets",
+    "title": "Bracket validation with a stack",
+    "category": "Swift interview patterns",
+    "track": "leetcode",
+    "language": "swift",
+    "summary": "Push opening brackets and require every closing bracket to match the most recent opener. Other characters are ignored.",
+    "code": "func hasBalancedBrackets(_ text: String) -> Bool {\n    let openers: Set<Character> = [\"(\", \"[\", \"{\"]\n    let pairs: [Character: Character] = [\")\": \"(\", \"]\": \"[\", \"}\": \"{\"]\n    var stack: [Character] = []\n    for character in text {\n        if openers.contains(character) {\n            stack.append(character)\n        } else if let expected = pairs[character] {\n            guard stack.popLast() == expected else { return false }\n        }\n    }\n    return stack.isEmpty\n}",
+    "family": "balanced-brackets",
+    "triggers": [
+      "nested opening and closing delimiters must match in reverse order",
+      "properly nested delimiters where the latest opener must close first"
+    ],
+    "prompts": [
+      "Validate nested brackets in text while ignoring nonbracket characters.",
+      "A formula contains round, square and curly brackets. Reject a closer that does not match the most recent unmatched opener."
+    ],
+    "invariant": "The stack contains unmatched opening brackets in encounter order.",
+    "mantra": "Push openers; match closers; finish empty.",
+    "pitfalls": [
+      "Equal counts alone do not prove valid nesting.",
+      "This is bracket matching, not a source-code parser; quotes and comments receive no special handling."
+    ],
+    "keyLineIndices": [
+      6,
+      8,
+      11
+    ],
+    "test": [
+      "for text in [\"\", \"()[]{}\", \"{a + [b * (c)]}\"] {",
+      "    precondition(hasBalancedBrackets(text))",
+      "}",
+      "for text in [\"(\", \")\", \"([)]\", \"(()\", \"a}b\"] {",
+      "    precondition(!hasBalancedBrackets(text))",
+      "}"
+    ],
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+    },
+    "anchors": [
+      {
+        "name": "Valid Parentheses",
+        "trick": "A stack checks nesting order as well as delimiter types."
+      }
+    ]
+  },
+  {
+    "id": "swift-coin-change",
+    "title": "Dynamic programming: minimum coin count",
+    "category": "Swift interview patterns",
+    "track": "leetcode",
+    "language": "swift",
+    "summary": "Build minimum coin counts for increasing amounts using reusable positive denominations; return nil for unreachable totals.",
+    "code": "func minimumCoins(_ coins: [Int], amount: Int) -> Int? {\n    guard amount >= 0 else { return nil }\n    var best = Array<Int?>(repeating: nil, count: amount + 1)\n    best[0] = 0\n    guard amount > 0 else { return 0 }\n    for total in 1...amount {\n        for coin in coins where coin > 0 && coin <= total {\n            guard let previous = best[total - coin] else { continue }\n            let candidate = previous + 1\n            best[total] = min(best[total] ?? candidate, candidate)\n        }\n    }\n    return best[amount]\n}",
+    "family": "dynamic-programming",
+    "triggers": [
+      "minimum number of reusable coins to reach an exact amount",
+      "unlimited reuse of denominations and an optimal count rather than a greedy approximation"
+    ],
+    "prompts": [
+      "Find an optimal coin count when greedy selection can fail, such as coins 1, 3, 4 for amount 6.",
+      "A kiosk dispenses reusable token denominations. Find the fewest tokens for an exact amount, or report that none works."
+    ],
+    "invariant": "Before processing total, every smaller amount has its optimal count or nil if unreachable.",
+    "mantra": "Seed zero; extend reachable totals; keep the cheapest count.",
+    "pitfalls": [
+      "Greedy largest-first selection is not correct for arbitrary denominations.",
+      "Ignore nonpositive denominations to prevent invalid dependencies.",
+      "The table uses memory proportional to amount; use bounded amounts that fit in memory."
+    ],
+    "keyLineIndices": [
+      3,
+      7,
+      9
+    ],
+    "test": [
+      "precondition(minimumCoins([1, 3, 4], amount: 6) == 2)",
+      "precondition(minimumCoins([2], amount: 3) == nil)",
+      "precondition(minimumCoins([], amount: 0) == 0)",
+      "precondition(minimumCoins([], amount: 2) == nil)",
+      "precondition(minimumCoins([0, -2, 2], amount: 4) == 2)",
+      "precondition(minimumCoins([1], amount: -1) == nil)",
+      "for coins in [[1, 3, 4], [2, 5], [], [0, -1, 3]] {",
+      "    var reachable = [0: 0]",
+      "    var queue = [0]",
+      "    var head = 0",
+      "    while head < queue.count {",
+      "        let current = queue[head]",
+      "        head += 1",
+      "        for coin in coins where coin > 0 && current + coin <= 20 {",
+      "            let next = current + coin",
+      "            if reachable[next] == nil {",
+      "                reachable[next] = reachable[current, default: 0] + 1",
+      "                queue.append(next)",
+      "            }",
+      "        }",
+      "    }",
+      "    for amount in 0...20 {",
+      "        precondition(minimumCoins(coins, amount: amount) == reachable[amount])",
+      "    }",
+      "}"
+    ],
+    "complexity": {
+      "time": "O(amount × number of coins)",
+      "space": "O(amount)"
+    },
+    "anchors": [
+      {
+        "name": "Coin Change",
+        "trick": "For each amount, choose the cheapest reachable predecessor plus one coin."
+      }
+    ]
+  },
+  {
     "id": "lld-factory",
     "title": "Factory: a registry of creators",
     "category": "Creational patterns",
@@ -3111,5 +3425,1054 @@
     "language": "rust",
     "summary": "Arc shares ownership across threads; Mutex serializes mutation. This small demo treats a panicked worker or poisoned mutex as fatal.",
     "code": "use std::sync::{Arc, Mutex};\nuse std::thread;\n\nfn main() {\n    let counter = Arc::new(Mutex::new(0));\n    let mut workers = Vec::new();\n    for _ in 0..4 {\n        let counter = Arc::clone(&counter);\n        workers.push(thread::spawn(move || {\n            let mut value = counter.lock().expect(\"poisoned mutex\");\n            *value += 1;\n        }));\n    }\n    for worker in workers {\n        worker.join().expect(\"worker panicked\");\n    }\n    println!(\"{}\", *counter.lock().expect(\"poisoned mutex\"));\n}"
+  },
+  {
+    "id": "swift-guard-optionals",
+    "title": "Guard, optional binding and defaults",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Unwrap optional input with guard, reject empty names, and use nil coalescing for a fallback.",
+    "code": "func greeting(for name: String?, suffix: String?) -> String {\n    guard let name = name, !name.isEmpty else {\n        return \"Hello, guest!\"\n    }\n    let ending = suffix ?? \"!\"\n    return \"Hello, \\(name)\\(ending)\"\n}",
+    "family": "guard-optionals",
+    "triggers": [
+      "optional input with an early exit and a default value"
+    ],
+    "prompts": [
+      "Greet a named visitor, or use a guest greeting when the name is missing or empty."
+    ],
+    "invariant": "The name is nonoptional and nonempty after the guard.",
+    "mantra": "Unwrap first; exit early; default what remains.",
+    "pitfalls": [
+      "An empty string is present, so optional binding alone does not reject it.",
+      "A guard else branch must leave the current scope."
+    ],
+    "keyLineIndices": [
+      1,
+      4
+    ],
+    "test": [
+      "precondition(greeting(for: nil, suffix: nil) == \"Hello, guest!\")",
+      "precondition(greeting(for: \"\", suffix: \"?\") == \"Hello, guest!\")",
+      "precondition(greeting(for: \"Ada\", suffix: nil) == \"Hello, Ada!\")",
+      "precondition(greeting(for: \"Ada\", suffix: \".\") == \"Hello, Ada.\")"
+    ]
+  },
+  {
+    "id": "swift-optional-chaining",
+    "title": "Optional chaining through nested models",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Follow optional properties with ?. and transform a present value with Optional.map.",
+    "code": "struct Address {\n    let city: String?\n}\n\nstruct Profile {\n    let address: Address?\n}\n\nfunc cityLabel(for profile: Profile?) -> String {\n    let city = profile?.address?.city\n    return city.map { $0.uppercased() } ?? \"UNKNOWN\"\n}",
+    "family": "optional-chaining",
+    "triggers": [
+      "a value may be absent at several levels of a model"
+    ],
+    "prompts": [
+      "Display an uppercase city label even when a profile has no address."
+    ],
+    "invariant": "Any missing link produces nil and the final fallback handles it.",
+    "mantra": "Chain the path; map the value; supply a default.",
+    "pitfalls": [
+      "Force unwrapping any link can crash.",
+      "Optional.map transforms one wrapped value; it does not iterate over a collection."
+    ],
+    "keyLineIndices": [
+      9,
+      10
+    ],
+    "test": [
+      "precondition(cityLabel(for: nil) == \"UNKNOWN\")",
+      "precondition(cityLabel(for: Profile(address: nil)) == \"UNKNOWN\")",
+      "precondition(cityLabel(for: Profile(address: Address(city: nil))) == \"UNKNOWN\")",
+      "precondition(cityLabel(for: Profile(address: Address(city: \"London\"))) == \"LONDON\")"
+    ]
+  },
+  {
+    "id": "swift-associated-values",
+    "title": "Enums with associated values",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Represent mutually exclusive states with an enum and bind each case payload in an exhaustive switch.",
+    "code": "enum DownloadState {\n    case waiting\n    case progress(received: Int, total: Int)\n    case failed(message: String)\n    case complete\n}\n\nfunc describe(_ state: DownloadState) -> String {\n    switch state {\n    case .waiting:\n        return \"Waiting\"\n    case let .progress(received, total):\n        return \"\\(received)/\\(total) bytes\"\n    case let .failed(message):\n        return \"Failed: \\(message)\"\n    case .complete:\n        return \"Done\"\n    }\n}",
+    "family": "associated-values",
+    "triggers": [
+      "one state has different data depending on its case"
+    ],
+    "prompts": [
+      "Describe a download without separate flags for waiting, progress, failure and completion."
+    ],
+    "invariant": "Exactly one download state and its matching payload are active.",
+    "mantra": "One case, one payload, one exhaustive switch.",
+    "pitfalls": [
+      "Handle every case instead of using a default that hides future additions.",
+      "Associated values belong to an individual enum instance."
+    ],
+    "keyLineIndices": [
+      8,
+      11,
+      13
+    ],
+    "test": [
+      "precondition(describe(.waiting) == \"Waiting\")",
+      "precondition(describe(.progress(received: 4, total: 10)) == \"4/10 bytes\")",
+      "precondition(describe(.failed(message: \"offline\")) == \"Failed: offline\")",
+      "precondition(describe(.complete) == \"Done\")"
+    ]
+  },
+  {
+    "id": "swift-mutating-methods",
+    "title": "Structs and mutating methods",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Keep a value type encapsulated with private(set) and update stored properties in mutating methods.",
+    "code": "struct StepCounter {\n    private(set) var steps = 0\n\n    mutating func record(_ count: Int) {\n        guard count > 0 else { return }\n        steps += count\n    }\n\n    mutating func reset() {\n        steps = 0\n    }\n}",
+    "family": "mutating-methods",
+    "triggers": [
+      "a struct owns state that callers may read but must not change directly"
+    ],
+    "prompts": [
+      "Count positive steps and expose a reset operation without allowing arbitrary external writes."
+    ],
+    "invariant": "The step count stays nonnegative and changes only through the struct methods.",
+    "mantra": "Read publicly; mutate through methods.",
+    "pitfalls": [
+      "Methods that change struct properties need mutating.",
+      "A let binding prevents mutation of the entire struct value."
+    ],
+    "keyLineIndices": [
+      1,
+      3,
+      5
+    ],
+    "test": [
+      "var counter = StepCounter()",
+      "counter.record(12)",
+      "counter.record(-4)",
+      "counter.record(0)",
+      "precondition(counter.steps == 12)",
+      "counter.reset()",
+      "precondition(counter.steps == 0)"
+    ]
+  },
+  {
+    "id": "swift-value-semantics",
+    "title": "Array copies and inout updates",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Contrast a local array copy with an explicit inout update to the caller. Arrays provide value semantics.",
+    "code": "func appending(_ value: Int, to numbers: [Int]) -> [Int] {\n    var copy = numbers\n    copy.append(value)\n    return copy\n}\n\nfunc appendInPlace(_ value: Int, to numbers: inout [Int]) {\n    numbers.append(value)\n}",
+    "family": "value-semantics",
+    "triggers": [
+      "choose between returning an updated value and mutating the caller"
+    ],
+    "prompts": [
+      "Provide both a copying append and an append that updates a caller-owned array."
+    ],
+    "invariant": "The copying function leaves its input unchanged; inout writes back to the caller.",
+    "mantra": "Copy for a new value; use & for an explicit update.",
+    "pitfalls": [
+      "Copy-on-write is an optimization and does not change array value semantics.",
+      "inout arguments require a mutable variable and an ampersand."
+    ],
+    "keyLineIndices": [
+      1,
+      6
+    ],
+    "test": [
+      "var original = [1, 2]",
+      "let extended = appending(3, to: original)",
+      "precondition(original == [1, 2])",
+      "precondition(extended == [1, 2, 3])",
+      "appendInPlace(4, to: &original)",
+      "precondition(original == [1, 2, 4])",
+      "precondition(appending(1, to: []) == [1])"
+    ]
+  },
+  {
+    "id": "swift-computed-properties",
+    "title": "Computed properties with get and set",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Expose Fahrenheit as a computed view of stored Celsius, with a setter that converts back.",
+    "code": "struct Temperature {\n    var celsius: Double\n\n    var fahrenheit: Double {\n        get { celsius * 9 / 5 + 32 }\n        set { celsius = (newValue - 32) * 5 / 9 }\n    }\n}",
+    "family": "computed-properties",
+    "triggers": [
+      "a property is derived from another stored representation"
+    ],
+    "prompts": [
+      "Store temperature once while allowing reads and writes in two units."
+    ],
+    "invariant": "Celsius is the single stored source of truth.",
+    "mantra": "Compute on read; convert on write.",
+    "pitfalls": [
+      "Assigning fahrenheit inside its own setter would recurse.",
+      "Use a tolerance when testing general floating-point conversions."
+    ],
+    "keyLineIndices": [
+      4,
+      5
+    ],
+    "test": [
+      "var temperature = Temperature(celsius: 0)",
+      "precondition(temperature.fahrenheit == 32)",
+      "temperature.fahrenheit = 212",
+      "precondition(abs(temperature.celsius - 100) < 0.000001)",
+      "temperature.celsius = -40",
+      "precondition(temperature.fahrenheit == -40)"
+    ]
+  },
+  {
+    "id": "swift-property-observers",
+    "title": "Property observers and oldValue",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Use didSet to count meaningful updates while ignoring assignments of the current value.",
+    "code": "struct Scoreboard {\n    private(set) var changes = 0\n    var score = 0 {\n        didSet {\n            if score != oldValue {\n                changes += 1\n            }\n        }\n    }\n}",
+    "family": "property-observers",
+    "triggers": [
+      "react to a stored property changing after initialization"
+    ],
+    "prompts": [
+      "Track the number of distinct score updates, excluding repeated assignments."
+    ],
+    "invariant": "The change count increases only when the assigned score differs from the previous score.",
+    "mantra": "Observe after assignment; compare with oldValue.",
+    "pitfalls": [
+      "didSet runs even when the new value equals the old value.",
+      "Initial stored-property values do not trigger this observer."
+    ],
+    "keyLineIndices": [
+      3,
+      4
+    ],
+    "test": [
+      "var board = Scoreboard()",
+      "precondition(board.changes == 0)",
+      "board.score = 10",
+      "board.score = 10",
+      "board.score = 15",
+      "precondition(board.score == 15 && board.changes == 2)"
+    ]
+  },
+  {
+    "id": "swift-sorting-closures",
+    "title": "Sorting closures and tie breakers",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Sort models with a closure that compares a primary key and then a deterministic secondary key.",
+    "code": "struct Player: Equatable {\n    let name: String\n    let score: Int\n}\n\nfunc leaderboard(_ players: [Player]) -> [Player] {\n    players.sorted { left, right in\n        if left.score != right.score {\n            return left.score > right.score\n        }\n        return left.name < right.name\n    }\n}",
+    "family": "sorting-closures",
+    "triggers": [
+      "order records by descending score and ascending name"
+    ],
+    "prompts": [
+      "Build a leaderboard with predictable ordering for tied scores."
+    ],
+    "invariant": "Higher scores come first; equal scores compare by name.",
+    "mantra": "Compare the primary key; break ties with the next key.",
+    "pitfalls": [
+      "Use strict comparisons, not <= or >=, in a sorting predicate.",
+      "sorted returns a new array; sort mutates the original."
+    ],
+    "keyLineIndices": [
+      6,
+      8,
+      10
+    ],
+    "test": [
+      "let players = [Player(name: \"Zoe\", score: 4), Player(name: \"Ada\", score: 4), Player(name: \"Sam\", score: 8)]",
+      "precondition(leaderboard(players).map { $0.name } == [\"Sam\", \"Ada\", \"Zoe\"])",
+      "precondition(players.first?.name == \"Zoe\")",
+      "precondition(leaderboard([]).isEmpty)",
+      "precondition(leaderboard([players[0], players[0]]) == [players[0], players[0]])"
+    ]
+  },
+  {
+    "id": "swift-collection-pipeline",
+    "title": "compactMap, filter and reduce",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Parse valid integers, keep positive values and sum them in a collection pipeline.",
+    "code": "func sumPositiveIntegers(_ words: [String]) -> Int {\n    words\n        .compactMap { Int($0) }\n        .filter { $0 > 0 }\n        .reduce(0) { total, value in total + value }\n}",
+    "family": "collection-pipeline",
+    "triggers": [
+      "parse optional values and aggregate only valid matching elements"
+    ],
+    "prompts": [
+      "Sum positive integers from text fields while skipping invalid entries."
+    ],
+    "invariant": "Only successfully parsed positive integers reach the reduction.",
+    "mantra": "Parse and drop nil; filter; fold.",
+    "pitfalls": [
+      "map would retain Int? elements rather than dropping failures.",
+      "The initial reduce value determines the result for empty input."
+    ],
+    "keyLineIndices": [
+      2,
+      3,
+      4
+    ],
+    "test": [
+      "precondition(sumPositiveIntegers([\"3\", \"bad\", \"-2\", \"0\", \"7\"]) == 10)",
+      "precondition(sumPositiveIntegers([]) == 0)",
+      "precondition(sumPositiveIntegers([\"no\", \"-1\"]) == 0)"
+    ]
+  },
+  {
+    "id": "swift-dictionary-grouping",
+    "title": "Dictionary defaults and grouping",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Count repeated words with a default subscript and group words by character count.",
+    "code": "func wordCounts(_ words: [String]) -> [String: Int] {\n    var counts: [String: Int] = [:]\n    for word in words {\n        counts[word, default: 0] += 1\n    }\n    return counts\n}\n\nfunc wordsByLength(_ words: [String]) -> [Int: [String]] {\n    Dictionary(grouping: words, by: { $0.count })\n}",
+    "family": "dictionary-grouping",
+    "triggers": [
+      "count occurrences or partition values by a derived key"
+    ],
+    "prompts": [
+      "Build word frequencies and length groups for a vocabulary list."
+    ],
+    "invariant": "Each encountered word increments one count and belongs to one length group.",
+    "mantra": "Default missing counts; group by the derived key.",
+    "pitfalls": [
+      "Dictionary iteration order is not a display ordering guarantee.",
+      "Dictionary(grouping:) retains duplicates within each group."
+    ],
+    "keyLineIndices": [
+      3,
+      9
+    ],
+    "test": [
+      "precondition(wordCounts([\"go\", \"swift\", \"go\"]) == [\"go\": 2, \"swift\": 1])",
+      "precondition(wordCounts([]).isEmpty)",
+      "precondition(wordsByLength([\"a\", \"to\", \"be\"])[2] == [\"to\", \"be\"])",
+      "precondition(wordsByLength([]).isEmpty)"
+    ]
+  },
+  {
+    "id": "swift-set-operations",
+    "title": "Set membership and set algebra",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Use sets for unique membership, intersections and differences; sort results for stable output.",
+    "code": "func sharedTags(_ first: [String], _ second: [String]) -> [String] {\n    Set(first).intersection(Set(second)).sorted()\n}\n\nfunc missingTags(required: Set<String>, available: Set<String>) -> [String] {\n    required.subtracting(available).sorted()\n}",
+    "family": "set-operations",
+    "triggers": [
+      "find unique shared values or required values that are absent"
+    ],
+    "prompts": [
+      "Compare tag collections without returning duplicates."
+    ],
+    "invariant": "Set operations work on unique members; returned arrays are sorted.",
+    "mantra": "Deduplicate; combine sets; sort for presentation.",
+    "pitfalls": [
+      "A set does not preserve input order.",
+      "A.subtracting(B) differs from B.subtracting(A)."
+    ],
+    "keyLineIndices": [
+      1,
+      5
+    ],
+    "test": [
+      "precondition(sharedTags([\"swift\", \"ios\", \"swift\"], [\"swift\", \"mac\"]) == [\"swift\"])",
+      "precondition(sharedTags([], [\"a\"]).isEmpty)",
+      "precondition(missingTags(required: [\"b\", \"a\", \"c\"], available: [\"b\"]) == [\"a\", \"c\"])",
+      "precondition(missingTags(required: [], available: [\"a\"]).isEmpty)"
+    ]
+  },
+  {
+    "id": "swift-string-indices",
+    "title": "Unicode-safe String indices",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Walk a String with String.Index and return a Character without assuming integer or byte offsets.",
+    "code": "func character(at offset: Int, in text: String) -> Character? {\n    guard offset >= 0 else { return nil }\n    guard let index = text.index(\n        text.startIndex,\n        offsetBy: offset,\n        limitedBy: text.endIndex\n    ), index != text.endIndex else {\n        return nil\n    }\n    return text[index]\n}",
+    "family": "string-indices",
+    "triggers": [
+      "access a user-perceived character by an offset that may be out of bounds"
+    ],
+    "prompts": [
+      "Safely select a displayed character from text containing emoji and combining marks."
+    ],
+    "invariant": "Only a valid character index before endIndex is used for subscripting.",
+    "mantra": "Advance with String.Index; never subscript endIndex.",
+    "pitfalls": [
+      "String indices are not integer byte offsets.",
+      "Walking to an offset takes linear time; repeated offset lookups can become quadratic."
+    ],
+    "keyLineIndices": [
+      1,
+      5,
+      6
+    ],
+    "test": [
+      "let text = \"A👨‍👩‍👧‍👦é\"",
+      "precondition(character(at: 0, in: text) == \"A\")",
+      "precondition(character(at: 1, in: text) == \"👨‍👩‍👧‍👦\")",
+      "precondition(character(at: 2, in: text) == \"é\")",
+      "precondition(character(at: 3, in: text) == nil)",
+      "precondition(character(at: -1, in: text) == nil)",
+      "precondition(character(at: 0, in: \"\") == nil)"
+    ]
+  },
+  {
+    "id": "swift-protocol-extensions",
+    "title": "Protocols and default implementations",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Declare a behavior requirement and supply a reusable computed property in a protocol extension.",
+    "code": "protocol Named {\n    var name: String { get }\n}\n\nextension Named {\n    var greeting: String { \"Hello, \\(name)!\" }\n}\n\nstruct TeamMember: Named {\n    let name: String\n}\n\nfunc welcome<T: Named>(_ person: T) -> String {\n    person.greeting\n}",
+    "family": "protocol-extensions",
+    "triggers": [
+      "share derived behavior across types that expose the same requirement"
+    ],
+    "prompts": [
+      "Give every named model a common greeting without a base class."
+    ],
+    "invariant": "Every conformer supplies a name; the extension derives a greeting from it.",
+    "mantra": "Require the minimum; derive the shared behavior.",
+    "pitfalls": [
+      "An extension-only member is not a protocol requirement for dynamic dispatch.",
+      "The generic constraint makes the required property available to welcome."
+    ],
+    "keyLineIndices": [
+      0,
+      4,
+      12
+    ],
+    "test": [
+      "precondition(welcome(TeamMember(name: \"Ada\")) == \"Hello, Ada!\")",
+      "precondition(welcome(TeamMember(name: \"Lin\")) == \"Hello, Lin!\")"
+    ]
+  },
+  {
+    "id": "swift-generic-stack",
+    "title": "A generic stack with safe pop",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Use a type parameter for a reusable last-in-first-out container, returning nil when empty.",
+    "code": "struct Stack<Element> {\n    private var storage: [Element] = []\n\n    var count: Int { storage.count }\n\n    mutating func push(_ element: Element) {\n        storage.append(element)\n    }\n\n    mutating func pop() -> Element? {\n        storage.popLast()\n    }\n}",
+    "family": "generic-stack",
+    "triggers": [
+      "a reusable LIFO container must preserve element type and handle underflow"
+    ],
+    "prompts": [
+      "Implement a stack that works for integers and strings without type casts."
+    ],
+    "invariant": "The last pushed element is the first one popped.",
+    "mantra": "Parameterize the element; push at the end; pop safely.",
+    "pitfalls": [
+      "popLast returns nil for an empty array; removeLast traps.",
+      "A mutating method requires a var stack binding."
+    ],
+    "keyLineIndices": [
+      0,
+      10
+    ],
+    "test": [
+      "var numbers = Stack<Int>()",
+      "precondition(numbers.pop() == nil)",
+      "numbers.push(10)",
+      "numbers.push(20)",
+      "precondition(numbers.count == 2)",
+      "precondition(numbers.pop() == 20 && numbers.pop() == 10)",
+      "precondition(numbers.count == 0)",
+      "var words = Stack<String>()",
+      "words.push(\"Swift\")",
+      "precondition(words.pop() == \"Swift\")"
+    ]
+  },
+  {
+    "id": "swift-hashable-constraints",
+    "title": "Hashable constraints and ordered uniqueness",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Constrain a generic function to Hashable and use Set.insert to preserve the first occurrence of each value.",
+    "code": "func orderedUnique<Element: Hashable>(_ values: [Element]) -> [Element] {\n    var seen: Set<Element> = []\n    return values.filter { value in\n        seen.insert(value).inserted\n    }\n}",
+    "family": "hashable-constraints",
+    "triggers": [
+      "remove duplicates while keeping first-seen order for any hashable element"
+    ],
+    "prompts": [
+      "Deduplicate a list of IDs while preserving their original order."
+    ],
+    "invariant": "seen contains exactly the values encountered so far; only first insertions pass the filter.",
+    "mantra": "Insert once; keep only new members.",
+    "pitfalls": [
+      "Converting the input to a Set and back loses its order.",
+      "Hashable includes Equatable; the constraint enables set membership."
+    ],
+    "keyLineIndices": [
+      0,
+      3
+    ],
+    "test": [
+      "precondition(orderedUnique([3, 1, 3, 2, 1]) == [3, 1, 2])",
+      "precondition(orderedUnique([\"b\", \"a\", \"b\"]) == [\"b\", \"a\"])",
+      "precondition(orderedUnique([Int]()).isEmpty)"
+    ]
+  },
+  {
+    "id": "swift-throwing-errors",
+    "title": "Throwing functions and typed error cases",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Validate a port with a throwing function and preserve the reason for invalid input.",
+    "code": "enum PortError: Error, Equatable {\n    case notANumber\n    case outOfRange(Int)\n}\n\nfunc parsePort(_ text: String) throws -> Int {\n    guard let port = Int(text) else {\n        throw PortError.notANumber\n    }\n    guard (1...65535).contains(port) else {\n        throw PortError.outOfRange(port)\n    }\n    return port\n}",
+    "family": "throwing-errors",
+    "triggers": [
+      "validation must distinguish malformed text from an invalid numeric range"
+    ],
+    "prompts": [
+      "Parse a service port and report why an invalid configuration was rejected."
+    ],
+    "invariant": "A returned port is an integer in the closed interval 1...65535.",
+    "mantra": "Parse; validate the range; return or throw.",
+    "pitfalls": [
+      "try? would discard the distinction between the two errors.",
+      "Both endpoints of a closed range are included."
+    ],
+    "keyLineIndices": [
+      7,
+      9
+    ],
+    "test": [
+      "let valid = try parsePort(\"8080\")",
+      "precondition(valid == 8080)",
+      "for boundary in [1, 65535] {",
+      "    let parsed = try parsePort(String(boundary))",
+      "    precondition(parsed == boundary)",
+      "}",
+      "do {",
+      "    _ = try parsePort(\"http\")",
+      "    preconditionFailure(\"Expected a parse error\")",
+      "} catch PortError.notANumber { }",
+      "for invalid in [0, -1, 65536] {",
+      "    do {",
+      "        _ = try parsePort(String(invalid))",
+      "        preconditionFailure(\"Expected a range error\")",
+      "    } catch PortError.outOfRange(let value) {",
+      "        precondition(value == invalid)",
+      "    }",
+      "}"
+    ]
+  },
+  {
+    "id": "swift-result-values",
+    "title": "Result values and transforming success",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Represent failure as data with Result and map only the success payload.",
+    "code": "enum InputError: Error, Equatable {\n    case invalidInteger\n}\n\nfunc doubledInteger(_ text: String) -> Result<Int, InputError> {\n    let parsed: Result<Int, InputError>\n    if let value = Int(text), (-1000...1000).contains(value) {\n        parsed = .success(value)\n    } else {\n        parsed = .failure(.invalidInteger)\n    }\n    return parsed.map { $0 * 2 }\n}",
+    "family": "result-values",
+    "triggers": [
+      "store either a success value or an error and transform successes later"
+    ],
+    "prompts": [
+      "Parse and double a small integer while keeping failure in the return value."
+    ],
+    "invariant": "Only successfully parsed values in -1000...1000 are doubled; failures propagate unchanged.",
+    "mantra": "Store success or failure; map the success.",
+    "pitfalls": [
+      "Result.map leaves failures untouched.",
+      "Bounding the input here keeps the example free of integer multiplication overflow."
+    ],
+    "keyLineIndices": [
+      4,
+      11
+    ],
+    "test": [
+      "precondition(doubledInteger(\"21\") == .success(42))",
+      "precondition(doubledInteger(\"-3\") == .success(-6))",
+      "precondition(doubledInteger(\"bad\") == .failure(.invalidInteger))",
+      "precondition(doubledInteger(\"1001\") == .failure(.invalidInteger))"
+    ]
+  },
+  {
+    "id": "swift-defer-cleanup",
+    "title": "defer and guaranteed scope cleanup",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Restore a temporary flag with defer on both the success path and an early return.",
+    "code": "final class ImportSession {\n    private(set) var isBusy = false\n\n    func run(_ text: String) -> String? {\n        isBusy = true\n        defer { isBusy = false }\n        guard !text.isEmpty else { return nil }\n        return text.uppercased()\n    }\n}",
+    "family": "defer-cleanup",
+    "triggers": [
+      "temporary state must be restored whenever a scope exits"
+    ],
+    "prompts": [
+      "Clear an import-in-progress flag even when validation returns early."
+    ],
+    "invariant": "The synchronous run method leaves isBusy false before returning.",
+    "mantra": "Set up; register cleanup; do the work.",
+    "pitfalls": [
+      "defer executes when its scope exits, not where it is declared.",
+      "This synchronous class is not a synchronization primitive for concurrent access."
+    ],
+    "keyLineIndices": [
+      5,
+      6
+    ],
+    "test": [
+      "let session = ImportSession()",
+      "precondition(session.run(\"swift\") == \"SWIFT\")",
+      "precondition(!session.isBusy)",
+      "precondition(session.run(\"\") == nil)",
+      "precondition(!session.isBusy)"
+    ]
+  },
+  {
+    "id": "swift-codable-json",
+    "title": "Codable and custom JSON keys",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Decode and encode a model using Codable, explicit CodingKeys and an optional field.",
+    "code": "import Foundation\n\nstruct Account: Codable, Equatable {\n    let userID: Int\n    let displayName: String\n    let nickname: String?\n\n    enum CodingKeys: String, CodingKey {\n        case userID = \"user_id\"\n        case displayName = \"display_name\"\n        case nickname\n    }\n}\n\nfunc decodeAccount(_ json: String) throws -> Account {\n    try JSONDecoder().decode(Account.self, from: Data(json.utf8))\n}",
+    "family": "codable-json",
+    "triggers": [
+      "wire-format keys differ from Swift property names"
+    ],
+    "prompts": [
+      "Read a JSON account with snake_case keys and an optional nickname."
+    ],
+    "invariant": "CodingKeys consistently maps the stored properties in both encoding directions.",
+    "mantra": "Model the fields; map the keys; let Codable do the plumbing.",
+    "pitfalls": [
+      "Missing optional fields decode as nil; missing required fields throw.",
+      "Do not compare encoded JSON text by key order."
+    ],
+    "keyLineIndices": [
+      2,
+      8,
+      15
+    ],
+    "test": [
+      "let account = try decodeAccount(#\"{\"user_id\":7,\"display_name\":\"Ada\"}\"#)",
+      "precondition(account == Account(userID: 7, displayName: \"Ada\", nickname: nil))",
+      "let named = try decodeAccount(#\"{\"user_id\":8,\"display_name\":\"Lin\",\"nickname\":\"L\"}\"#)",
+      "precondition(named.nickname == \"L\")",
+      "let encoded = try JSONEncoder().encode(named)",
+      "let roundTrip = try JSONDecoder().decode(Account.self, from: encoded)",
+      "precondition(roundTrip == named)",
+      "do {",
+      "    _ = try decodeAccount(#\"{\"user_id\":\"wrong\",\"display_name\":\"Ada\"}\"#)",
+      "    preconditionFailure(\"Expected invalid field type\")",
+      "} catch is DecodingError { }"
+    ]
+  },
+  {
+    "id": "swift-key-paths",
+    "title": "Key paths as reusable property access",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Pass typed property references with KeyPath and WritableKeyPath to read and update models generically.",
+    "code": "struct Contact {\n    var name: String\n    var city: String\n}\n\nfunc values<Root, Value>(\n    from roots: [Root], at path: KeyPath<Root, Value>\n) -> [Value] {\n    roots.map { $0[keyPath: path] }\n}\n\nfunc update<Root, Value>(\n    _ root: inout Root,\n    at path: WritableKeyPath<Root, Value>, to value: Value\n) {\n    root[keyPath: path] = value\n}",
+    "family": "key-paths",
+    "triggers": [
+      "pass a property accessor as a typed value to generic code"
+    ],
+    "prompts": [
+      "Extract contact names and update a chosen writable field through reusable functions."
+    ],
+    "invariant": "The key path fixes the root type, property type and write capability at compile time.",
+    "mantra": "Read with KeyPath; write with WritableKeyPath.",
+    "pitfalls": [
+      "A read-only KeyPath cannot be used for assignment.",
+      "Updating a struct through inout requires & at the call site."
+    ],
+    "keyLineIndices": [
+      6,
+      13,
+      15
+    ],
+    "test": [
+      "var contact = Contact(name: \"Ada\", city: \"London\")",
+      "precondition(values(from: [contact], at: \\Contact.name) == [\"Ada\"])",
+      "update(&contact, at: \\Contact.city, to: \"Bath\")",
+      "precondition(contact.city == \"Bath\" && contact.name == \"Ada\")",
+      "precondition(values(from: [Contact](), at: \\Contact.name).isEmpty)"
+    ]
+  },
+  {
+    "id": "swift-property-wrappers",
+    "title": "Property wrappers for clamped values",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Centralize range validation in a property wrapper that clamps both initial values and later assignments.",
+    "code": "@propertyWrapper\nstruct Clamped {\n    private var value: Int\n    private let range: ClosedRange<Int>\n\n    init(wrappedValue: Int, _ range: ClosedRange<Int>) {\n        self.range = range\n        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)\n    }\n\n    var wrappedValue: Int {\n        get { value }\n        set { value = min(max(newValue, range.lowerBound), range.upperBound) }\n    }\n}\n\nstruct Volume {\n    @Clamped(0...100) var level = 50\n}",
+    "family": "property-wrappers",
+    "triggers": [
+      "many properties need the same validation on initialization and assignment"
+    ],
+    "prompts": [
+      "Keep a volume level between zero and one hundred using a reusable wrapper."
+    ],
+    "invariant": "The stored value always lies inside the configured closed range.",
+    "mantra": "Validate at initialization and on every write.",
+    "pitfalls": [
+      "Clamping only in the setter would leave an invalid initial value possible.",
+      "wrappedValue is the property-wrapper interface used by the wrapped property."
+    ],
+    "keyLineIndices": [
+      0,
+      5,
+      12,
+      17
+    ],
+    "test": [
+      "var volume = Volume()",
+      "precondition(volume.level == 50)",
+      "volume.level = 150",
+      "precondition(volume.level == 100)",
+      "volume.level = -1",
+      "precondition(volume.level == 0)",
+      "volume.level = 25",
+      "precondition(volume.level == 25)",
+      "let wrapper = Clamped(wrappedValue: 150, 0...100)",
+      "precondition(wrapper.wrappedValue == 100)"
+    ]
+  },
+  {
+    "id": "swift-weak-captures",
+    "title": "Weak closure captures and ARC",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Break the ownership cycle between an object and its stored callback with a weak self capture.",
+    "code": "final class TapTracker {\n    private(set) var taps = 0\n    var onTap: (() -> Void)?\n\n    init() {\n        onTap = { [weak self] in\n            self?.taps += 1\n        }\n    }\n}",
+    "family": "weak-captures",
+    "triggers": [
+      "an object owns a closure that refers back to that object"
+    ],
+    "prompts": [
+      "Track taps with a stored callback while allowing the tracker to deallocate."
+    ],
+    "invariant": "The stored callback does not keep the tracker alive.",
+    "mantra": "Own the callback; capture the owner weakly.",
+    "pitfalls": [
+      "A strong self capture here creates an object-to-closure-to-object cycle.",
+      "A weak reference becomes nil after deallocation, so the callback must tolerate absence."
+    ],
+    "keyLineIndices": [
+      5,
+      6
+    ],
+    "test": [
+      "var tracker: TapTracker? = TapTracker()",
+      "weak var observed = tracker",
+      "let callback = tracker?.onTap",
+      "callback?()",
+      "precondition(tracker?.taps == 1)",
+      "tracker = nil",
+      "precondition(observed == nil)",
+      "callback?()",
+      "precondition(observed == nil)",
+      "observed = nil"
+    ]
+  },
+  {
+    "id": "swift-sequence-iterator",
+    "title": "Sequence and IteratorProtocol",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Create a reusable countdown sequence whose iterator returns nil when exhausted.",
+    "code": "struct Countdown: Sequence {\n    let start: Int\n\n    func makeIterator() -> Iterator {\n        Iterator(current: start)\n    }\n\n    struct Iterator: IteratorProtocol {\n        var current: Int\n\n        mutating func next() -> Int? {\n            guard current > 0 else { return nil }\n            defer { current -= 1 }\n            return current\n        }\n    }\n}",
+    "family": "sequence-iterator",
+    "triggers": [
+      "produce values lazily with a custom iterator and a clear exhaustion condition"
+    ],
+    "prompts": [
+      "Expose a positive countdown that can be consumed with a for loop or Array initializer."
+    ],
+    "invariant": "Each iterator yields descending positive integers, then keeps returning nil.",
+    "mantra": "Make an iterator; yield one value; advance its state.",
+    "pitfalls": [
+      "Return nil rather than a sentinel integer when iteration ends.",
+      "Each call to makeIterator starts a fresh traversal in this sequence."
+    ],
+    "keyLineIndices": [
+      3,
+      10,
+      12
+    ],
+    "test": [
+      "let countdown = Countdown(start: 3)",
+      "precondition(Array(countdown) == [3, 2, 1])",
+      "precondition(Array(countdown) == [3, 2, 1])",
+      "precondition(Array(Countdown(start: 0)).isEmpty)",
+      "precondition(Array(Countdown(start: -3)).isEmpty)",
+      "var iterator = Countdown(start: 1).makeIterator()",
+      "precondition(iterator.next() == 1)",
+      "precondition(iterator.next() == nil && iterator.next() == nil)"
+    ]
+  },
+  {
+    "id": "swift-pattern-matching",
+    "title": "Switch patterns, ranges and where clauses",
+    "category": "Swift fundamentals",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Classify coordinate tuples with ordered switch patterns, value bindings and a where condition.",
+    "code": "func classify(_ point: (Int, Int)) -> String {\n    switch point {\n    case (0, 0):\n        return \"origin\"\n    case (_, 0):\n        return \"x-axis\"\n    case (0, _):\n        return \"y-axis\"\n    case let (x, y) where x == y:\n        return \"diagonal\"\n    case (-2...2, -2...2):\n        return \"near origin\"\n    default:\n        return \"elsewhere\"\n    }\n}",
+    "family": "pattern-matching",
+    "triggers": [
+      "classify structured values with overlapping conditions"
+    ],
+    "prompts": [
+      "Label a point as an origin, axis, diagonal, nearby point or outlier."
+    ],
+    "invariant": "The first matching case determines the label.",
+    "mantra": "Match the most specific case before broader patterns.",
+    "pitfalls": [
+      "Placing the range pattern first would consume the origin and nearby axis points.",
+      "A wildcard ignores a value; a binding names it for use in a condition."
+    ],
+    "keyLineIndices": [
+      2,
+      8,
+      10
+    ],
+    "test": [
+      "precondition(classify((0, 0)) == \"origin\")",
+      "precondition(classify((4, 0)) == \"x-axis\")",
+      "precondition(classify((0, -3)) == \"y-axis\")",
+      "precondition(classify((9, 9)) == \"diagonal\")",
+      "precondition(classify((1, -2)) == \"near origin\")",
+      "precondition(classify((9, -3)) == \"elsewhere\")"
+    ]
+  },
+  {
+    "id": "swift-async-await",
+    "title": "Async functions and suspension points",
+    "category": "Swift concurrency",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Declare an async function and await its result. Task.yield illustrates cooperative suspension without blocking a thread.",
+    "code": "func loadName(id: Int) async -> String {\n    await Task.yield()\n    return \"member-\\(id)\"\n}\n\nfunc welcomeMember(id: Int) async -> String {\n    let name = await loadName(id: id)\n    return \"Welcome, \\(name)!\"\n}",
+    "family": "async-await",
+    "triggers": [
+      "a function depends on a result produced asynchronously"
+    ],
+    "prompts": [
+      "Compose a greeting from an asynchronously loaded member name."
+    ],
+    "invariant": "The greeting is constructed only after the name becomes available.",
+    "mantra": "Mark async work; await its dependency; continue with the value.",
+    "pitfalls": [
+      "await marks a possible suspension, not a guarantee of a thread switch.",
+      "Task.yield is a cooperative scheduling hint, not a delay or network request."
+    ],
+    "keyLineIndices": [
+      0,
+      1,
+      6
+    ],
+    "test": [
+      "let first = await welcomeMember(id: 7)",
+      "let second = await welcomeMember(id: 0)",
+      "precondition(first == \"Welcome, member-7!\")",
+      "precondition(second == \"Welcome, member-0!\")"
+    ]
+  },
+  {
+    "id": "swift-async-let",
+    "title": "Structured child tasks with async let",
+    "category": "Swift concurrency",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Start independent child operations with async let and await their values together.",
+    "code": "func localMetric(_ value: Int) async -> Int {\n    await Task.yield()\n    return value * 2\n}\n\nfunc dashboardMetrics() async -> (Int, Int) {\n    async let visits = localMetric(12)\n    async let signups = localMetric(3)\n    return await (visits, signups)\n}",
+    "family": "async-let",
+    "triggers": [
+      "a fixed number of independent asynchronous dependencies can overlap"
+    ],
+    "prompts": [
+      "Load visit and signup metrics concurrently before constructing a dashboard."
+    ],
+    "invariant": "Both child task results are available before dashboardMetrics returns.",
+    "mantra": "Start independent children; await the combined result.",
+    "pitfalls": [
+      "Awaiting each operation before starting the next makes them sequential.",
+      "Child tasks cannot outlive their structured scope; async let does not promise parallel execution."
+    ],
+    "keyLineIndices": [
+      6,
+      7,
+      8
+    ],
+    "test": [
+      "let metrics = await dashboardMetrics()",
+      "precondition(metrics.0 == 24 && metrics.1 == 6)"
+    ]
+  },
+  {
+    "id": "swift-task-groups",
+    "title": "Task groups with input-order results",
+    "category": "Swift concurrency",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Fan out a dynamic number of tasks and carry each input index so completion order cannot scramble the result.",
+    "code": "func doubledInOrder(_ values: [Int]) async -> [Int] {\n    await withTaskGroup(of: (Int, Int).self) { group in\n        for (index, value) in values.enumerated() {\n            group.addTask {\n                await Task.yield()\n                return (index, value * 2)\n            }\n        }\n        var result = Array(repeating: 0, count: values.count)\n        for await (index, value) in group {\n            result[index] = value\n        }\n        return result\n    }\n}",
+    "family": "task-groups",
+    "triggers": [
+      "fan out a dynamic batch while preserving the original order"
+    ],
+    "prompts": [
+      "Double a batch asynchronously and return results in input order."
+    ],
+    "invariant": "Each result is written to its original input position by the parent task.",
+    "mantra": "Carry the index out; place the value back.",
+    "pitfalls": [
+      "Task groups yield results in completion order.",
+      "Child tasks return values instead of mutating the parent array concurrently.",
+      "Use bounded inputs to avoid Int overflow when doubling."
+    ],
+    "keyLineIndices": [
+      1,
+      3,
+      10
+    ],
+    "test": [
+      "let empty = await doubledInOrder([])",
+      "let result = await doubledInOrder([3, -1, 3, 0, 8])",
+      "precondition(empty.isEmpty)",
+      "precondition(result == [6, -2, 6, 0, 16])"
+    ]
+  },
+  {
+    "id": "swift-actor-counter",
+    "title": "Actors and isolated mutable state",
+    "category": "Swift concurrency",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Protect shared state in an actor and await isolated methods from concurrent child tasks.",
+    "code": "actor Counter {\n    private var value = 0\n\n    func increment() {\n        value += 1\n    }\n\n    func snapshot() -> Int { value }\n}\n\nfunc countConcurrently(_ count: Int) async -> Int {\n    let counter = Counter()\n    await withTaskGroup(of: Void.self) { group in\n        for _ in 0..<max(0, count) {\n            group.addTask { await counter.increment() }\n        }\n    }\n    return await counter.snapshot()\n}",
+    "family": "actor-counter",
+    "triggers": [
+      "many concurrent tasks need to update the same mutable value"
+    ],
+    "prompts": [
+      "Count one increment per task without a data race or explicit lock."
+    ],
+    "invariant": "Only actor-isolated methods access value, and the group finishes before the final snapshot.",
+    "mantra": "Isolate the state; await access; join before reading.",
+    "pitfalls": [
+      "An actor method containing await can be reentered; this increment has no suspension point.",
+      "Reading before the group completes could produce a partial count."
+    ],
+    "keyLineIndices": [
+      0,
+      14,
+      17
+    ],
+    "test": [
+      "let many = await countConcurrently(200)",
+      "let empty = await countConcurrently(0)",
+      "let negative = await countConcurrently(-1)",
+      "precondition(many == 200 && empty == 0 && negative == 0)"
+    ]
+  },
+  {
+    "id": "swift-task-cancellation",
+    "title": "Cooperative task cancellation",
+    "category": "Swift concurrency",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Check cancellation during chunked work and propagate CancellationError instead of returning a partial result.",
+    "code": "func cancellableTotal(_ values: [Int]) async throws -> Int {\n    var total = 0\n    for value in values {\n        try Task.checkCancellation()\n        total += value\n        await Task.yield()\n    }\n    try Task.checkCancellation()\n    return total\n}",
+    "family": "task-cancellation",
+    "triggers": [
+      "long-running async work must stop when its task is cancelled"
+    ],
+    "prompts": [
+      "Sum a batch cooperatively and throw if the task is cancelled, even for an empty batch."
+    ],
+    "invariant": "A successful result follows a cancellation check after all processed values.",
+    "mantra": "Check; work; yield; check again before returning.",
+    "pitfalls": [
+      "Cancellation sets a flag; it does not forcibly terminate task execution.",
+      "Task.yield does not throw on cancellation.",
+      "Use totals that fit in Int."
+    ],
+    "keyLineIndices": [
+      3,
+      5
+    ],
+    "test": [
+      "let total = try await cancellableTotal([1, 2, 3])",
+      "precondition(total == 6)",
+      "let cancelled = Task { () throws -> Int in",
+      "    withUnsafeCurrentTask { $0?.cancel() }",
+      "    return try await cancellableTotal([1, 2, 3])",
+      "}",
+      "do {",
+      "    _ = try await cancelled.value",
+      "    preconditionFailure(\"Expected cancellation\")",
+      "} catch is CancellationError { }",
+      "let emptyCancelled = Task { () throws -> Int in",
+      "    withUnsafeCurrentTask { $0?.cancel() }",
+      "    return try await cancellableTotal([])",
+      "}",
+      "do {",
+      "    _ = try await emptyCancelled.value",
+      "    preconditionFailure(\"Expected cancellation for empty input\")",
+      "} catch is CancellationError { }"
+    ]
+  },
+  {
+    "id": "swift-async-stream",
+    "title": "AsyncStream production and consumption",
+    "category": "Swift concurrency",
+    "track": "languages",
+    "language": "swift",
+    "summary": "Bridge a finite callback-style producer into an asynchronous sequence and finish it explicitly.",
+    "code": "func eventStream(_ events: [String]) -> AsyncStream<String> {\n    AsyncStream { continuation in\n        for event in events {\n            continuation.yield(event)\n        }\n        continuation.finish()\n    }\n}\n\nfunc collectEvents(_ events: [String]) async -> [String] {\n    var received: [String] = []\n    for await event in eventStream(events) {\n        received.append(event)\n    }\n    return received\n}",
+    "family": "async-stream",
+    "triggers": [
+      "adapt a finite producer to for-await consumption"
+    ],
+    "prompts": [
+      "Collect a finite stream of editor events in the order they were produced."
+    ],
+    "invariant": "All yielded events are buffered in order and the finished stream eventually ends.",
+    "mantra": "Yield events; finish production; consume with for await.",
+    "pitfalls": [
+      "Without finish, a finite consumer may wait indefinitely.",
+      "This small finite example uses default unbounded buffering; continuous producers need a buffering and cleanup policy."
+    ],
+    "keyLineIndices": [
+      1,
+      3,
+      5,
+      11
+    ],
+    "test": [
+      "let events = await collectEvents([\"open\", \"edit\", \"save\"])",
+      "let empty = await collectEvents([])",
+      "precondition(events == [\"open\", \"edit\", \"save\"])",
+      "precondition(empty.isEmpty)"
+    ]
   }
 ]

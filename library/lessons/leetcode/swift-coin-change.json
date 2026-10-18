@@ -1,0 +1,83 @@
+{
+  "id": "swift-coin-change",
+  "title": "Dynamic programming: minimum coin count",
+  "category": "Swift interview patterns",
+  "track": "leetcode",
+  "language": "swift",
+  "summary": "Build minimum coin counts for increasing amounts using reusable positive denominations; return nil for unreachable totals.",
+  "code": [
+    "func minimumCoins(_ coins: [Int], amount: Int) -> Int? {",
+    "    guard amount >= 0 else { return nil }",
+    "    var best = Array<Int?>(repeating: nil, count: amount + 1)",
+    "    best[0] = 0",
+    "    guard amount > 0 else { return 0 }",
+    "    for total in 1...amount {",
+    "        for coin in coins where coin > 0 && coin <= total {",
+    "            guard let previous = best[total - coin] else { continue }",
+    "            let candidate = previous + 1",
+    "            best[total] = min(best[total] ?? candidate, candidate)",
+    "        }",
+    "    }",
+    "    return best[amount]",
+    "}"
+  ],
+  "family": "dynamic-programming",
+  "triggers": [
+    "minimum number of reusable coins to reach an exact amount",
+    "unlimited reuse of denominations and an optimal count rather than a greedy approximation"
+  ],
+  "prompts": [
+    "Find an optimal coin count when greedy selection can fail, such as coins 1, 3, 4 for amount 6.",
+    "A kiosk dispenses reusable token denominations. Find the fewest tokens for an exact amount, or report that none works."
+  ],
+  "invariant": "Before processing total, every smaller amount has its optimal count or nil if unreachable.",
+  "mantra": "Seed zero; extend reachable totals; keep the cheapest count.",
+  "pitfalls": [
+    "Greedy largest-first selection is not correct for arbitrary denominations.",
+    "Ignore nonpositive denominations to prevent invalid dependencies.",
+    "The table uses memory proportional to amount; use bounded amounts that fit in memory."
+  ],
+  "keyLineIndices": [
+    3,
+    7,
+    9
+  ],
+  "test": [
+    "precondition(minimumCoins([1, 3, 4], amount: 6) == 2)",
+    "precondition(minimumCoins([2], amount: 3) == nil)",
+    "precondition(minimumCoins([], amount: 0) == 0)",
+    "precondition(minimumCoins([], amount: 2) == nil)",
+    "precondition(minimumCoins([0, -2, 2], amount: 4) == 2)",
+    "precondition(minimumCoins([1], amount: -1) == nil)",
+    "for coins in [[1, 3, 4], [2, 5], [], [0, -1, 3]] {",
+    "    var reachable = [0: 0]",
+    "    var queue = [0]",
+    "    var head = 0",
+    "    while head < queue.count {",
+    "        let current = queue[head]",
+    "        head += 1",
+    "        for coin in coins where coin > 0 && current + coin <= 20 {",
+    "            let next = current + coin",
+    "            if reachable[next] == nil {",
+    "                reachable[next] = reachable[current, default: 0] + 1",
+    "                queue.append(next)",
+    "            }",
+    "        }",
+    "    }",
+    "    for amount in 0...20 {",
+    "        precondition(minimumCoins(coins, amount: amount) == reachable[amount])",
+    "    }",
+    "}"
+  ],
+  "order": 135,
+  "complexity": {
+    "time": "O(amount × number of coins)",
+    "space": "O(amount)"
+  },
+  "anchors": [
+    {
+      "name": "Coin Change",
+      "trick": "For each amount, choose the cheapest reachable predecessor plus one coin."
+    }
+  ]
+}

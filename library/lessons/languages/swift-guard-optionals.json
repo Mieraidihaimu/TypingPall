@@ -1,0 +1,41 @@
+{
+  "id": "swift-guard-optionals",
+  "title": "Guard, optional binding and defaults",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Unwrap optional input with guard, reject empty names, and use nil coalescing for a fallback.",
+  "code": [
+    "func greeting(for name: String?, suffix: String?) -> String {",
+    "    guard let name = name, !name.isEmpty else {",
+    "        return \"Hello, guest!\"",
+    "    }",
+    "    let ending = suffix ?? \"!\"",
+    "    return \"Hello, \\(name)\\(ending)\"",
+    "}"
+  ],
+  "family": "guard-optionals",
+  "triggers": [
+    "optional input with an early exit and a default value"
+  ],
+  "prompts": [
+    "Greet a named visitor, or use a guest greeting when the name is missing or empty."
+  ],
+  "invariant": "The name is nonoptional and nonempty after the guard.",
+  "mantra": "Unwrap first; exit early; default what remains.",
+  "pitfalls": [
+    "An empty string is present, so optional binding alone does not reject it.",
+    "A guard else branch must leave the current scope."
+  ],
+  "keyLineIndices": [
+    1,
+    4
+  ],
+  "test": [
+    "precondition(greeting(for: nil, suffix: nil) == \"Hello, guest!\")",
+    "precondition(greeting(for: \"\", suffix: \"?\") == \"Hello, guest!\")",
+    "precondition(greeting(for: \"Ada\", suffix: nil) == \"Hello, Ada!\")",
+    "precondition(greeting(for: \"Ada\", suffix: \".\") == \"Hello, Ada.\")"
+  ],
+  "order": 100
+}

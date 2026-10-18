@@ -1,0 +1,59 @@
+{
+  "id": "swift-codable-json",
+  "title": "Codable and custom JSON keys",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Decode and encode a model using Codable, explicit CodingKeys and an optional field.",
+  "code": [
+    "import Foundation",
+    "",
+    "struct Account: Codable, Equatable {",
+    "    let userID: Int",
+    "    let displayName: String",
+    "    let nickname: String?",
+    "",
+    "    enum CodingKeys: String, CodingKey {",
+    "        case userID = \"user_id\"",
+    "        case displayName = \"display_name\"",
+    "        case nickname",
+    "    }",
+    "}",
+    "",
+    "func decodeAccount(_ json: String) throws -> Account {",
+    "    try JSONDecoder().decode(Account.self, from: Data(json.utf8))",
+    "}"
+  ],
+  "family": "codable-json",
+  "triggers": [
+    "wire-format keys differ from Swift property names"
+  ],
+  "prompts": [
+    "Read a JSON account with snake_case keys and an optional nickname."
+  ],
+  "invariant": "CodingKeys consistently maps the stored properties in both encoding directions.",
+  "mantra": "Model the fields; map the keys; let Codable do the plumbing.",
+  "pitfalls": [
+    "Missing optional fields decode as nil; missing required fields throw.",
+    "Do not compare encoded JSON text by key order."
+  ],
+  "keyLineIndices": [
+    2,
+    8,
+    15
+  ],
+  "test": [
+    "let account = try decodeAccount(#\"{\"user_id\":7,\"display_name\":\"Ada\"}\"#)",
+    "precondition(account == Account(userID: 7, displayName: \"Ada\", nickname: nil))",
+    "let named = try decodeAccount(#\"{\"user_id\":8,\"display_name\":\"Lin\",\"nickname\":\"L\"}\"#)",
+    "precondition(named.nickname == \"L\")",
+    "let encoded = try JSONEncoder().encode(named)",
+    "let roundTrip = try JSONDecoder().decode(Account.self, from: encoded)",
+    "precondition(roundTrip == named)",
+    "do {",
+    "    _ = try decodeAccount(#\"{\"user_id\":\"wrong\",\"display_name\":\"Ada\"}\"#)",
+    "    preconditionFailure(\"Expected invalid field type\")",
+    "} catch is DecodingError { }"
+  ],
+  "order": 118
+}

@@ -1,0 +1,39 @@
+{
+  "id": "swift-hashable-constraints",
+  "title": "Hashable constraints and ordered uniqueness",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Constrain a generic function to Hashable and use Set.insert to preserve the first occurrence of each value.",
+  "code": [
+    "func orderedUnique<Element: Hashable>(_ values: [Element]) -> [Element] {",
+    "    var seen: Set<Element> = []",
+    "    return values.filter { value in",
+    "        seen.insert(value).inserted",
+    "    }",
+    "}"
+  ],
+  "family": "hashable-constraints",
+  "triggers": [
+    "remove duplicates while keeping first-seen order for any hashable element"
+  ],
+  "prompts": [
+    "Deduplicate a list of IDs while preserving their original order."
+  ],
+  "invariant": "seen contains exactly the values encountered so far; only first insertions pass the filter.",
+  "mantra": "Insert once; keep only new members.",
+  "pitfalls": [
+    "Converting the input to a Set and back loses its order.",
+    "Hashable includes Equatable; the constraint enables set membership."
+  ],
+  "keyLineIndices": [
+    0,
+    3
+  ],
+  "test": [
+    "precondition(orderedUnique([3, 1, 3, 2, 1]) == [3, 1, 2])",
+    "precondition(orderedUnique([\"b\", \"a\", \"b\"]) == [\"b\", \"a\"])",
+    "precondition(orderedUnique([Int]()).isEmpty)"
+  ],
+  "order": 114
+}

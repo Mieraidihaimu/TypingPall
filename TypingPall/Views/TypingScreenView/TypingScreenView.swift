@@ -10,6 +10,7 @@ struct TypingScreenView: View {
 
     // Workspace & Navigation State
     @State private var sidebarSelection: SidebarSelection? = .smartCollection(.allPatterns)
+    @State private var savedScripts: [HistoryRecordDTO] = []
     @State private var activeSmartFilter: SmartFilter = .allPatterns
     @State private var selectedDrill: DrillDestination? = nil
     @State private var isShowingInspector: Bool = true
@@ -33,6 +34,8 @@ struct TypingScreenView: View {
                         selection: $sidebarSelection,
                         activeSmartFilter: $activeSmartFilter,
                         selectedDrill: $selectedDrill,
+                        savedScripts: savedScripts,
+                        onSelectScript: loadSavedScript,
                         onSelectLesson: { lesson in
                             selectedDrill = nil
                             loadLesson(lesson)
@@ -100,6 +103,10 @@ struct TypingScreenView: View {
         .alert("Couldn’t complete that action", isPresented: Binding(get: { errorMessage != nil && !viewModel.isShowingPlaceholderText }, set: { if !$0 { errorMessage = nil } })) {
             Button("OK", role: .cancel) { errorMessage = nil }
         } message: { Text(errorMessage ?? "") }
+        .task { await refreshSavedScripts() }
+        .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave).receive(on: RunLoop.main)) { _ in
+            Task { await refreshSavedScripts() }
+        }
         .toolbar {
             ToolbarItemGroup {
                 Button {
@@ -282,6 +289,7 @@ struct TypingScreenView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Add a pattern to practice").font(.title2).fontWeight(.semibold)
             Text("Paste an algorithm, language idiom, or concurrency pattern. Up to 20,000 characters.").foregroundColor(.secondary)
+            Text("Saved scripts appear in My Scripts in the sidebar.").font(.caption).foregroundColor(.secondary)
             Picker("Language", selection: $viewModel.draftLanguage) {
                 ForEach(CodeLanguage.allCases) { Text($0.title).tag($0) }
             }
@@ -310,8 +318,23 @@ struct TypingScreenView: View {
     private func saveAndLoad(_ text: String, language: CodeLanguage) async throws {
         let width = PracticeText.tabWidth(UserDefaults.standard.object(forKey: "tabEqualsToSpaces") as? Double ?? 4)
         let normalized = try PracticeText.validated(text, tabSpaces: width)
-        try await repository.saveScript(text: normalized, language: language.rawValue)
-        load(normalized, language: language)
+        let script = try await repository.saveScript(text: normalized, language: language.rawValue)
+        savedScripts.removeAll { $0.id == script.id }
+        savedScripts.insert(script, at: 0)
+        loadSavedScript(script)
+    }
+
+    private func refreshSavedScripts() async {
+        do {
+            savedScripts = try await repository.fetchRecentScripts(limit: 0)
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    private func loadSavedScript(_ script: HistoryRecordDTO) {
+        selectedDrill = nil
+        activeSmartFilter = .myScripts
+        sidebarSelection = .script(script.id)
+        load(script.text, language: CodeLanguage(rawValue: script.language) ?? .plainText)
     }
 
     private func load(_ text: String, language: CodeLanguage) {

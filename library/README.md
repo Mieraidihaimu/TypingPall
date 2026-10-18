@@ -133,6 +133,27 @@ Each lesson is stored as `library/lessons/<track>/<id>.json`:
 - **Line Indices**: Line indices (`keyLineIndices`, `scaffoldLineIndices`, `mutations`) are 0-based array indices into `code`.
 - **Extensible Tracks & Languages**: Tracks and languages are dynamically handled by the app. Adding new tracks (e.g. `algorithms`, `systemDesign`) or languages (e.g. `swift`, `typescript`, `sql`) works out of the box.
 
+## Swift lessons
+
+The catalog includes 36 original Swift examples authored for TypingPall: 24 in
+**Swift fundamentals**, 6 in **Swift concurrency**, and 6 in **Swift interview patterns**
+under the LeetCode track. These practice examples were generated with Codex for this
+catalog and validated locally. Language semantics follow
+[The Swift Programming Language](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/),
+including its chapters on
+[generics](https://github.com/swiftlang/swift-book/blob/main/TSPL.docc/LanguageGuide/Generics.md)
+and [concurrency](https://github.com/swiftlang/swift-book/blob/main/TSPL.docc/LanguageGuide/Concurrency.md).
+
+Each Swift lesson has recall notes, key-line selections, a practice prompt and
+self-contained behavioral checks in its `test` field. Lesson code contains reusable
+declarations; the checks demonstrate calling them. Run `python3 scripts/check_lessons.py`
+to compile and execute the checks with `swiftc` in Swift 6 mode, treating warnings as
+errors. The validator adds an async entry point so both synchronous and concurrent
+examples can use the same test format. Swift examples use local data and require no
+network access. Cached checks include the test code, so changing an assertion forces
+revalidation. Swift execution is reported as skipped when `swiftc` is unavailable;
+`--require-all` makes missing compilers an error.
+
 ## CLI Commands
 
 | Command | Description |

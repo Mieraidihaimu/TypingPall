@@ -94,6 +94,7 @@ final class TypingScreenViewModel: ObservableObject {
 
     var hasPracticeLines: Bool { !practiceLines.isEmpty }
     var currentLesson: PracticeLesson? { lesson }
+    var canEditLanguage: Bool { !isStarterPattern && lesson == nil }
     var nextLesson: PracticeLesson? { nextLesson(in: PracticeCatalog.lessons) }
     var lessonSubtitle: String {
         currentLesson?.category ?? (isStarterPattern ? "Starter pattern" : "My script · \(language.title)")
@@ -187,7 +188,7 @@ final class TypingScreenViewModel: ObservableObject {
     }
 
     func setLanguage(_ value: CodeLanguage) {
-        guard language != value else { return }
+        guard canEditLanguage, language != value else { return }
         language = value
         rebuildPracticeLines(keepingPosition: true)
     }

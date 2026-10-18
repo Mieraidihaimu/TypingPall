@@ -1,0 +1,47 @@
+{
+  "id": "swift-result-values",
+  "title": "Result values and transforming success",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Represent failure as data with Result and map only the success payload.",
+  "code": [
+    "enum InputError: Error, Equatable {",
+    "    case invalidInteger",
+    "}",
+    "",
+    "func doubledInteger(_ text: String) -> Result<Int, InputError> {",
+    "    let parsed: Result<Int, InputError>",
+    "    if let value = Int(text), (-1000...1000).contains(value) {",
+    "        parsed = .success(value)",
+    "    } else {",
+    "        parsed = .failure(.invalidInteger)",
+    "    }",
+    "    return parsed.map { $0 * 2 }",
+    "}"
+  ],
+  "family": "result-values",
+  "triggers": [
+    "store either a success value or an error and transform successes later"
+  ],
+  "prompts": [
+    "Parse and double a small integer while keeping failure in the return value."
+  ],
+  "invariant": "Only successfully parsed values in -1000...1000 are doubled; failures propagate unchanged.",
+  "mantra": "Store success or failure; map the success.",
+  "pitfalls": [
+    "Result.map leaves failures untouched.",
+    "Bounding the input here keeps the example free of integer multiplication overflow."
+  ],
+  "keyLineIndices": [
+    4,
+    11
+  ],
+  "test": [
+    "precondition(doubledInteger(\"21\") == .success(42))",
+    "precondition(doubledInteger(\"-3\") == .success(-6))",
+    "precondition(doubledInteger(\"bad\") == .failure(.invalidInteger))",
+    "precondition(doubledInteger(\"1001\") == .failure(.invalidInteger))"
+  ],
+  "order": 116
+}

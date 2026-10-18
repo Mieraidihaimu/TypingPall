@@ -4,6 +4,7 @@ public enum SidebarSelection: Hashable {
     case smartCollection(SmartFilter)
     case drill(DrillDestination)
     case lesson(String)
+    case script(String)
 }
 
 public enum SmartFilter: String, CaseIterable, Identifiable {
@@ -49,8 +50,9 @@ struct CurriculumSidebarView: View {
     @Binding var selectedDrill: DrillDestination?
 
     @State private var searchQuery = ""
-    @State private var isShowingAddScript = false
 
+    var savedScripts: [HistoryRecordDTO]
+    var onSelectScript: (HistoryRecordDTO) -> Void
     var onSelectLesson: (PracticeLesson) -> Void
     var onSelectBugHunt: (PracticeLesson) -> Void
     var onSelectDrill: (DrillDestination) -> Void
@@ -61,6 +63,8 @@ struct CurriculumSidebarView: View {
         selection: Binding<SidebarSelection?>,
         activeSmartFilter: Binding<SmartFilter>,
         selectedDrill: Binding<DrillDestination?>,
+        savedScripts: [HistoryRecordDTO],
+        onSelectScript: @escaping (HistoryRecordDTO) -> Void,
         onSelectLesson: @escaping (PracticeLesson) -> Void,
         onSelectBugHunt: @escaping (PracticeLesson) -> Void,
         onSelectDrill: @escaping (DrillDestination) -> Void,
@@ -70,6 +74,8 @@ struct CurriculumSidebarView: View {
         self._selection = selection
         self._activeSmartFilter = activeSmartFilter
         self._selectedDrill = selectedDrill
+        self.savedScripts = savedScripts
+        self.onSelectScript = onSelectScript
         self.onSelectLesson = onSelectLesson
         self.onSelectBugHunt = onSelectBugHunt
         self.onSelectDrill = onSelectDrill
@@ -77,6 +83,15 @@ struct CurriculumSidebarView: View {
     }
 
     private var allLessons: [PracticeLesson] { PracticeCatalog.lessons }
+
+    private var filteredScripts: [HistoryRecordDTO] {
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return savedScripts }
+        return savedScripts.filter {
+            $0.text.localizedCaseInsensitiveContains(query) ||
+            (CodeLanguage(rawValue: $0.language) ?? .plainText).title.localizedCaseInsensitiveContains(query)
+        }
+    }
 
     private var filteredLessons: [PracticeLesson] {
         let base: [PracticeLesson]
@@ -111,9 +126,10 @@ struct CurriculumSidebarView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                    TextField("Filter patterns…", text: $searchQuery)
+                    TextField(activeSmartFilter == .myScripts ? "Filter scripts…" : "Filter patterns…", text: $searchQuery)
                         .textFieldStyle(.plain)
                         .font(.callout)
+                        .accessibilityIdentifier("sidebarSearch")
                 }
                 .padding(.vertical, 4)
             }
@@ -140,6 +156,7 @@ struct CurriculumSidebarView: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("collection-\(filter.id)")
                     .tag(SidebarSelection.smartCollection(filter))
                 }
             }
@@ -158,7 +175,36 @@ struct CurriculumSidebarView: View {
 
             // Patterns List under selected Smart Filter
             Section(header: Text(activeSmartFilter.rawValue.uppercased()).font(.caption2).fontWeight(.bold).foregroundColor(.secondary)) {
-                if filteredLessons.isEmpty {
+                if activeSmartFilter == .myScripts {
+                    if filteredScripts.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(savedScripts.isEmpty ? "No saved scripts yet." : "No scripts match your search.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            if savedScripts.isEmpty {
+                                Button("Add Script…", action: onAddScript)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    } else {
+                        ForEach(filteredScripts) { script in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(script.text.trimmingCharacters(in: .whitespacesAndNewlines))
+                                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                                    .lineLimit(2)
+                                HStack {
+                                    Text((CodeLanguage(rawValue: script.language) ?? .plainText).title)
+                                    Text(script.timestamp, style: .date)
+                                }
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                            }
+                            .padding(.vertical, 3)
+                            .accessibilityIdentifier("savedScript-\(script.id)")
+                            .tag(SidebarSelection.script(script.id))
+                        }
+                    }
+                } else if filteredLessons.isEmpty {
                     Text(activeSmartFilter == .dueForRecall ? "All patterns fresh! No recall due." : "No patterns found.")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -197,9 +243,11 @@ struct CurriculumSidebarView: View {
         }
         .listStyle(.sidebar)
         .frame(minWidth: 220, idealWidth: 250, maxWidth: 280)
+        .onChange(of: activeSmartFilter) { _ in searchQuery = "" }
         .onChange(of: selection) { newSelection in
             switch newSelection {
             case .smartCollection(let filter):
+                if activeSmartFilter != filter { searchQuery = "" }
                 activeSmartFilter = filter
                 selectedDrill = nil
             case .drill(let drill):
@@ -209,6 +257,12 @@ struct CurriculumSidebarView: View {
                 if let lesson = allLessons.first(where: { $0.id == id }) {
                     selectedDrill = nil
                     onSelectLesson(lesson)
+                }
+            case .script(let id):
+                if let script = savedScripts.first(where: { $0.id == id }) {
+                    if !filteredScripts.contains(where: { $0.id == id }) { searchQuery = "" }
+                    selectedDrill = nil
+                    onSelectScript(script)
                 }
             case nil:
                 break

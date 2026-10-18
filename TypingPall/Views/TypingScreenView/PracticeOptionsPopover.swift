@@ -5,12 +5,6 @@ struct PracticeOptionsPopover: View {
 
     var body: some View {
         Form {
-            Picker("Mode", selection: Binding(get: { viewModel.mode }, set: { viewModel.setMode($0) })) {
-                ForEach(PracticeMode.allCases) { Text($0.title).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            .accessibilityIdentifier("practiceMode")
-            Text(caption(for: viewModel.mode)).font(.caption).foregroundColor(.secondary)
             Toggle("Skip comments", isOn: Binding(get: { viewModel.skipComments }, set: { viewModel.setSkipComments($0) }))
                 .disabled(viewModel.mode.isGraded)
                 .accessibilityIdentifier("skipComments")
@@ -24,8 +18,15 @@ struct PracticeOptionsPopover: View {
             .pickerStyle(.segmented)
             .accessibilityIdentifier("diffTolerancePicker")
             Text(toleranceCaption(for: viewModel.diffTolerance)).font(.caption).foregroundColor(.secondary)
-            Picker("Language", selection: Binding(get: { viewModel.language }, set: { viewModel.setLanguage($0) })) {
-                ForEach(CodeLanguage.allCases) { Text($0.title).tag($0) }
+            if viewModel.canEditLanguage {
+                Picker("Language", selection: Binding(get: { viewModel.language }, set: { viewModel.setLanguage($0) })) {
+                    ForEach(CodeLanguage.allCases) { Text($0.title).tag($0) }
+                }
+                .accessibilityIdentifier("scriptLanguagePicker")
+                .help("Choose the language of your code for highlighting and comment handling.")
+            } else {
+                LabeledContent("Language", value: viewModel.language.title)
+                    .accessibilityIdentifier("lessonLanguage")
             }
             Text("Tabs expand to \(viewModel.sessionTabSpaces) spaces. Change this in Settings.")
                 .font(.caption).foregroundColor(.secondary)
@@ -38,14 +39,6 @@ struct PracticeOptionsPopover: View {
         switch tolerance {
         case .strictCharacter: return "Strict: exact character-for-character spacing."
         case .syntaxAwareTrivia: return "Relaxed: flexible spaces around operators."
-        }
-    }
-
-    private func caption(for mode: PracticeMode) -> String {
-        switch mode {
-        case .copy: return "Type every line with the reference in view."
-        case .keyLines: return "The key lines are hidden; type them from memory."
-        case .recall: return "Every line after the signature is hidden; recall the pattern."
         }
     }
 }

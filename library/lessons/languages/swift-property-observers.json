@@ -1,0 +1,46 @@
+{
+  "id": "swift-property-observers",
+  "title": "Property observers and oldValue",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Use didSet to count meaningful updates while ignoring assignments of the current value.",
+  "code": [
+    "struct Scoreboard {",
+    "    private(set) var changes = 0",
+    "    var score = 0 {",
+    "        didSet {",
+    "            if score != oldValue {",
+    "                changes += 1",
+    "            }",
+    "        }",
+    "    }",
+    "}"
+  ],
+  "family": "property-observers",
+  "triggers": [
+    "react to a stored property changing after initialization"
+  ],
+  "prompts": [
+    "Track the number of distinct score updates, excluding repeated assignments."
+  ],
+  "invariant": "The change count increases only when the assigned score differs from the previous score.",
+  "mantra": "Observe after assignment; compare with oldValue.",
+  "pitfalls": [
+    "didSet runs even when the new value equals the old value.",
+    "Initial stored-property values do not trigger this observer."
+  ],
+  "keyLineIndices": [
+    3,
+    4
+  ],
+  "test": [
+    "var board = Scoreboard()",
+    "precondition(board.changes == 0)",
+    "board.score = 10",
+    "board.score = 10",
+    "board.score = 15",
+    "precondition(board.score == 15 && board.changes == 2)"
+  ],
+  "order": 106
+}

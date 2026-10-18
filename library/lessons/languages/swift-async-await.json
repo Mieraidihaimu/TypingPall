@@ -1,0 +1,44 @@
+{
+  "id": "swift-async-await",
+  "title": "Async functions and suspension points",
+  "category": "Swift concurrency",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Declare an async function and await its result. Task.yield illustrates cooperative suspension without blocking a thread.",
+  "code": [
+    "func loadName(id: Int) async -> String {",
+    "    await Task.yield()",
+    "    return \"member-\\(id)\"",
+    "}",
+    "",
+    "func welcomeMember(id: Int) async -> String {",
+    "    let name = await loadName(id: id)",
+    "    return \"Welcome, \\(name)!\"",
+    "}"
+  ],
+  "family": "async-await",
+  "triggers": [
+    "a function depends on a result produced asynchronously"
+  ],
+  "prompts": [
+    "Compose a greeting from an asynchronously loaded member name."
+  ],
+  "invariant": "The greeting is constructed only after the name becomes available.",
+  "mantra": "Mark async work; await its dependency; continue with the value.",
+  "pitfalls": [
+    "await marks a possible suspension, not a guarantee of a thread switch.",
+    "Task.yield is a cooperative scheduling hint, not a delay or network request."
+  ],
+  "keyLineIndices": [
+    0,
+    1,
+    6
+  ],
+  "test": [
+    "let first = await welcomeMember(id: 7)",
+    "let second = await welcomeMember(id: 0)",
+    "precondition(first == \"Welcome, member-7!\")",
+    "precondition(second == \"Welcome, member-0!\")"
+  ],
+  "order": 124
+}

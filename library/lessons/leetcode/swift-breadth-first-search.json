@@ -1,0 +1,64 @@
+{
+  "id": "swift-breadth-first-search",
+  "title": "BFS with an array and head index",
+  "category": "Swift interview patterns",
+  "track": "leetcode",
+  "language": "swift",
+  "summary": "Compute shortest unweighted graph distances with a queue and mark vertices when enqueuing them.",
+  "code": [
+    "func distances(in graph: [Int: [Int]], from start: Int) -> [Int: Int] {",
+    "    var distance = [start: 0]",
+    "    var queue = [start]",
+    "    var head = 0",
+    "    while head < queue.count {",
+    "        let node = queue[head]",
+    "        head += 1",
+    "        let nextDistance = distance[node, default: 0] + 1",
+    "        for neighbor in graph[node, default: []] {",
+    "            guard distance[neighbor] == nil else { continue }",
+    "            distance[neighbor] = nextDistance",
+    "            queue.append(neighbor)",
+    "        }",
+    "    }",
+    "    return distance",
+    "}"
+  ],
+  "family": "bfs",
+  "triggers": [
+    "shortest hop counts in a graph with equal edge weights",
+    "minimum number of equal-cost transitions from a start state, with cycles or duplicate edges"
+  ],
+  "prompts": [
+    "Find reachable vertices and their minimum hop counts, including graphs with cycles.",
+    "A transit map gives direct stops with equal travel cost. Compute the fewest hops from one stop to every reachable stop."
+  ],
+  "invariant": "Queued vertices already have their shortest distance and are enqueued only once.",
+  "mantra": "Visit on enqueue; advance the head; discover one layer at a time.",
+  "pitfalls": [
+    "Array.removeFirst repeatedly shifts elements; a head index avoids that cost.",
+    "Marking only on dequeue allows duplicate queue entries.",
+    "BFS does not solve general weighted shortest paths."
+  ],
+  "keyLineIndices": [
+    4,
+    9,
+    10
+  ],
+  "test": [
+    "let graph = [0: [1, 2, 1], 1: [0, 3], 2: [3], 3: [3], 9: []]",
+    "precondition(distances(in: graph, from: 0) == [0: 0, 1: 1, 2: 1, 3: 2])",
+    "precondition(distances(in: graph, from: 9) == [9: 0])",
+    "precondition(distances(in: [:], from: 7) == [7: 0])"
+  ],
+  "order": 133,
+  "complexity": {
+    "time": "O(V + E) expected",
+    "space": "O(V)"
+  },
+  "anchors": [
+    {
+      "name": "Shortest Path in Binary Matrix",
+      "trick": "Treat valid cells as vertices and legal moves as unweighted edges; BFS discovers shortest hop counts."
+    }
+  ]
+}

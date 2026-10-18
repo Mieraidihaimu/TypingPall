@@ -833,7 +833,7 @@ def check_compiled(require_all):
     with tempfile.TemporaryDirectory(prefix='typingpall-lessons-') as directory:
         folder = Path(directory)
         env = dict(os.environ, GOCACHE=str(folder/'go-cache'), GOPROXY='off', GOTOOLCHAIN='local')
-        for language, tool, extension in [('cpp','clang++','cpp'),('go','go','go'),('rust','rustc','rs')]:
+        for language, tool, extension in [('cpp','clang++','cpp'),('go','go','go'),('rust','rustc','rs'),('swift','swiftc','swift')]:
             compiler = shutil.which(tool)
             if not compiler:
                 missing.append(tool)
@@ -848,22 +848,35 @@ def check_compiled(require_all):
             examples = [lesson for lesson in LESSONS if lesson['language'] == language]
             cached_count = 0
             for lesson in examples:
-                key = snippet_key(language, tool_version, lesson['code'])
+                source_code = lesson['code']
+                if language == 'swift':
+                    tests = lesson.get('test')
+                    assert tests, (lesson['id'], 'missing Swift behavioral checks')
+                    test_code = '\n'.join(tests) if isinstance(tests, list) else tests
+                    source_code += '\n\n@main\nstruct LessonCheck {\n    static func main() async throws {\n'
+                    source_code += '\n'.join('        ' + line for line in test_code.splitlines())
+                    source_code += '\n        print("PASS")\n    }\n}\n'
+                # Include the harness and assertions so changing a test invalidates its cache.
+                key = snippet_key(language, tool_version, source_code)
                 if key in cache:
                     cached_count += 1
                     continue
                 source = folder / (lesson['id'] + '.' + extension)
                 binary = folder / lesson['id']
-                source.write_text(lesson['code'])
+                source.write_text(source_code)
                 if language == 'cpp':
                     command = [compiler,'-std=c++17','-pthread',str(source),'-o',str(binary)]
                 elif language == 'go':
                     command = [compiler,'build','-o',str(binary),str(source)]
+                elif language == 'swift':
+                    command = [compiler,'-swift-version','6','-warnings-as-errors','-parse-as-library',
+                               '-module-cache-path',str(folder/'swift-module-cache'),str(source),'-o',str(binary)]
                 else:
                     command = [compiler,'--edition=2021',str(source),'-o',str(binary)]
                 subprocess.run(command, check=True, env=env, capture_output=True, text=True, timeout=120)
                 output = subprocess.run([str(binary)], check=True, capture_output=True, text=True, timeout=10).stdout.strip()
-                assert output == EXPECTED[lesson['id']], (lesson['id'], output)
+                expected = 'PASS' if language == 'swift' else EXPECTED[lesson['id']]
+                assert output == expected, (lesson['id'], output)
                 cache[key] = True
                 cache_dirty = True
             cached_suffix = f' ({cached_count} cached)' if cached_count else ''

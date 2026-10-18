@@ -1,0 +1,50 @@
+{
+  "id": "swift-weak-captures",
+  "title": "Weak closure captures and ARC",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Break the ownership cycle between an object and its stored callback with a weak self capture.",
+  "code": [
+    "final class TapTracker {",
+    "    private(set) var taps = 0",
+    "    var onTap: (() -> Void)?",
+    "",
+    "    init() {",
+    "        onTap = { [weak self] in",
+    "            self?.taps += 1",
+    "        }",
+    "    }",
+    "}"
+  ],
+  "family": "weak-captures",
+  "triggers": [
+    "an object owns a closure that refers back to that object"
+  ],
+  "prompts": [
+    "Track taps with a stored callback while allowing the tracker to deallocate."
+  ],
+  "invariant": "The stored callback does not keep the tracker alive.",
+  "mantra": "Own the callback; capture the owner weakly.",
+  "pitfalls": [
+    "A strong self capture here creates an object-to-closure-to-object cycle.",
+    "A weak reference becomes nil after deallocation, so the callback must tolerate absence."
+  ],
+  "keyLineIndices": [
+    5,
+    6
+  ],
+  "test": [
+    "var tracker: TapTracker? = TapTracker()",
+    "weak var observed = tracker",
+    "let callback = tracker?.onTap",
+    "callback?()",
+    "precondition(tracker?.taps == 1)",
+    "tracker = nil",
+    "precondition(observed == nil)",
+    "callback?()",
+    "precondition(observed == nil)",
+    "observed = nil"
+  ],
+  "order": 121
+}

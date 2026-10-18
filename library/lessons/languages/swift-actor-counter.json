@@ -1,0 +1,54 @@
+{
+  "id": "swift-actor-counter",
+  "title": "Actors and isolated mutable state",
+  "category": "Swift concurrency",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Protect shared state in an actor and await isolated methods from concurrent child tasks.",
+  "code": [
+    "actor Counter {",
+    "    private var value = 0",
+    "",
+    "    func increment() {",
+    "        value += 1",
+    "    }",
+    "",
+    "    func snapshot() -> Int { value }",
+    "}",
+    "",
+    "func countConcurrently(_ count: Int) async -> Int {",
+    "    let counter = Counter()",
+    "    await withTaskGroup(of: Void.self) { group in",
+    "        for _ in 0..<max(0, count) {",
+    "            group.addTask { await counter.increment() }",
+    "        }",
+    "    }",
+    "    return await counter.snapshot()",
+    "}"
+  ],
+  "family": "actor-counter",
+  "triggers": [
+    "many concurrent tasks need to update the same mutable value"
+  ],
+  "prompts": [
+    "Count one increment per task without a data race or explicit lock."
+  ],
+  "invariant": "Only actor-isolated methods access value, and the group finishes before the final snapshot.",
+  "mantra": "Isolate the state; await access; join before reading.",
+  "pitfalls": [
+    "An actor method containing await can be reentered; this increment has no suspension point.",
+    "Reading before the group completes could produce a partial count."
+  ],
+  "keyLineIndices": [
+    0,
+    14,
+    17
+  ],
+  "test": [
+    "let many = await countConcurrently(200)",
+    "let empty = await countConcurrently(0)",
+    "let negative = await countConcurrently(-1)",
+    "precondition(many == 200 && empty == 0 && negative == 0)"
+  ],
+  "order": 127
+}

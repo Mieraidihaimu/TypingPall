@@ -1,0 +1,56 @@
+{
+  "id": "swift-sequence-iterator",
+  "title": "Sequence and IteratorProtocol",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Create a reusable countdown sequence whose iterator returns nil when exhausted.",
+  "code": [
+    "struct Countdown: Sequence {",
+    "    let start: Int",
+    "",
+    "    func makeIterator() -> Iterator {",
+    "        Iterator(current: start)",
+    "    }",
+    "",
+    "    struct Iterator: IteratorProtocol {",
+    "        var current: Int",
+    "",
+    "        mutating func next() -> Int? {",
+    "            guard current > 0 else { return nil }",
+    "            defer { current -= 1 }",
+    "            return current",
+    "        }",
+    "    }",
+    "}"
+  ],
+  "family": "sequence-iterator",
+  "triggers": [
+    "produce values lazily with a custom iterator and a clear exhaustion condition"
+  ],
+  "prompts": [
+    "Expose a positive countdown that can be consumed with a for loop or Array initializer."
+  ],
+  "invariant": "Each iterator yields descending positive integers, then keeps returning nil.",
+  "mantra": "Make an iterator; yield one value; advance its state.",
+  "pitfalls": [
+    "Return nil rather than a sentinel integer when iteration ends.",
+    "Each call to makeIterator starts a fresh traversal in this sequence."
+  ],
+  "keyLineIndices": [
+    3,
+    10,
+    12
+  ],
+  "test": [
+    "let countdown = Countdown(start: 3)",
+    "precondition(Array(countdown) == [3, 2, 1])",
+    "precondition(Array(countdown) == [3, 2, 1])",
+    "precondition(Array(Countdown(start: 0)).isEmpty)",
+    "precondition(Array(Countdown(start: -3)).isEmpty)",
+    "var iterator = Countdown(start: 1).makeIterator()",
+    "precondition(iterator.next() == 1)",
+    "precondition(iterator.next() == nil && iterator.next() == nil)"
+  ],
+  "order": 122
+}

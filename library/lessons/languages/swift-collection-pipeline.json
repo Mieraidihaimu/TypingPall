@@ -1,0 +1,40 @@
+{
+  "id": "swift-collection-pipeline",
+  "title": "compactMap, filter and reduce",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Parse valid integers, keep positive values and sum them in a collection pipeline.",
+  "code": [
+    "func sumPositiveIntegers(_ words: [String]) -> Int {",
+    "    words",
+    "        .compactMap { Int($0) }",
+    "        .filter { $0 > 0 }",
+    "        .reduce(0) { total, value in total + value }",
+    "}"
+  ],
+  "family": "collection-pipeline",
+  "triggers": [
+    "parse optional values and aggregate only valid matching elements"
+  ],
+  "prompts": [
+    "Sum positive integers from text fields while skipping invalid entries."
+  ],
+  "invariant": "Only successfully parsed positive integers reach the reduction.",
+  "mantra": "Parse and drop nil; filter; fold.",
+  "pitfalls": [
+    "map would retain Int? elements rather than dropping failures.",
+    "The initial reduce value determines the result for empty input."
+  ],
+  "keyLineIndices": [
+    2,
+    3,
+    4
+  ],
+  "test": [
+    "precondition(sumPositiveIntegers([\"3\", \"bad\", \"-2\", \"0\", \"7\"]) == 10)",
+    "precondition(sumPositiveIntegers([]) == 0)",
+    "precondition(sumPositiveIntegers([\"no\", \"-1\"]) == 0)"
+  ],
+  "order": 108
+}

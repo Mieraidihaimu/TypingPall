@@ -1,0 +1,49 @@
+{
+  "id": "swift-string-indices",
+  "title": "Unicode-safe String indices",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Walk a String with String.Index and return a Character without assuming integer or byte offsets.",
+  "code": [
+    "func character(at offset: Int, in text: String) -> Character? {",
+    "    guard offset >= 0 else { return nil }",
+    "    guard let index = text.index(",
+    "        text.startIndex,",
+    "        offsetBy: offset,",
+    "        limitedBy: text.endIndex",
+    "    ), index != text.endIndex else {",
+    "        return nil",
+    "    }",
+    "    return text[index]",
+    "}"
+  ],
+  "family": "string-indices",
+  "triggers": [
+    "access a user-perceived character by an offset that may be out of bounds"
+  ],
+  "prompts": [
+    "Safely select a displayed character from text containing emoji and combining marks."
+  ],
+  "invariant": "Only a valid character index before endIndex is used for subscripting.",
+  "mantra": "Advance with String.Index; never subscript endIndex.",
+  "pitfalls": [
+    "String indices are not integer byte offsets.",
+    "Walking to an offset takes linear time; repeated offset lookups can become quadratic."
+  ],
+  "keyLineIndices": [
+    1,
+    5,
+    6
+  ],
+  "test": [
+    "let text = \"A👨‍👩‍👧‍👦é\"",
+    "precondition(character(at: 0, in: text) == \"A\")",
+    "precondition(character(at: 1, in: text) == \"👨‍👩‍👧‍👦\")",
+    "precondition(character(at: 2, in: text) == \"é\")",
+    "precondition(character(at: 3, in: text) == nil)",
+    "precondition(character(at: -1, in: text) == nil)",
+    "precondition(character(at: 0, in: \"\") == nil)"
+  ],
+  "order": 111
+}

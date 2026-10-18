@@ -1,0 +1,46 @@
+{
+  "id": "swift-optional-chaining",
+  "title": "Optional chaining through nested models",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Follow optional properties with ?. and transform a present value with Optional.map.",
+  "code": [
+    "struct Address {",
+    "    let city: String?",
+    "}",
+    "",
+    "struct Profile {",
+    "    let address: Address?",
+    "}",
+    "",
+    "func cityLabel(for profile: Profile?) -> String {",
+    "    let city = profile?.address?.city",
+    "    return city.map { $0.uppercased() } ?? \"UNKNOWN\"",
+    "}"
+  ],
+  "family": "optional-chaining",
+  "triggers": [
+    "a value may be absent at several levels of a model"
+  ],
+  "prompts": [
+    "Display an uppercase city label even when a profile has no address."
+  ],
+  "invariant": "Any missing link produces nil and the final fallback handles it.",
+  "mantra": "Chain the path; map the value; supply a default.",
+  "pitfalls": [
+    "Force unwrapping any link can crash.",
+    "Optional.map transforms one wrapped value; it does not iterate over a collection."
+  ],
+  "keyLineIndices": [
+    9,
+    10
+  ],
+  "test": [
+    "precondition(cityLabel(for: nil) == \"UNKNOWN\")",
+    "precondition(cityLabel(for: Profile(address: nil)) == \"UNKNOWN\")",
+    "precondition(cityLabel(for: Profile(address: Address(city: nil))) == \"UNKNOWN\")",
+    "precondition(cityLabel(for: Profile(address: Address(city: \"London\"))) == \"LONDON\")"
+  ],
+  "order": 101
+}

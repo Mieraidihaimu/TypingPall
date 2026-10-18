@@ -1,0 +1,41 @@
+{
+  "id": "swift-set-operations",
+  "title": "Set membership and set algebra",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Use sets for unique membership, intersections and differences; sort results for stable output.",
+  "code": [
+    "func sharedTags(_ first: [String], _ second: [String]) -> [String] {",
+    "    Set(first).intersection(Set(second)).sorted()",
+    "}",
+    "",
+    "func missingTags(required: Set<String>, available: Set<String>) -> [String] {",
+    "    required.subtracting(available).sorted()",
+    "}"
+  ],
+  "family": "set-operations",
+  "triggers": [
+    "find unique shared values or required values that are absent"
+  ],
+  "prompts": [
+    "Compare tag collections without returning duplicates."
+  ],
+  "invariant": "Set operations work on unique members; returned arrays are sorted.",
+  "mantra": "Deduplicate; combine sets; sort for presentation.",
+  "pitfalls": [
+    "A set does not preserve input order.",
+    "A.subtracting(B) differs from B.subtracting(A)."
+  ],
+  "keyLineIndices": [
+    1,
+    5
+  ],
+  "test": [
+    "precondition(sharedTags([\"swift\", \"ios\", \"swift\"], [\"swift\", \"mac\"]) == [\"swift\"])",
+    "precondition(sharedTags([], [\"a\"]).isEmpty)",
+    "precondition(missingTags(required: [\"b\", \"a\", \"c\"], available: [\"b\"]) == [\"a\", \"c\"])",
+    "precondition(missingTags(required: [], available: [\"a\"]).isEmpty)"
+  ],
+  "order": 110
+}

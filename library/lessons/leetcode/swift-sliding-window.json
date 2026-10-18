@@ -1,0 +1,74 @@
+{
+  "id": "swift-sliding-window",
+  "title": "Sliding window over Swift characters",
+  "category": "Swift interview patterns",
+  "track": "leetcode",
+  "language": "swift",
+  "summary": "Traverse text as Characters and track last-seen positions to find a longest substring without repeats.",
+  "code": [
+    "func longestUnique(_ text: String) -> Int {",
+    "    var lastSeen: [Character: Int] = [:]",
+    "    var left = 0",
+    "    var best = 0",
+    "    for (right, character) in text.enumerated() {",
+    "        if let previous = lastSeen[character] {",
+    "            left = max(left, previous + 1)",
+    "        }",
+    "        lastSeen[character] = right",
+    "        best = max(best, right - left + 1)",
+    "    }",
+    "    return best",
+    "}"
+  ],
+  "family": "sliding-window",
+  "triggers": [
+    "longest contiguous stretch with no repeated character",
+    "longest substring with no duplicates using last-seen indices"
+  ],
+  "prompts": [
+    "Find the longest run of distinct displayed characters, including emoji.",
+    "A playlist may not repeat a song within a block. Find the longest existing block that obeys the rule."
+  ],
+  "invariant": "The inclusive window from left to right contains no repeated Character.",
+  "mantra": "Expand right; jump left past repeats; never move left backwards.",
+  "pitfalls": [
+    "Without max, an old sighting before the window can move left backwards.",
+    "enumerated provides traversal offsets, not String.Index values."
+  ],
+  "keyLineIndices": [
+    6,
+    8,
+    9
+  ],
+  "test": [
+    "precondition(longestUnique(\"\") == 0)",
+    "precondition(longestUnique(\"abba\") == 2)",
+    "precondition(longestUnique(\"abcabcbb\") == 3)",
+    "precondition(longestUnique(\"bbbbb\") == 1)",
+    "precondition(longestUnique(\"🙂é🙂a\") == 3)",
+    "for length in 0...7 {",
+    "    for mask in 0..<(1 << length) {",
+    "        let chars: [Character] = (0..<length).map { mask & (1 << $0) == 0 ? \"a\" : \"b\" }",
+    "        var expected = 0",
+    "        for start in 0..<chars.count {",
+    "            for end in (start + 1)...chars.count {",
+    "                let slice = chars[start..<end]",
+    "                if Set(slice).count == slice.count { expected = max(expected, slice.count) }",
+    "            }",
+    "        }",
+    "        precondition(longestUnique(String(chars)) == expected)",
+    "    }",
+    "}"
+  ],
+  "order": 131,
+  "complexity": {
+    "time": "O(n) expected in characters, excluding variable Unicode hashing costs",
+    "space": "O(k) distinct characters"
+  },
+  "anchors": [
+    {
+      "name": "Longest Substring Without Repeating Characters",
+      "trick": "Jump left past the repeated character without ever moving left backwards."
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "swift-computed-properties",
+  "title": "Computed properties with get and set",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Expose Fahrenheit as a computed view of stored Celsius, with a setter that converts back.",
+  "code": [
+    "struct Temperature {",
+    "    var celsius: Double",
+    "",
+    "    var fahrenheit: Double {",
+    "        get { celsius * 9 / 5 + 32 }",
+    "        set { celsius = (newValue - 32) * 5 / 9 }",
+    "    }",
+    "}"
+  ],
+  "family": "computed-properties",
+  "triggers": [
+    "a property is derived from another stored representation"
+  ],
+  "prompts": [
+    "Store temperature once while allowing reads and writes in two units."
+  ],
+  "invariant": "Celsius is the single stored source of truth.",
+  "mantra": "Compute on read; convert on write.",
+  "pitfalls": [
+    "Assigning fahrenheit inside its own setter would recurse.",
+    "Use a tolerance when testing general floating-point conversions."
+  ],
+  "keyLineIndices": [
+    4,
+    5
+  ],
+  "test": [
+    "var temperature = Temperature(celsius: 0)",
+    "precondition(temperature.fahrenheit == 32)",
+    "temperature.fahrenheit = 212",
+    "precondition(abs(temperature.celsius - 100) < 0.000001)",
+    "temperature.celsius = -40",
+    "precondition(temperature.fahrenheit == -40)"
+  ],
+  "order": 105
+}

@@ -1,0 +1,54 @@
+{
+  "id": "swift-associated-values",
+  "title": "Enums with associated values",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Represent mutually exclusive states with an enum and bind each case payload in an exhaustive switch.",
+  "code": [
+    "enum DownloadState {",
+    "    case waiting",
+    "    case progress(received: Int, total: Int)",
+    "    case failed(message: String)",
+    "    case complete",
+    "}",
+    "",
+    "func describe(_ state: DownloadState) -> String {",
+    "    switch state {",
+    "    case .waiting:",
+    "        return \"Waiting\"",
+    "    case let .progress(received, total):",
+    "        return \"\\(received)/\\(total) bytes\"",
+    "    case let .failed(message):",
+    "        return \"Failed: \\(message)\"",
+    "    case .complete:",
+    "        return \"Done\"",
+    "    }",
+    "}"
+  ],
+  "family": "associated-values",
+  "triggers": [
+    "one state has different data depending on its case"
+  ],
+  "prompts": [
+    "Describe a download without separate flags for waiting, progress, failure and completion."
+  ],
+  "invariant": "Exactly one download state and its matching payload are active.",
+  "mantra": "One case, one payload, one exhaustive switch.",
+  "pitfalls": [
+    "Handle every case instead of using a default that hides future additions.",
+    "Associated values belong to an individual enum instance."
+  ],
+  "keyLineIndices": [
+    8,
+    11,
+    13
+  ],
+  "test": [
+    "precondition(describe(.waiting) == \"Waiting\")",
+    "precondition(describe(.progress(received: 4, total: 10)) == \"4/10 bytes\")",
+    "precondition(describe(.failed(message: \"offline\")) == \"Failed: offline\")",
+    "precondition(describe(.complete) == \"Done\")"
+  ],
+  "order": 102
+}

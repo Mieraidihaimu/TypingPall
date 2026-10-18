@@ -1,0 +1,43 @@
+{
+  "id": "swift-async-let",
+  "title": "Structured child tasks with async let",
+  "category": "Swift concurrency",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Start independent child operations with async let and await their values together.",
+  "code": [
+    "func localMetric(_ value: Int) async -> Int {",
+    "    await Task.yield()",
+    "    return value * 2",
+    "}",
+    "",
+    "func dashboardMetrics() async -> (Int, Int) {",
+    "    async let visits = localMetric(12)",
+    "    async let signups = localMetric(3)",
+    "    return await (visits, signups)",
+    "}"
+  ],
+  "family": "async-let",
+  "triggers": [
+    "a fixed number of independent asynchronous dependencies can overlap"
+  ],
+  "prompts": [
+    "Load visit and signup metrics concurrently before constructing a dashboard."
+  ],
+  "invariant": "Both child task results are available before dashboardMetrics returns.",
+  "mantra": "Start independent children; await the combined result.",
+  "pitfalls": [
+    "Awaiting each operation before starting the next makes them sequential.",
+    "Child tasks cannot outlive their structured scope; async let does not promise parallel execution."
+  ],
+  "keyLineIndices": [
+    6,
+    7,
+    8
+  ],
+  "test": [
+    "let metrics = await dashboardMetrics()",
+    "precondition(metrics.0 == 24 && metrics.1 == 6)"
+  ],
+  "order": 125
+}

@@ -1,0 +1,62 @@
+{
+  "id": "swift-throwing-errors",
+  "title": "Throwing functions and typed error cases",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Validate a port with a throwing function and preserve the reason for invalid input.",
+  "code": [
+    "enum PortError: Error, Equatable {",
+    "    case notANumber",
+    "    case outOfRange(Int)",
+    "}",
+    "",
+    "func parsePort(_ text: String) throws -> Int {",
+    "    guard let port = Int(text) else {",
+    "        throw PortError.notANumber",
+    "    }",
+    "    guard (1...65535).contains(port) else {",
+    "        throw PortError.outOfRange(port)",
+    "    }",
+    "    return port",
+    "}"
+  ],
+  "family": "throwing-errors",
+  "triggers": [
+    "validation must distinguish malformed text from an invalid numeric range"
+  ],
+  "prompts": [
+    "Parse a service port and report why an invalid configuration was rejected."
+  ],
+  "invariant": "A returned port is an integer in the closed interval 1...65535.",
+  "mantra": "Parse; validate the range; return or throw.",
+  "pitfalls": [
+    "try? would discard the distinction between the two errors.",
+    "Both endpoints of a closed range are included."
+  ],
+  "keyLineIndices": [
+    7,
+    9
+  ],
+  "test": [
+    "let valid = try parsePort(\"8080\")",
+    "precondition(valid == 8080)",
+    "for boundary in [1, 65535] {",
+    "    let parsed = try parsePort(String(boundary))",
+    "    precondition(parsed == boundary)",
+    "}",
+    "do {",
+    "    _ = try parsePort(\"http\")",
+    "    preconditionFailure(\"Expected a parse error\")",
+    "} catch PortError.notANumber { }",
+    "for invalid in [0, -1, 65536] {",
+    "    do {",
+    "        _ = try parsePort(String(invalid))",
+    "        preconditionFailure(\"Expected a range error\")",
+    "    } catch PortError.outOfRange(let value) {",
+    "        precondition(value == invalid)",
+    "    }",
+    "}"
+  ],
+  "order": 115
+}

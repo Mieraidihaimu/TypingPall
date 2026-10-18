@@ -1,0 +1,53 @@
+{
+  "id": "swift-generic-stack",
+  "title": "A generic stack with safe pop",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Use a type parameter for a reusable last-in-first-out container, returning nil when empty.",
+  "code": [
+    "struct Stack<Element> {",
+    "    private var storage: [Element] = []",
+    "",
+    "    var count: Int { storage.count }",
+    "",
+    "    mutating func push(_ element: Element) {",
+    "        storage.append(element)",
+    "    }",
+    "",
+    "    mutating func pop() -> Element? {",
+    "        storage.popLast()",
+    "    }",
+    "}"
+  ],
+  "family": "generic-stack",
+  "triggers": [
+    "a reusable LIFO container must preserve element type and handle underflow"
+  ],
+  "prompts": [
+    "Implement a stack that works for integers and strings without type casts."
+  ],
+  "invariant": "The last pushed element is the first one popped.",
+  "mantra": "Parameterize the element; push at the end; pop safely.",
+  "pitfalls": [
+    "popLast returns nil for an empty array; removeLast traps.",
+    "A mutating method requires a var stack binding."
+  ],
+  "keyLineIndices": [
+    0,
+    10
+  ],
+  "test": [
+    "var numbers = Stack<Int>()",
+    "precondition(numbers.pop() == nil)",
+    "numbers.push(10)",
+    "numbers.push(20)",
+    "precondition(numbers.count == 2)",
+    "precondition(numbers.pop() == 20 && numbers.pop() == 10)",
+    "precondition(numbers.count == 0)",
+    "var words = Stack<String>()",
+    "words.push(\"Swift\")",
+    "precondition(words.pop() == \"Swift\")"
+  ],
+  "order": 113
+}

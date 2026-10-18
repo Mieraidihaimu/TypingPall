@@ -60,6 +60,37 @@ final class TypingPallUITests: XCTestCase {
         app.buttons["Cancel"].click()
         XCTAssertTrue(app.textViews["practiceInput"].exists)
     }
+
+    func testSavedScriptAppearsInSidebarAndCanBeReopened() {
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-ux.lastScriptLanguage", "plainText"])
+        let addScript = app.buttons["Add Script"]
+        XCTAssertTrue(addScript.waitForExistence(timeout: 10))
+        let search = app.textFields["sidebarSearch"]
+        search.click()
+        search.typeText("no-matching-pattern")
+        addScript.click()
+        let editor = app.textViews["scriptText"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 5))
+        editor.click()
+        editor.typeText("saved_script_probe = 42")
+        app.buttons["Save & Practice"].click()
+
+        let savedRow = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "savedScript-")).firstMatch
+        XCTAssertTrue(savedRow.waitForExistence(timeout: 5), "A new script appears in My Scripts even after a library search")
+
+        app.descendants(matching: .any)["collection-All Patterns"].firstMatch.click()
+        app.staticTexts["Sliding window"].firstMatch.click()
+        app.descendants(matching: .any)["collection-My Scripts"].firstMatch.click()
+        XCTAssertTrue(savedRow.waitForExistence(timeout: 5))
+        savedRow.click()
+        let input = app.textViews["practiceInput"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5))
+        input.click()
+        input.typeText("saved_script_probe = 42" + XCUIKeyboardKey.return.rawValue)
+        XCTAssertTrue(app.buttons["completionRepeat"].waitForExistence(timeout: 5), "The saved script can be practiced again")
+    }
+
     func testBuiltInLessonSearchLoadAndCommentSkipping() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-skipPracticeComments", "YES"])
         let library = app.buttons["Library"]

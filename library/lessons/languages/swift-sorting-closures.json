@@ -1,0 +1,49 @@
+{
+  "id": "swift-sorting-closures",
+  "title": "Sorting closures and tie breakers",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Sort models with a closure that compares a primary key and then a deterministic secondary key.",
+  "code": [
+    "struct Player: Equatable {",
+    "    let name: String",
+    "    let score: Int",
+    "}",
+    "",
+    "func leaderboard(_ players: [Player]) -> [Player] {",
+    "    players.sorted { left, right in",
+    "        if left.score != right.score {",
+    "            return left.score > right.score",
+    "        }",
+    "        return left.name < right.name",
+    "    }",
+    "}"
+  ],
+  "family": "sorting-closures",
+  "triggers": [
+    "order records by descending score and ascending name"
+  ],
+  "prompts": [
+    "Build a leaderboard with predictable ordering for tied scores."
+  ],
+  "invariant": "Higher scores come first; equal scores compare by name.",
+  "mantra": "Compare the primary key; break ties with the next key.",
+  "pitfalls": [
+    "Use strict comparisons, not <= or >=, in a sorting predicate.",
+    "sorted returns a new array; sort mutates the original."
+  ],
+  "keyLineIndices": [
+    6,
+    8,
+    10
+  ],
+  "test": [
+    "let players = [Player(name: \"Zoe\", score: 4), Player(name: \"Ada\", score: 4), Player(name: \"Sam\", score: 8)]",
+    "precondition(leaderboard(players).map { $0.name } == [\"Sam\", \"Ada\", \"Zoe\"])",
+    "precondition(players.first?.name == \"Zoe\")",
+    "precondition(leaderboard([]).isEmpty)",
+    "precondition(leaderboard([players[0], players[0]]) == [players[0], players[0]])"
+  ],
+  "order": 107
+}

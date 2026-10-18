@@ -1,0 +1,48 @@
+{
+  "id": "swift-protocol-extensions",
+  "title": "Protocols and default implementations",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Declare a behavior requirement and supply a reusable computed property in a protocol extension.",
+  "code": [
+    "protocol Named {",
+    "    var name: String { get }",
+    "}",
+    "",
+    "extension Named {",
+    "    var greeting: String { \"Hello, \\(name)!\" }",
+    "}",
+    "",
+    "struct TeamMember: Named {",
+    "    let name: String",
+    "}",
+    "",
+    "func welcome<T: Named>(_ person: T) -> String {",
+    "    person.greeting",
+    "}"
+  ],
+  "family": "protocol-extensions",
+  "triggers": [
+    "share derived behavior across types that expose the same requirement"
+  ],
+  "prompts": [
+    "Give every named model a common greeting without a base class."
+  ],
+  "invariant": "Every conformer supplies a name; the extension derives a greeting from it.",
+  "mantra": "Require the minimum; derive the shared behavior.",
+  "pitfalls": [
+    "An extension-only member is not a protocol requirement for dynamic dispatch.",
+    "The generic constraint makes the required property available to welcome."
+  ],
+  "keyLineIndices": [
+    0,
+    4,
+    12
+  ],
+  "test": [
+    "precondition(welcome(TeamMember(name: \"Ada\")) == \"Hello, Ada!\")",
+    "precondition(welcome(TeamMember(name: \"Lin\")) == \"Hello, Lin!\")"
+  ],
+  "order": 112
+}

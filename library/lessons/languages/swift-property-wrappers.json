@@ -1,0 +1,61 @@
+{
+  "id": "swift-property-wrappers",
+  "title": "Property wrappers for clamped values",
+  "category": "Swift fundamentals",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Centralize range validation in a property wrapper that clamps both initial values and later assignments.",
+  "code": [
+    "@propertyWrapper",
+    "struct Clamped {",
+    "    private var value: Int",
+    "    private let range: ClosedRange<Int>",
+    "",
+    "    init(wrappedValue: Int, _ range: ClosedRange<Int>) {",
+    "        self.range = range",
+    "        self.value = min(max(wrappedValue, range.lowerBound), range.upperBound)",
+    "    }",
+    "",
+    "    var wrappedValue: Int {",
+    "        get { value }",
+    "        set { value = min(max(newValue, range.lowerBound), range.upperBound) }",
+    "    }",
+    "}",
+    "",
+    "struct Volume {",
+    "    @Clamped(0...100) var level = 50",
+    "}"
+  ],
+  "family": "property-wrappers",
+  "triggers": [
+    "many properties need the same validation on initialization and assignment"
+  ],
+  "prompts": [
+    "Keep a volume level between zero and one hundred using a reusable wrapper."
+  ],
+  "invariant": "The stored value always lies inside the configured closed range.",
+  "mantra": "Validate at initialization and on every write.",
+  "pitfalls": [
+    "Clamping only in the setter would leave an invalid initial value possible.",
+    "wrappedValue is the property-wrapper interface used by the wrapped property."
+  ],
+  "keyLineIndices": [
+    0,
+    5,
+    12,
+    17
+  ],
+  "test": [
+    "var volume = Volume()",
+    "precondition(volume.level == 50)",
+    "volume.level = 150",
+    "precondition(volume.level == 100)",
+    "volume.level = -1",
+    "precondition(volume.level == 0)",
+    "volume.level = 25",
+    "precondition(volume.level == 25)",
+    "let wrapper = Clamped(wrappedValue: 150, 0...100)",
+    "precondition(wrapper.wrappedValue == 100)"
+  ],
+  "order": 120
+}

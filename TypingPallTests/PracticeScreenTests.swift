@@ -172,6 +172,41 @@ final class PracticeScreenModelTests: XCTestCase {
         XCTAssertEqual(TypingScreenViewModel(defaults: defaults).draftLanguage, .go)
     }
 
+    func testStarterPatternLanguageCannotBeOverridden() {
+        let model = TypingScreenViewModel(defaults: makeDefaults())
+        model.editorText = "int lowerBound"
+        XCTAssertFalse(model.canEditLanguage)
+        model.setLanguage(.go)
+        XCTAssertEqual(model.language, .cpp)
+        XCTAssertEqual(model.editorText, "int lowerBound", "An ignored override preserves the attempt")
+        XCTAssertEqual(model.placeholderText, TypingScreenViewModel.starterPattern)
+    }
+
+    func testBuiltInLessonLanguageCannotBeOverridden() throws {
+        let model = TypingScreenViewModel(defaults: makeDefaults())
+        let lesson = PracticeLesson(id: "python", title: "Python", category: "Test", track: .languages,
+                                    language: .python, summary: "S", code: "# intro\nx = 1")
+        try model.loadLesson(lesson)
+        model.editorText = "x ="
+        XCTAssertFalse(model.canEditLanguage)
+        model.setLanguage(.go)
+        XCTAssertEqual(model.language, .python)
+        XCTAssertEqual(model.currentLine, "x = 1")
+        XCTAssertEqual(model.editorText, "x =")
+        XCTAssertEqual(model.currentLessonID, lesson.id)
+    }
+
+    func testLanguageCanBeCorrectedForUserScripts() throws {
+        let model = TypingScreenViewModel(defaults: makeDefaults())
+        try model.updatePlaceholder(with: "# intro\nx = 1", language: .plainText)
+        XCTAssertTrue(model.canEditLanguage)
+        XCTAssertEqual(model.currentLine, "# intro")
+        model.setLanguage(.python)
+        XCTAssertEqual(model.language, .python)
+        XCTAssertEqual(model.currentLine, "x = 1", "Comment handling follows the corrected script language")
+        XCTAssertEqual(model.placeholderText, "# intro\nx = 1", "Changing language preserves the source code")
+    }
+
     func testReferenceUsesASmallerFontAndSplitsIndentation() {
         XCTAssertEqual(ReferenceCodeView.referenceFontSize(for: 25), 18)
         XCTAssertEqual(ReferenceCodeView.referenceFontSize(for: 12), 11)

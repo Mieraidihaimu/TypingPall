@@ -1,0 +1,69 @@
+{
+  "id": "swift-merge-intervals",
+  "title": "Sort and merge overlapping intervals",
+  "category": "Swift interview patterns",
+  "track": "leetcode",
+  "language": "swift",
+  "summary": "Sort closed intervals by start and merge each overlap into the last result interval.",
+  "code": [
+    "struct Interval: Equatable {",
+    "    let start: Int",
+    "    let end: Int",
+    "}",
+    "",
+    "func merged(_ intervals: [Interval]) -> [Interval] {",
+    "    let sorted = intervals.sorted { $0.start < $1.start }",
+    "    var result: [Interval] = []",
+    "    for interval in sorted {",
+    "        if let last = result.last, interval.start <= last.end {",
+    "            result[result.count - 1] = Interval(",
+    "                start: last.start, end: max(last.end, interval.end)",
+    "            )",
+    "        } else {",
+    "            result.append(interval)",
+    "        }",
+    "    }",
+    "    return result",
+    "}"
+  ],
+  "family": "intervals",
+  "triggers": [
+    "combine overlapping closed ranges, including touching endpoints",
+    "sort ranges and consolidate overlaps, including shared endpoints"
+  ],
+  "prompts": [
+    "Consolidate occupied time ranges into nonoverlapping intervals.",
+    "A room has several closed reservation ranges. Combine overlaps into a minimal occupied-range list."
+  ],
+  "invariant": "The result is ordered and disjoint; only its final interval can overlap the next sorted input.",
+  "mantra": "Sort by start; compare with the tail; extend or append.",
+  "pitfalls": [
+    "Inputs must satisfy start <= end.",
+    "Use max for the end so a nested interval cannot shrink the merged range.",
+    "Closed intervals that touch are merged."
+  ],
+  "keyLineIndices": [
+    9,
+    11,
+    14
+  ],
+  "test": [
+    "precondition(merged([]).isEmpty)",
+    "let input = [Interval(start: 8, end: 10), Interval(start: 1, end: 3), Interval(start: 2, end: 6), Interval(start: 10, end: 12)]",
+    "precondition(merged(input) == [Interval(start: 1, end: 6), Interval(start: 8, end: 12)])",
+    "precondition(merged([Interval(start: 1, end: 9), Interval(start: 2, end: 3)]) == [Interval(start: 1, end: 9)])",
+    "precondition(merged([Interval(start: 2, end: 2)]) == [Interval(start: 2, end: 2)])",
+    "precondition(input[0].start == 8)"
+  ],
+  "order": 132,
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(n)"
+  },
+  "anchors": [
+    {
+      "name": "Merge Intervals",
+      "trick": "Sort by start and extend the current tail to the maximum end."
+    }
+  ]
+}

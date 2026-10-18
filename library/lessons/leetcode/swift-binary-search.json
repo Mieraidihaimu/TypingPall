@@ -1,0 +1,62 @@
+{
+  "id": "swift-binary-search",
+  "title": "Binary search: lower bound",
+  "category": "Swift interview patterns",
+  "track": "leetcode",
+  "language": "swift",
+  "summary": "Search a sorted array with a half-open interval to find the first index whose value is at least the target.",
+  "code": [
+    "func lowerBound(_ values: [Int], target: Int) -> Int {",
+    "    var left = 0",
+    "    var right = values.count",
+    "    while left < right {",
+    "        let middle = left + (right - left) / 2",
+    "        if values[middle] < target {",
+    "            left = middle + 1",
+    "        } else {",
+    "            right = middle",
+    "        }",
+    "    }",
+    "    return left",
+    "}"
+  ],
+  "family": "binary-search",
+  "triggers": [
+    "find the first value at least a target in a sorted array with duplicates",
+    "insertion position before duplicates or the first index satisfying a monotone predicate"
+  ],
+  "prompts": [
+    "Find the insertion index before equal elements in an ascending array.",
+    "A sorted release list contains repeated version codes. Find where a new code belongs before equal entries."
+  ],
+  "invariant": "All indices below left contain values below target; all indices at or above right contain values at least target.",
+  "mantra": "Keep [left, right); discard only what is proved too small.",
+  "pitfalls": [
+    "The returned index may equal count and must not be subscripted without checking.",
+    "The input must be sorted in ascending order."
+  ],
+  "keyLineIndices": [
+    3,
+    6,
+    8
+  ],
+  "test": [
+    "for values in [[], [2], [1, 2, 2, 4], [-5, -1, 0, 9]] {",
+    "    for target in -7...11 {",
+    "        let expected = values.firstIndex(where: { $0 >= target }) ?? values.count",
+    "        precondition(lowerBound(values, target: target) == expected)",
+    "    }",
+    "}"
+  ],
+  "order": 130,
+  "complexity": {
+    "time": "O(log n)",
+    "space": "O(1)"
+  },
+  "anchors": [
+    {
+      "name": "Search Insert Position",
+      "trick": "Keep a half-open search interval and return its meeting point."
+    }
+  ]
+}

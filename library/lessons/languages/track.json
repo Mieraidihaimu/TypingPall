@@ -11,6 +11,7 @@
     "C++ concurrency",
     "Go concurrency",
     "Rust concurrency",
-    "Swift fundamentals"
+    "Swift fundamentals",
+    "Swift concurrency"
   ]
 }
