@@ -195,12 +195,15 @@ final class PatternPracticeTests: XCTestCase {
     }
 }
 
+#if os(macOS)
 import AppKit
+#endif
 import SwiftUI
 import CoreData
 
 @MainActor
 final class EditorRegressionTests: XCTestCase {
+    #if os(macOS)
     func testEditorNeverCopiesReferenceAndAllowsDeletionAndUnicode() {
         var typed = "🙂x"
         let parent = TextKit2TypingEditor(typedText: Binding(get: { typed }, set: { typed = $0 }),
@@ -262,6 +265,8 @@ final class EditorRegressionTests: XCTestCase {
         XCTAssertEqual(reasons, [.multipleLines, .invalidRange])
         XCTAssertNil(PracticeText.InputRejection.invalidRange.message)
     }
+
+    #endif
 
     func testSwitchingScriptResetsInputEvenForSameText() throws {
         let model = TypingScreenViewModel()

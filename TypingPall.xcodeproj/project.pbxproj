@@ -54,6 +54,39 @@
 		C90000000000000000000002 /* TypingPall/Utils/TypingPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */; };
 		CA0000000000000000000002 /* TypingPall/Models/MasteryTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0000000000000000000001 /* TypingPall/Models/MasteryTelemetry.swift */; };
 		D10000000000000000000002 /* MasteryTelemetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* MasteryTelemetryTests.swift */; };
+		F80000000000000000000009 /* TypingPallPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* TypingPallPadApp.swift */; };
+		F8000000000000000000000A /* PadPracticeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000002 /* PadPracticeScreen.swift */; };
+		F8000000000000000000000B /* PadTypingEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000003 /* PadTypingEditor.swift */; };
+		F8000000000000000000000C /* PadLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000004 /* PadLibraryView.swift */; };
+		F8000000000000000000000D /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA27F2A5F33D700AFC118 /* Persistence.swift */; };
+		F8000000000000000000000E /* TypingPall/Models/PracticeContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* TypingPall/Models/PracticeContent.swift */; };
+		F8000000000000000000000F /* TypingPall/Models/LessonMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000001 /* TypingPall/Models/LessonMetadata.swift */; };
+		F80000000000000000000010 /* TypingPall/Models/BugHunt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3000000000000000000000D /* TypingPall/Models/BugHunt.swift */; };
+		F80000000000000000000011 /* TypingPall/Models/ContrastPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3000000000000000000000F /* TypingPall/Models/ContrastPair.swift */; };
+		F80000000000000000000012 /* TypingScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */; };
+		F80000000000000000000013 /* String+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2B32A60024A00AFC118 /* String+Utils.swift */; };
+		F80000000000000000000014 /* TypingPall.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2812A5F33D700AFC118 /* TypingPall.xcdatamodeld */; };
+		F80000000000000000000015 /* TypingPall/Models/LineDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001 /* TypingPall/Models/LineDiff.swift */; };
+		F80000000000000000000016 /* ReferenceCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000005 /* ReferenceCodeView.swift */; };
+		F80000000000000000000017 /* PracticeInputPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000007 /* PracticeInputPanel.swift */; };
+		F80000000000000000000018 /* CompletionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000009 /* CompletionCard.swift */; };
+		F80000000000000000000019 /* TypingPall/Models/PracticeLadder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* TypingPall/Models/PracticeLadder.swift */; };
+		F8000000000000000000001A /* AttemptOutcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000005 /* AttemptOutcomeView.swift */; };
+		F8000000000000000000001B /* TypingPall/Models/DrillState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000000000000000000001 /* TypingPall/Models/DrillState.swift */; };
+		F8000000000000000000001C /* TypingPall/PersistenceRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000001 /* TypingPall/PersistenceRepository.swift */; };
+		F8000000000000000000001D /* TypingPall/Utils/TypingPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */; };
+		F8000000000000000000001E /* TypingPall/Models/MasteryTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0000000000000000000001 /* TypingPall/Models/MasteryTelemetry.swift */; };
+		F80000000000000000000021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */; };
+		F80000000000000000000022 /* TypingPall/Content/lessons.json in Resources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* TypingPall/Content/lessons.json */; };
+		F80000000000000000000023 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000005 /* PrivacyInfo.xcprivacy */; };
+		F8000000000000000000002C /* StringExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA28D2A5F33D700AFC118 /* StringExtensionTests.swift */; };
+		F8000000000000000000002D /* LessonCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000005 /* LessonCatalogTests.swift */; };
+		F8000000000000000000002E /* PracticeScreenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000003 /* PracticeScreenTests.swift */; };
+		F8000000000000000000002F /* PracticeLadderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* PracticeLadderTests.swift */; };
+		F80000000000000000000030 /* PersistenceRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70000000000000000000001 /* PersistenceRepositoryTests.swift */; };
+		F80000000000000000000031 /* MasteryTelemetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* MasteryTelemetryTests.swift */; };
+		F80000000000000000000032 /* DrillStateMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000001 /* DrillStateMachineTests.swift */; };
+		F8000000000000000000003E /* TypingPallPadUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000039 /* TypingPallPadUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +103,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7DCAA2722A5F33D600AFC118;
 			remoteInfo = TypingPall;
+		};
+		F80000000000000000000028 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7DCAA26B2A5F33D600AFC118 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F80000000000000000000008;
+			remoteInfo = TypingPallPad;
+		};
+		F8000000000000000000003A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7DCAA26B2A5F33D600AFC118 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F80000000000000000000008;
+			remoteInfo = TypingPallPad;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -130,6 +177,15 @@
 		C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Utils/TypingPalette.swift; sourceTree = SOURCE_ROOT; };
 		CA0000000000000000000001 /* TypingPall/Models/MasteryTelemetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/MasteryTelemetry.swift; sourceTree = SOURCE_ROOT; };
 		D10000000000000000000001 /* MasteryTelemetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasteryTelemetryTests.swift; sourceTree = "<group>"; };
+		F80000000000000000000001 /* TypingPallPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TypingPallPadApp.swift"; sourceTree = "<group>"; };
+		F80000000000000000000002 /* PadPracticeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PadPracticeScreen.swift"; sourceTree = "<group>"; };
+		F80000000000000000000003 /* PadTypingEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PadTypingEditor.swift"; sourceTree = "<group>"; };
+		F80000000000000000000004 /* PadLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PadLibraryView.swift"; sourceTree = "<group>"; };
+		F80000000000000000000005 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		F80000000000000000000007 /* TypingPallPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TypingPallPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8000000000000000000002A /* TypingPallPadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TypingPallPadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F80000000000000000000039 /* TypingPallPadUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPallPadUITests/TypingPallPadUITests.swift; sourceTree = SOURCE_ROOT; };
+		F8000000000000000000003C /* TypingPallPadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TypingPallPadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +204,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		7DCAA2902A5F33D700AFC118 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F80000000000000000000020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F80000000000000000000034 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F80000000000000000000040 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -199,6 +276,7 @@
 				7DCAA2752A5F33D600AFC118 /* TypingPall */,
 				7DCAA28C2A5F33D700AFC118 /* TypingPallTests */,
 				7DCAA2962A5F33D700AFC118 /* TypingPallUITests */,
+				F80000000000000000000039 /* TypingPallPadUITests.swift */,
 				7DCAA2742A5F33D600AFC118 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -207,6 +285,9 @@
 			isa = PBXGroup;
 			children = (
 				7DCAA2732A5F33D600AFC118 /* TypingPall.app */,
+				F8000000000000000000003C /* TypingPallPadUITests.xctest */,
+				F8000000000000000000002A /* TypingPallPadTests.xctest */,
+				F80000000000000000000007 /* TypingPallPad.app */,
 				7DCAA2892A5F33D700AFC118 /* TypingPallTests.xctest */,
 				7DCAA2932A5F33D700AFC118 /* TypingPallUITests.xctest */,
 			);
@@ -219,6 +300,7 @@
 				7DCAA2B22A60023A00AFC118 /* Utils */,
 				7DCAA2A62A5F33EC00AFC118 /* Views */,
 				7DCAA2762A5F33D600AFC118 /* TypingPallApp.swift */,
+				F80000000000000000000006 /* iPad */,
 				7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */,
 				7DCAA27F2A5F33D700AFC118 /* Persistence.swift */,
 				B20000000000000000000004 /* TypingPall/Content/lessons.json */,
@@ -298,6 +380,18 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		F80000000000000000000006 /* iPad */ = {
+			isa = PBXGroup;
+			children = (
+				F80000000000000000000001 /* TypingPallPadApp.swift */,
+				F80000000000000000000002 /* PadPracticeScreen.swift */,
+				F80000000000000000000003 /* PadTypingEditor.swift */,
+				F80000000000000000000004 /* PadLibraryView.swift */,
+				F80000000000000000000005 /* PrivacyInfo.xcprivacy */,
+			);
+			path = iPad;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -354,6 +448,59 @@
 			productReference = 7DCAA2932A5F33D700AFC118 /* TypingPallUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		F80000000000000000000008 /* TypingPallPad */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F80000000000000000000025 /* Build configuration list for PBXNativeTarget "TypingPallPad" */;
+			buildPhases = (
+				F8000000000000000000001F /* Sources */,
+				F80000000000000000000020 /* Frameworks */,
+				F80000000000000000000024 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TypingPallPad;
+			productName = TypingPallPad;
+			productReference = F80000000000000000000007 /* TypingPallPad.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F8000000000000000000002B /* TypingPallPadTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F80000000000000000000036 /* Build configuration list for PBXNativeTarget "TypingPallPadTests" */;
+			buildPhases = (
+				F80000000000000000000033 /* Sources */,
+				F80000000000000000000034 /* Frameworks */,
+				F80000000000000000000035 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F80000000000000000000029 /* PBXTargetDependency */,
+			);
+			name = TypingPallPadTests;
+			productName = TypingPallPadTests;
+			productReference = F8000000000000000000002A /* TypingPallPadTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F8000000000000000000003D /* TypingPallPadUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F80000000000000000000042 /* Build configuration list for PBXNativeTarget "TypingPallPadUITests" */;
+			buildPhases = (
+				F8000000000000000000003F /* Sources */,
+				F80000000000000000000040 /* Frameworks */,
+				F80000000000000000000041 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F8000000000000000000003B /* PBXTargetDependency */,
+			);
+			name = TypingPallPadUITests;
+			productName = TypingPallPadUITests;
+			productReference = F8000000000000000000003C /* TypingPallPadUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -391,6 +538,9 @@
 			projectRoot = "";
 			targets = (
 				7DCAA2722A5F33D600AFC118 /* TypingPall */,
+				F8000000000000000000003D /* TypingPallPadUITests */,
+				F8000000000000000000002B /* TypingPallPadTests */,
+				F80000000000000000000008 /* TypingPallPad */,
 				7DCAA2882A5F33D700AFC118 /* TypingPallTests */,
 				7DCAA2922A5F33D700AFC118 /* TypingPallUITests */,
 			);
@@ -416,6 +566,30 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		7DCAA2912A5F33D700AFC118 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F80000000000000000000024 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F80000000000000000000021 /* Assets.xcassets in Resources */,
+				F80000000000000000000022 /* TypingPall/Content/lessons.json in Resources */,
+				F80000000000000000000023 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F80000000000000000000035 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F80000000000000000000041 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -490,6 +664,57 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F8000000000000000000001F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F80000000000000000000009 /* TypingPallPadApp.swift in Sources */,
+				F8000000000000000000000A /* PadPracticeScreen.swift in Sources */,
+				F8000000000000000000000B /* PadTypingEditor.swift in Sources */,
+				F8000000000000000000000C /* PadLibraryView.swift in Sources */,
+				F8000000000000000000000D /* Persistence.swift in Sources */,
+				F8000000000000000000000E /* TypingPall/Models/PracticeContent.swift in Sources */,
+				F8000000000000000000000F /* TypingPall/Models/LessonMetadata.swift in Sources */,
+				F80000000000000000000010 /* TypingPall/Models/BugHunt.swift in Sources */,
+				F80000000000000000000011 /* TypingPall/Models/ContrastPair.swift in Sources */,
+				F80000000000000000000012 /* TypingScreenViewModel.swift in Sources */,
+				F80000000000000000000013 /* String+Utils.swift in Sources */,
+				F80000000000000000000014 /* TypingPall.xcdatamodeld in Sources */,
+				F80000000000000000000015 /* TypingPall/Models/LineDiff.swift in Sources */,
+				F80000000000000000000016 /* ReferenceCodeView.swift in Sources */,
+				F80000000000000000000017 /* PracticeInputPanel.swift in Sources */,
+				F80000000000000000000018 /* CompletionCard.swift in Sources */,
+				F80000000000000000000019 /* TypingPall/Models/PracticeLadder.swift in Sources */,
+				F8000000000000000000001A /* AttemptOutcomeView.swift in Sources */,
+				F8000000000000000000001B /* TypingPall/Models/DrillState.swift in Sources */,
+				F8000000000000000000001C /* TypingPall/PersistenceRepository.swift in Sources */,
+				F8000000000000000000001D /* TypingPall/Utils/TypingPalette.swift in Sources */,
+				F8000000000000000000001E /* TypingPall/Models/MasteryTelemetry.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F80000000000000000000033 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8000000000000000000002C /* StringExtensionTests.swift in Sources */,
+				F8000000000000000000002D /* LessonCatalogTests.swift in Sources */,
+				F8000000000000000000002E /* PracticeScreenTests.swift in Sources */,
+				F8000000000000000000002F /* PracticeLadderTests.swift in Sources */,
+				F80000000000000000000030 /* PersistenceRepositoryTests.swift in Sources */,
+				F80000000000000000000031 /* MasteryTelemetryTests.swift in Sources */,
+				F80000000000000000000032 /* DrillStateMachineTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8000000000000000000003F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8000000000000000000003E /* TypingPallPadUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -502,6 +727,16 @@
 			isa = PBXTargetDependency;
 			target = 7DCAA2722A5F33D600AFC118 /* TypingPall */;
 			targetProxy = 7DCAA2942A5F33D700AFC118 /* PBXContainerItemProxy */;
+		};
+		F80000000000000000000029 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F80000000000000000000008 /* TypingPallPad */;
+			targetProxy = F80000000000000000000028 /* PBXContainerItemProxy */;
+		};
+		F8000000000000000000003B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F80000000000000000000008 /* TypingPallPad */;
+			targetProxy = F8000000000000000000003A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -755,6 +990,144 @@
 			};
 			name = Release;
 		};
+		F80000000000000000000026 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TypingPall;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mier.TypingPallPad;
+				PRODUCT_MODULE_NAME = TypingPall;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		F80000000000000000000027 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TypingPall;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mier.TypingPallPad;
+				PRODUCT_MODULE_NAME = TypingPall;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Release;
+		};
+		F80000000000000000000037 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mier.TypingPallPadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TypingPallPad.app/TypingPallPad";
+			};
+			name = Debug;
+		};
+		F80000000000000000000038 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mier.TypingPallPadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TypingPallPad.app/TypingPallPad";
+			};
+			name = Release;
+		};
+		F80000000000000000000043 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mier.TypingPallPadUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_TARGET_NAME = TypingPallPad;
+			};
+			name = Debug;
+		};
+		F80000000000000000000044 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mier.TypingPallPadUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				TEST_TARGET_NAME = TypingPallPad;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -790,6 +1163,33 @@
 			buildConfigurations = (
 				7DCAA2A42A5F33D700AFC118 /* Debug */,
 				7DCAA2A52A5F33D700AFC118 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F80000000000000000000025 /* Build configuration list for PBXNativeTarget "TypingPallPad" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F80000000000000000000026 /* Debug */,
+				F80000000000000000000027 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F80000000000000000000036 /* Build configuration list for PBXNativeTarget "TypingPallPadTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F80000000000000000000037 /* Debug */,
+				F80000000000000000000038 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F80000000000000000000042 /* Build configuration list for PBXNativeTarget "TypingPallPadUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F80000000000000000000043 /* Debug */,
+				F80000000000000000000044 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

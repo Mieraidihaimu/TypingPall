@@ -1,5 +1,7 @@
 import XCTest
+#if os(macOS)
 import AppKit
+#endif
 import SwiftUI
 @testable import TypingPall
 
@@ -185,6 +187,7 @@ final class PracticeModeTests: XCTestCase {
     }
 }
 
+#if os(macOS)
 @MainActor
 extension EditorRegressionTests {
     func testHiddenModesUnderlineOnlyAfterReturnUntilTheNextEdit() {
@@ -204,3 +207,4 @@ extension EditorRegressionTests {
         XCTAssertNil(view.textStorage?.attribute(.underlineStyle, at: 1, effectiveRange: nil))
     }
 }
+#endif
