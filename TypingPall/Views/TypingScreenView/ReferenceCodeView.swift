@@ -46,13 +46,13 @@ struct ReferenceCodeView: View {
                     }
                 }.padding(.vertical, 12)
             }
-            .onChange(of: currentIndex) { index in
-                withAnimation { proxy.scrollTo(index, anchor: .center) }
+            .onChange(of: currentIndex) {
+                withAnimation { proxy.scrollTo(currentIndex, anchor: .center) }
             }
-            .onChange(of: contentKey) { _ in proxy.scrollTo(currentIndex, anchor: .top) }
+            .onChange(of: contentKey) { proxy.scrollTo(currentIndex, anchor: .top) }
         }
         .frame(minHeight: minHeight, idealHeight: 300)
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(TypingPalette.practiceSurface)
         .cornerRadius(12)
     }
 

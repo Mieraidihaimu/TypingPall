@@ -32,3 +32,15 @@ jobs:
           path: build/DerivedData/Logs/Test/*.xcresult
           if-no-files-found: ignore
           retention-days: 7
+  ipad:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build the iPad app and its tests
+        run: |
+          xcodebuild -project TypingPall.xcodeproj -scheme TypingPallPad \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/iPadDerivedData build-for-testing

@@ -3,6 +3,11 @@ import SwiftUI
 struct PracticeInputPanel: View {
     @ObservedObject var viewModel: TypingScreenViewModel
     let fontSize: Double
+    #if os(iOS)
+    let editorActive: Bool
+    let focusRequest: UUID
+    @State private var submitRequest: UUID?
+    #endif
     @State private var notice: String?
     @AppStorage("ux.hasSeenPracticeTip") private var hasSeenTip = false
 
@@ -34,16 +39,13 @@ struct PracticeInputPanel: View {
                         .accessibilityIdentifier("targetLine")
                         .accessibilityLabel(stripLabel)
                         .accessibilityHint("The line to type")
+                        #if os(iOS)
+                        .lineLimit(3)
+                        #endif
                 }
-                TextKit2TypingEditor(typedText: $viewModel.editorText, targetText: .constant(viewModel.currentLine),
-                                     fontSize: fontSize, tabSpaces: viewModel.sessionTabSpaces,
-                                     diffTolerance: viewModel.diffTolerance,
-                                     isEnabled: viewModel.hasPracticeLines, resetID: viewModel.sessionID,
-                                     liveFeedback: !viewModel.mode.isGraded,
-                                     onSubmit: { viewModel.send(.commitLineOnReturn) }, onReject: { notice = $0.message })
-                    .frame(minHeight: 100, idealHeight: 130, maxHeight: 160)
+                editor
             }
-            .background(Color(NSColor.textBackgroundColor))
+            .background(TypingPalette.practiceInputBackground)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -51,60 +53,110 @@ struct PracticeInputPanel: View {
                             lineWidth: viewModel.isLineMatched && !viewModel.mode.isGraded ? 1.5 : 1)
             )
             .animation(.easeInOut(duration: 0.15), value: viewModel.isLineMatched)
+            #if os(iOS)
+            VStack(alignment: .leading, spacing: 6) {
+                status
+                ViewThatFits(in: .horizontal) {
+                    HStack { actions }
+                    VStack(alignment: .leading) { actions }
+                }
+                .buttonStyle(.bordered)
+            }
+            #else
             HStack {
-                Label(statusText, systemImage: viewModel.isLineMatched && !viewModel.mode.isGraded ? "checkmark.circle.fill" : "keyboard")
-                    .foregroundColor(viewModel.isLineMatched && !viewModel.mode.isGraded ? .primary : .secondary)
-                    .accessibilityIdentifier("lineGuidance")
+                status
                 Spacer()
-                if !viewModel.hasPracticeLines && !viewModel.mode.isGraded {
-                    Button("Include Comments") { viewModel.setSkipComments(false) }
-                        .accessibilityIdentifier("includeComments")
-                }
-                Button {
-                    viewModel.revealHint()
-                } label: {
-                    HStack(spacing: 3) {
-                        Text("Hint")
-                        Text("⌘'").font(.caption2).foregroundColor(.secondary)
-                    }
-                }
-                .keyboardShortcut("'", modifiers: .command)
-                .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
-                .accessibilityIdentifier("hintButton")
-                Button {
-                    viewModel.repeatLine()
-                } label: {
-                    HStack(spacing: 3) {
-                        Text("Repeat Line")
-                    }
-                }
-                .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
-                .accessibilityIdentifier("repeatLine")
-                if primaryEnabled && !viewModel.isComplete {
-                    Button {
-                        viewModel.advanceLine()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(primaryTitle)
-                            Text("↵").font(.caption).fontWeight(.semibold)
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(!primaryEnabled || viewModel.isComplete)
-                    .accessibilityIdentifier("nextLine")
-                } else {
-                    Button {
-                        viewModel.advanceLine()
-                    } label: {
-                        Text(primaryTitle)
-                    }
-                    .disabled(!primaryEnabled || viewModel.isComplete)
-                    .accessibilityIdentifier("nextLine")
-                }
+                actions
+            }
+            #endif
+        }
+        .onChange(of: viewModel.editorText) { notice = nil }
+        .onChange(of: viewModel.sessionID) { notice = nil }
+    }
+
+    @ViewBuilder private var editor: some View {
+        #if os(iOS)
+        PadTypingEditor(text: $viewModel.editorText, target: viewModel.currentLine, fontSize: fontSize,
+                        tabSpaces: viewModel.sessionTabSpaces, tolerance: viewModel.diffTolerance,
+                        canEdit: viewModel.hasPracticeLines, isActive: editorActive, resetID: viewModel.sessionID,
+                        focusRequest: focusRequest, submitRequest: submitRequest, liveFeedback: !viewModel.mode.isGraded,
+                        onSubmit: {
+                            let session = viewModel.sessionID
+                            viewModel.send(.commitLineOnReturn)
+                            return viewModel.sessionID == session && !viewModel.isComplete
+                        }, onReject: { notice = $0.message })
+            .frame(height: max(48, fontSize * 2 + 12))
+        #else
+        TextKit2TypingEditor(typedText: $viewModel.editorText, targetText: .constant(viewModel.currentLine),
+                             fontSize: fontSize, tabSpaces: viewModel.sessionTabSpaces,
+                             diffTolerance: viewModel.diffTolerance,
+                             isEnabled: viewModel.hasPracticeLines, resetID: viewModel.sessionID,
+                             liveFeedback: !viewModel.mode.isGraded,
+                             onSubmit: { viewModel.send(.commitLineOnReturn) }, onReject: { notice = $0.message })
+            .frame(minHeight: 100, idealHeight: 130, maxHeight: 160)
+        #endif
+    }
+
+    private var status: some View {
+        Label(statusText, systemImage: viewModel.isLineMatched && !viewModel.mode.isGraded ? "checkmark.circle.fill" : "keyboard")
+            .foregroundColor(viewModel.isLineMatched && !viewModel.mode.isGraded ? .primary : .secondary)
+            .accessibilityIdentifier("lineGuidance")
+    }
+
+    @ViewBuilder private var actions: some View {
+        if !viewModel.hasPracticeLines && !viewModel.mode.isGraded {
+            Button("Include Comments") { viewModel.setSkipComments(false) }
+                .accessibilityIdentifier("includeComments")
+        }
+        Button {
+            viewModel.revealHint()
+        } label: {
+            HStack(spacing: 3) {
+                Text("Hint")
+                Text("⌘'").font(.caption2).foregroundColor(.secondary)
             }
         }
-        .onChange(of: viewModel.editorText) { _ in notice = nil }
-        .onChange(of: viewModel.sessionID) { _ in notice = nil }
+        .keyboardShortcut("'", modifiers: .command)
+        .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
+        .accessibilityIdentifier("hintButton")
+        Button {
+            viewModel.repeatLine()
+        } label: {
+            HStack(spacing: 3) {
+                Text("Repeat Line")
+            }
+        }
+        .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
+        .accessibilityIdentifier("repeatLine")
+        if primaryEnabled && !viewModel.isComplete {
+            Button {
+                submit()
+            } label: {
+                HStack(spacing: 4) {
+                    Text(primaryTitle)
+                    Text("↵").font(.caption).fontWeight(.semibold)
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(!primaryEnabled || viewModel.isComplete)
+            .accessibilityIdentifier("nextLine")
+        } else {
+            Button {
+                submit()
+            } label: {
+                Text(primaryTitle)
+            }
+            .disabled(!primaryEnabled || viewModel.isComplete)
+            .accessibilityIdentifier("nextLine")
+        }
+    }
+
+    private func submit() {
+        #if os(iOS)
+        submitRequest = UUID()
+        #else
+        viewModel.advanceLine()
+        #endif
     }
 
     private var styledTarget: AttributedString {

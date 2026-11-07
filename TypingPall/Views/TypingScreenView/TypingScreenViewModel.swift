@@ -45,6 +45,7 @@ final class TypingScreenViewModel: ObservableObject {
     @Published private(set) var skipComments: Bool
     @Published var draftLanguage: CodeLanguage { didSet { defaults.set(draftLanguage.rawValue, forKey: "ux.lastScriptLanguage") } }
     private let defaults: UserDefaults
+    private let skipsBlankLines: Bool
     @Published private(set) var isComplete = false
     @Published var temPlaceholderText = ""
     @Published var lastKeyboardType: String?
@@ -80,8 +81,9 @@ final class TypingScreenViewModel: ObservableObject {
     private var currentLineHadError: Bool = false
     private var sessionStartTime: Date = Date()
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard, skipsBlankLines: Bool = false) {
         self.defaults = defaults
+        self.skipsBlankLines = skipsBlankLines
         skipComments = defaults.object(forKey: "skipPracticeComments") as? Bool ?? true
         draftLanguage = CodeLanguage(rawValue: defaults.string(forKey: "ux.lastScriptLanguage") ?? "") ?? .plainText
         sessionTabSpaces = PracticeText.tabWidth(spaces)
@@ -410,6 +412,7 @@ final class TypingScreenViewModel: ObservableObject {
         // Graded modes keep comments visible as cues and never type them.
         let code = CommentFilter.lines(lines, language: language, skippingComments: skipComments || mode.isGraded)
             .filter { !scaffoldLineIndices.contains($0.sourceIndex) }
+            .filter { !skipsBlankLines || !$0.text.trimmingCharacters(in: .whitespaces).isEmpty }
         practiceLines = PracticeLineSelection.lines(for: mode, from: code, keyLines: lesson?.keyLineIndices ?? [], weakLines: weakLineIndices)
         guard let anchor, let position = practiceLines.firstIndex(where: { $0.sourceIndex >= anchor }) else {
             restart()

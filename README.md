@@ -59,6 +59,14 @@ Select the **TypingPall** scheme, choose **My Mac**, and press **⌘R**. The app
 
 Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. To practice your own code, use **Add Script** or **⌘O** to import a UTF-8 source file.
 
+### Build for iPad
+
+Select the **TypingPallPad** scheme and run on an iPad simulator or an iPad with iPadOS 18 or later. For a physical iPad, select your development team for the TypingPallPad target. The same project contains the Mac and iPad apps.
+
+The iPad app supports Copy, Key Lines, and Recall. Type with Magic Keyboard or the software keyboard, then press **Return** or tap the line action. Open **Library** to browse lessons or saved scripts. Use **Actions** to add a snippet, import a UTF-8 file from Files, or change practice settings. Scripts and mastery are stored locally on the iPad.
+
+In Xcode, use **Product → Test** with the TypingPallPad scheme to run the shared practice tests and iPad UI tests.
+
 ## Lessons ready to practice
 
 | Track | Collection | Examples |
