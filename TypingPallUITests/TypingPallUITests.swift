@@ -20,7 +20,7 @@ final class TypingPallUITests: XCTestCase {
         let script = app.textViews["scriptText"]
         XCTAssertTrue(script.waitForExistence(timeout: 5))
         script.click()
-        script.typeText("abc\n    def")
+        script.typeText("abc\n\n    def")
         app.buttons["Save & Practice"].click()
         let input = app.textViews["practiceInput"]
         XCTAssertTrue(input.waitForExistence(timeout: 5))
@@ -37,7 +37,7 @@ final class TypingPallUITests: XCTestCase {
         input.typeText(XCUIKeyboardKey.return.rawValue)
         XCTAssertEqual(input.value as? String, "")
         XCTAssertEqual(input.frame.minY, inputFrame.minY, accuracy: 1, "The editor stays put as the active line changes")
-        XCTAssertEqual(app.staticTexts["targetLine"].text, "def", "Indentation is skipped")
+        XCTAssertEqual(app.staticTexts["targetLine"].text, "def", "Blank lines and indentation are skipped")
         input.typeText("de")
         app.buttons["repeatLine"].click()
         XCTAssertEqual(input.value as? String, "")
@@ -95,7 +95,7 @@ final class TypingPallUITests: XCTestCase {
     }
 
     func testBuiltInLessonSearchLoadAndCommentSkipping() {
-        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-skipPracticeComments", "YES"])
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-skipPracticeComments", "NO"])
         let library = app.buttons["Library"]
         XCTAssertTrue(library.waitForExistence(timeout: 10))
         library.click()
@@ -115,18 +115,11 @@ final class TypingPallUITests: XCTestCase {
         input.typeCode("def longest_unique(text):")
         XCTAssertTrue(app.buttons["nextLine"].isEnabled)
         app.buttons["practiceOptions"].click()
-        let skip = app.checkBoxes["skipComments"]
-        XCTAssertTrue(skip.waitForExistence(timeout: 5))
-        skip.click()
+        XCTAssertTrue(app.segment("Strict").waitForExistence(timeout: 5))
+        XCTAssertFalse(app.checkBoxes["skipComments"].exists)
         app.typeKey(.escape, modifierFlags: [])
-        XCTAssertEqual(input.value as? String, "")
-        input.click()
-        input.typeCode("def longest_unique(text):")
-        XCTAssertTrue(app.buttons["nextLine"].isEnabled, "Changing options keeps your place")
         app.buttons["restartPractice"].click()
-        input.click()
-        input.typeText("# Keep a window with no repeated characters.")
-        XCTAssertTrue(app.buttons["nextLine"].isEnabled)
+        XCTAssertEqual(app.staticTexts["targetLine"].text, "def longest_unique(text):")
     }
 
     func testLibrarySearchMatchesTriggersAndShowsPatternNotes() {

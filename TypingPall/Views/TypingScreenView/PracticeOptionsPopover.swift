@@ -5,12 +5,6 @@ struct PracticeOptionsPopover: View {
 
     var body: some View {
         Form {
-            Toggle("Skip comments", isOn: Binding(get: { viewModel.skipComments }, set: { viewModel.setSkipComments($0) }))
-                .disabled(viewModel.mode.isGraded)
-                .accessibilityIdentifier("skipComments")
-            if viewModel.mode.isGraded {
-                Text("Comments stay visible as cues.").font(.caption).foregroundColor(.secondary)
-            }
             Picker("Spacing", selection: Binding(get: { viewModel.diffTolerance }, set: { viewModel.setDiffTolerance($0) })) {
                 Text("Strict").tag(DiffTolerance.strictCharacter)
                 Text("Relaxed").tag(DiffTolerance.syntaxAwareTrivia)

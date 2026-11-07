@@ -143,9 +143,8 @@ final class PatternPracticeTests: XCTestCase {
         XCTAssertFalse(model.advanceLine(), "Trailing spaces are still required")
         model.editorText = "🙂 =  1  "
         XCTAssertTrue(model.advanceLine())
-        XCTAssertEqual(model.currentLine, "")
-        XCTAssertTrue(model.advanceLine(), "Whitespace-only lines advance with Return")
         XCTAssertEqual(model.currentLine, "end")
+        XCTAssertEqual(model.currentLineIndex, 2)
         model.editorText = "en"
         model.repeatLine()
         XCTAssertEqual(model.editorText, "")
@@ -177,18 +176,17 @@ final class PatternPracticeTests: XCTestCase {
 
     func testBlankLinesUnicodeAndFinalNewline() throws {
         let model = TypingScreenViewModel()
-        try model.updatePlaceholder(with: "🙂\n\n終わり\n")
-        XCTAssertEqual(model.lines.count, 3)
+        try model.updatePlaceholder(with: "\n🙂\n\n終わり\n\n")
+        XCTAssertEqual(model.lines.count, 5)
+        XCTAssertEqual(model.practiceLines.map(\.sourceIndex), [1, 3])
         model.editorText = "🙂"
-        model.advanceLine()
-        XCTAssertEqual(model.currentLine, "")
         XCTAssertTrue(model.advanceLine())
-        XCTAssertFalse(model.isComplete)
+        XCTAssertEqual(model.currentLine, "終わり")
         model.editorText = "終わり"
         XCTAssertFalse(model.isComplete, "Matching the final line waits for deliberate confirmation")
         XCTAssertTrue(model.advanceLine())
         XCTAssertTrue(model.isComplete)
-        XCTAssertEqual(model.completedLineCount, 3)
+        XCTAssertEqual(model.completedLineCount, 2)
         XCTAssertFalse(model.advanceLine())
         model.restart()
         XCTAssertFalse(model.isComplete)
@@ -342,41 +340,40 @@ extension EditorRegressionTests {
 final class CommentSkippingTests: XCTestCase {
     func testPythonCommentsDoNotRemoveDivisionStringsOrDocstrings() {
         let source = ["# explanation", "half = 10 // 2 # floor division", "url = 'https://example.com/#anchor'", "text = \"\"\"", "# literal data", "\"\"\""]
-        let filtered = CommentFilter.lines(source, language: .python, skippingComments: true)
+        let filtered = CommentFilter.lines(source, language: .python)
         XCTAssertEqual(filtered.map(\.sourceIndex), [1, 2, 3, 4, 5])
         XCTAssertEqual(filtered.map(\.text), ["half = 10 // 2", source[2], source[3], source[4], source[5]])
     }
 
     func testCppIncludesBlockCommentsAndRawStrings() {
         let source = ["#include <vector>", "/* multi", " * line */", "int value = 1; // note", "auto url = \"https://example.com\";", "auto raw = R\"tag(/* literal */ // text)tag\"; // note"]
-        let filtered = CommentFilter.lines(source, language: .cpp, skippingComments: true)
+        let filtered = CommentFilter.lines(source, language: .cpp)
         XCTAssertEqual(filtered.map(\.sourceIndex), [0, 3, 4, 5])
         XCTAssertEqual(filtered.map(\.text), [source[0], "int value = 1;", source[4], "auto raw = R\"tag(/* literal */ // text)tag\";"])
     }
 
     func testRustNestedCommentsLifetimesAndRawStrings() {
         let source = ["/* outer /* nested */", "end */", "fn borrow<'a>(text: &'a str) -> &'a str { // note", "let raw = r##\"// data /* */\"##; // note"]
-        let filtered = CommentFilter.lines(source, language: .rust, skippingComments: true)
+        let filtered = CommentFilter.lines(source, language: .rust)
         XCTAssertEqual(filtered.map(\.text), ["fn borrow<'a>(text: &'a str) -> &'a str {", "let raw = r##\"// data /* */\"##;"])
     }
 
-    func testGoRawStringsAndDisabledSkipping() {
+    func testGoRawStringsAndPlainText() {
         let source = ["text := `", "// data", "` // comment", "// explanation"]
-        XCTAssertEqual(CommentFilter.lines(source, language: .go, skippingComments: true).map(\.text), [source[0], source[1], "`"])
-        XCTAssertEqual(CommentFilter.lines(source, language: .go, skippingComments: false).map(\.text), source)
-        XCTAssertEqual(CommentFilter.lines(source, language: .plainText, skippingComments: true).map(\.text), source)
+        XCTAssertEqual(CommentFilter.lines(source, language: .go).map(\.text), [source[0], source[1], "`"])
+        XCTAssertEqual(CommentFilter.lines(source, language: .plainText).map(\.text), source)
     }
 
     func testRubyCommentsAndStrings() {
         let source = ["# explanation", "total = sum # inline comment", "url = 'https://example.com/#anchor'", "pattern = \"#literal\""]
-        let filtered = CommentFilter.lines(source, language: .ruby, skippingComments: true)
+        let filtered = CommentFilter.lines(source, language: .ruby)
         XCTAssertEqual(filtered.map(\.sourceIndex), [1, 2, 3])
         XCTAssertEqual(filtered.map(\.text), ["total = sum", source[2], source[3]])
     }
 
     func testShellCommentsAndStrings() {
         let source = ["# find files", "find . -name \"*.log\" # only logs", "grep -r 'error #1' /var/log"]
-        let filtered = CommentFilter.lines(source, language: .shell, skippingComments: true)
+        let filtered = CommentFilter.lines(source, language: .shell)
         XCTAssertEqual(filtered.map(\.sourceIndex), [1, 2])
         XCTAssertEqual(filtered.map(\.text), ["find . -name \"*.log\"", source[2]])
     }
@@ -388,10 +385,9 @@ final class CommentSkippingTests: XCTestCase {
         XCTAssertEqual(CodeLanguage.from(fileExtension: "zsh"), .shell)
     }
 
-    func testProgressToggleAndCommentOnlyPatterns() throws {
-        let name = UUID().uuidString
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
-        defer { defaults.removePersistentDomain(forName: name) }
+    func testCommentsAreSkippedEvenWithTheOldPreferenceDisabled() throws {
+        let defaults = makeDefaults()
+        defaults.set(false, forKey: "skipPracticeComments")
         let model = TypingScreenViewModel(defaults: defaults)
         try model.updatePlaceholder(with: "# intro\na = 1 # note\n# end", language: .python)
         XCTAssertEqual(model.currentLineIndex, 1)
@@ -400,17 +396,10 @@ final class CommentSkippingTests: XCTestCase {
         model.editorText = "a = 1"
         XCTAssertTrue(model.advanceLine())
         XCTAssertEqual(model.completedLineCount, 1)
-        model.setSkipComments(false)
-        XCTAssertFalse(model.isComplete)
-        XCTAssertEqual(model.currentLineIndex, 0)
-        XCTAssertEqual(model.practiceLines.count, 3)
-        model.setSkipComments(true)
-        try model.updatePlaceholder(with: "# only a comment", language: .python)
+        try model.updatePlaceholder(with: "# only a comment\n\n   ", language: .python)
         XCTAssertFalse(model.hasPracticeLines)
         XCTAssertFalse(model.advanceLine())
         XCTAssertFalse(model.isComplete)
-        model.setSkipComments(false)
-        XCTAssertEqual(model.currentLine, "# only a comment")
     }
 
     func testBundledCatalogIsCompleteAndEveryLessonHasPracticeCode() throws {
@@ -422,7 +411,7 @@ final class CommentSkippingTests: XCTestCase {
         for lesson in lessons {
             XCTAssertFalse(lesson.summary.isEmpty)
             let source = try PracticeText.validated(lesson.code, tabSpaces: 4).components(separatedBy: "\n")
-            XCTAssertFalse(CommentFilter.lines(source, language: lesson.language, skippingComments: true).isEmpty, lesson.id)
+            XCTAssertFalse(CommentFilter.lines(source, language: lesson.language).isEmpty, lesson.id)
         }
     }
 }

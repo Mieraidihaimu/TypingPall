@@ -33,7 +33,7 @@ final class PracticeLadderTests: XCTestCase {
         func pick(_ mode: PracticeMode, keys: [Int] = [], weak: Set<Int> = []) -> [Int] {
             PracticeLineSelection.lines(for: mode, from: code, keyLines: keys, weakLines: weak).map(\.sourceIndex)
         }
-        XCTAssertEqual(pick(.copy), [1, 2, 3, 4, 5, 6])
+        XCTAssertEqual(pick(.copy), [1, 2, 4, 5, 6])
         XCTAssertEqual(pick(.recall), [2, 4, 5, 6], "The signature and blank lines stay visible")
         XCTAssertEqual(pick(.keyLines, keys: [5, 9], weak: [2]), [5])
         XCTAssertEqual(pick(.keyLines, weak: [6, 1]), [6], "No key lines: this session's weak lines")
@@ -105,10 +105,8 @@ final class PracticeModeTests: XCTestCase {
         XCTAssertEqual(model.maskedLineIndices, [6], "Finished lines reappear")
         model.setMode(.recall)
         XCTAssertEqual(model.practiceLines.map(\.sourceIndex), [2, 3, 4, 5, 6, 7]); XCTAssertEqual(model.completedLineCount, 0)
-        model.setSkipComments(false)
-        XCTAssertEqual(model.practiceLines.map(\.sourceIndex), [2, 3, 4, 5, 6, 7], "Comments are cues, never typed")
         model.setMode(.copy)
-        XCTAssertEqual(model.practiceLines.map(\.sourceIndex), Array(0...7)); XCTAssertEqual(model.displayedSummary, "Move left past a repeat.")
+        XCTAssertEqual(model.practiceLines.map(\.sourceIndex), Array(1...7)); XCTAssertEqual(model.displayedSummary, "Move left past a repeat.")
     }
 
     func testScriptsWithoutKeyLinesUseAnEvenlySpacedThird() throws {

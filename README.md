@@ -96,14 +96,14 @@ Browse the original examples in [lessons.json](TypingPall/Content/lessons.json).
 
 ## A few useful details
 
-Indentation remains visible in the reference, but leading spaces and tabs are excluded from the typing target. Internal and trailing spaces still count. Blank lines advance with Return, and the final line completes the pattern only after confirmation.
+Indentation and blank lines stay visible in the reference. Practice skips leading spaces, tabs, and blank lines. Internal and trailing spaces still count. Press Return to confirm each typed line.
 
 Imports accept UTF-8 files up to 1 MB and 20,000 normalized characters. Line endings are normalized, tabs expand to your configured width, and Unicode is preserved. The practice input accepts one line at a time; paste complete snippets into **Add Script**. Saved patterns survive relaunches; your current practice position does not.
 
 **Save & Practice** opens your script for practice and saves it under **Library → My scripts**.
 Search and reopen saved scripts and imported files there.
 
-Comment filtering supports Python, Ruby, Shell, C++, Rust, and Go. Select **Plain text** for other languages, or turn off **Skip comments** in **Options** to practice the complete text. Changing an option mid-pattern keeps your place. Python docstrings stay in the exercise.
+Code practice skips comments automatically and keeps them visible in the reference. Plain text keeps comment markers as ordinary text. Python docstrings stay in the exercise.
 
 ## Build and contribute
 

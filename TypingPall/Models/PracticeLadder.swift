@@ -43,8 +43,8 @@ enum MaskedLine {
 
 enum PracticeLineSelection {
     static func lines(for mode: PracticeMode, from code: [PracticeLine], keyLines: [Int], weakLines: Set<Int>) -> [PracticeLine] {
-        guard mode.isGraded else { return code }
         let typed = code.filter { !$0.text.trimmingCharacters(in: .whitespaces).isEmpty }
+        guard mode.isGraded else { return typed }
         let body = typed.count > 1 ? Array(typed.dropFirst()) : typed
         if mode == .recall { return body }
         let keys = Set(keyLines), chosen = typed.filter { keys.contains($0.sourceIndex) }

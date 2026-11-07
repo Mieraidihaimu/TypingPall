@@ -42,7 +42,6 @@ final class TypingScreenViewModel: ObservableObject {
     @Published private(set) var lessonSummary = "Narrow a half-open interval, one line at a time."
     @Published private(set) var currentLessonID: String?
     private(set) var isStarterPattern = true
-    @Published private(set) var skipComments: Bool
     @Published var draftLanguage: CodeLanguage { didSet { defaults.set(draftLanguage.rawValue, forKey: "ux.lastScriptLanguage") } }
     private let defaults: UserDefaults
     @Published private(set) var isComplete = false
@@ -82,7 +81,6 @@ final class TypingScreenViewModel: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        skipComments = defaults.object(forKey: "skipPracticeComments") as? Bool ?? true
         draftLanguage = CodeLanguage(rawValue: defaults.string(forKey: "ux.lastScriptLanguage") ?? "") ?? .plainText
         sessionTabSpaces = PracticeText.tabWidth(spaces)
         if let savedTolerance = defaults.string(forKey: "ux.diffTolerance"),
@@ -114,7 +112,6 @@ final class TypingScreenViewModel: ObservableObject {
     }
     var isLineMatched: Bool {
         guard hasPracticeLines else { return false }
-        if currentLine.isEmpty { return true }
         if case let .typing(_, _, progress) = phase {
             return progress.isLineComplete
         }
@@ -132,7 +129,7 @@ final class TypingScreenViewModel: ObservableObject {
     var learningStatus: String? {
         guard mode.isGraded, !isComplete else { return nil }
         if bugHunt?.phase == .finding { return "Click the line with the planted bug." }
-        guard hasPracticeLines else { return "Only comments remain. Switch to Copy (⌘1) to practice them." }
+        guard hasPracticeLines else { return nil }
         if bugHunt != nil { return submitFeedback ?? "Type the corrected line, then press Return." }
         return submitFeedback ?? (revealedLength > 0 ? "Hint shown. Type the line, then press Return to check."
                                                      : "Type the hidden line from memory, then press Return to check.")
@@ -181,13 +178,6 @@ final class TypingScreenViewModel: ObservableObject {
         guard let currentLessonID else { return isStarterPattern ? catalog.first : nil }
         guard let index = catalog.firstIndex(where: { $0.id == currentLessonID }), index + 1 < catalog.count else { return nil }
         return catalog[index + 1]
-    }
-
-    func setSkipComments(_ enabled: Bool) {
-        guard skipComments != enabled else { return }
-        skipComments = enabled
-        defaults.set(enabled, forKey: "skipPracticeComments")
-        rebuildPracticeLines(keepingPosition: true)
     }
 
     func setLanguage(_ value: CodeLanguage) {
@@ -407,8 +397,7 @@ final class TypingScreenViewModel: ObservableObject {
             return
         }
         let anchor = keepingPosition && hasPracticeLines && !isComplete ? currentLineIndex : nil
-        // Graded modes keep comments visible as cues and never type them.
-        let code = CommentFilter.lines(lines, language: language, skippingComments: skipComments || mode.isGraded)
+        let code = CommentFilter.lines(lines, language: language)
             .filter { !scaffoldLineIndices.contains($0.sourceIndex) }
         practiceLines = PracticeLineSelection.lines(for: mode, from: code, keyLines: lesson?.keyLineIndices ?? [], weakLines: weakLineIndices)
         guard let anchor, let position = practiceLines.firstIndex(where: { $0.sourceIndex >= anchor }) else {
@@ -471,13 +460,12 @@ final class TypingScreenViewModel: ObservableObject {
         case .keyLines: subMode = .keyLines
         case .recall: subMode = .recall
         }
-        let isBlankLine = hasPracticeLines && currentLine.isEmpty
         let result = LineDiff.evaluate(
             target: PreparedTargetLine(rawLine: currentLine),
             typed: editorText,
             tolerance: diffTolerance
         )
-        let lineComplete = isBlankLine || (hasPracticeLines && result.isComplete)
+        let lineComplete = hasPracticeLines && result.isComplete
         let progress = LineProgress(
             matchedCount: result.matchedTargetCharacters,
             errorUTF16Range: lineComplete ? nil : result.errorUTF16Range,

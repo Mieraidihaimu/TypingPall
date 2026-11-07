@@ -181,8 +181,6 @@ final class ScaffoldPracticeTests: XCTestCase {
         XCTAssertEqual(model.lines.count, 6)
         XCTAssertEqual(model.practiceLines.map(\.sourceIndex), [4, 5])
         XCTAssertEqual(model.skippedLineIndices, [0, 1, 2, 3])
-        model.setSkipComments(false)
-        XCTAssertEqual(model.practiceLines.map(\.sourceIndex), [3, 4, 5])
         try model.updatePlaceholder(with: "a\nb\nc")
         XCTAssertEqual(model.practiceLines.count, 3, "Scripts have no scaffold")
     }

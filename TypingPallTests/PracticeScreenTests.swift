@@ -103,9 +103,9 @@ final class LegacyLineDiffTests: XCTestCase {
 final class PracticeScreenModelTests: XCTestCase {
     func testReferenceRowsFlagCurrentAndSkippedLines() throws {
         let model = TypingScreenViewModel(defaults: makeDefaults())
-        try model.updatePlaceholder(with: "# c\nx = 1\ny = 2", language: .python)
-        XCTAssertEqual(model.referenceRows.map(\.sourceIndex), [0, 1, 2])
-        XCTAssertEqual(model.referenceRows.map(\.isSkipped), [true, false, false])
+        try model.updatePlaceholder(with: "# c\nx = 1\n\ny = 2", language: .python)
+        XCTAssertEqual(model.referenceRows.map(\.sourceIndex), [0, 1, 2, 3])
+        XCTAssertEqual(model.referenceRows.map(\.isSkipped), [true, false, true, false])
         XCTAssertEqual(model.referenceRows.filter(\.isCurrent).map(\.sourceIndex), [1])
         XCTAssertTrue(model.referenceRows.allSatisfy { !$0.isMasked && $0.marker == nil })
         model.editorText = "x = 1"; model.advanceLine()
@@ -116,7 +116,7 @@ final class PracticeScreenModelTests: XCTestCase {
 
     func testProgressTextIsASingleReadout() throws {
         let model = TypingScreenViewModel(defaults: makeDefaults())
-        try model.updatePlaceholder(with: "a\nb")
+        try model.updatePlaceholder(with: "a\n\nb")
         XCTAssertEqual(model.progressText, "1 of 2")
         model.editorText = "a"; model.advanceLine()
         XCTAssertEqual(model.progressText, "2 of 2")
@@ -138,29 +138,28 @@ final class PracticeScreenModelTests: XCTestCase {
         XCTAssertEqual(model.lessonSubtitle, "My script · Python")
     }
 
-    func testChangingOptionsMidPatternKeepsYourPlace() throws {
+    func testChangingLanguageMidPatternKeepsYourPlace() throws {
         let model = TypingScreenViewModel(defaults: makeDefaults())
         try model.updatePlaceholder(with: "# intro\na = 1\nb = 2 # note\nc = 3", language: .python)
         model.editorText = "a = 1"
         XCTAssertTrue(model.advanceLine())
         model.editorText = "b ="
-        model.setSkipComments(false)
+        model.setLanguage(.plainText)
         XCTAssertEqual(model.currentLineIndex, 2, "Same source line")
         XCTAssertEqual(model.currentLine, "b = 2 # note")
         XCTAssertEqual(model.editorText, "", "The attempt restarts on the same line")
-        model.setSkipComments(true)
-        XCTAssertEqual(model.currentLine, "b = 2")
-        model.setLanguage(.plainText)
+        model.setLanguage(.python)
         XCTAssertEqual(model.currentLineIndex, 2)
+        XCTAssertEqual(model.currentLine, "b = 2")
     }
 
-    func testChangingOptionsAfterCompletionRestarts() throws {
+    func testChangingLanguageAfterCompletionRestarts() throws {
         let model = TypingScreenViewModel(defaults: makeDefaults())
         try model.updatePlaceholder(with: "a = 1\n# end", language: .python)
         model.editorText = "a = 1"
         XCTAssertTrue(model.advanceLine())
         XCTAssertTrue(model.isComplete)
-        model.setSkipComments(false)
+        model.setLanguage(.plainText)
         XCTAssertFalse(model.isComplete)
         XCTAssertEqual(model.currentLineIndex, 0)
     }

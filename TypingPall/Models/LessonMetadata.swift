@@ -11,7 +11,7 @@ extension PracticeLesson {
 
     var practicedLineIndices: Set<Int> {
         let scaffold = Set(scaffoldLineIndices ?? [])
-        return Set(CommentFilter.lines(sourceLines, language: language, skippingComments: true)
+        return Set(CommentFilter.lines(sourceLines, language: language)
             .filter { !scaffold.contains($0.sourceIndex) && !$0.text.trimmingCharacters(in: .whitespaces).isEmpty }
             .map(\.sourceIndex))
     }

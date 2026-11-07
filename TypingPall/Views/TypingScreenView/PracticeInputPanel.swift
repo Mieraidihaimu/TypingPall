@@ -56,10 +56,6 @@ struct PracticeInputPanel: View {
                     .foregroundColor(viewModel.isLineMatched && !viewModel.mode.isGraded ? .primary : .secondary)
                     .accessibilityIdentifier("lineGuidance")
                 Spacer()
-                if !viewModel.hasPracticeLines && !viewModel.mode.isGraded {
-                    Button("Include Comments") { viewModel.setSkipComments(false) }
-                        .accessibilityIdentifier("includeComments")
-                }
                 Button {
                     viewModel.revealHint()
                 } label: {
@@ -123,10 +119,9 @@ struct PracticeInputPanel: View {
     }
 
     private var guidance: String {
-        if !viewModel.hasPracticeLines { return "Only comments remain. Turn off Skip comments to practice them." }
+        if !viewModel.hasPracticeLines { return "No lines to practice. Comments and blank lines are skipped." }
         if viewModel.isComplete { return "Take a moment to recall what each step does." }
-        if viewModel.currentLine.isEmpty { return "Blank line — press Return to continue." }
         if viewModel.isLineMatched { return "Line matched. Press Return to continue, or repeat this line." }
-        return viewModel.skipComments && viewModel.language != .plainText ? "Type code only. Leading indentation and comments are skipped." : "Leading indentation is skipped. Correct any underlined differences, then press Return."
+        return viewModel.language != .plainText ? "Type code only. Leading indentation and comments are skipped." : "Leading indentation is skipped. Correct any underlined differences, then press Return."
     }
 }

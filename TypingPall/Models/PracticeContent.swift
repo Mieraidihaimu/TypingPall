@@ -167,8 +167,8 @@ struct PracticeLine: Equatable, Sendable {
 /// quoted strings, Python triple-quoted strings, raw strings and preprocessor lines.
 /// Python docstrings remain code: they are string literals, not hash comments.
 enum CommentFilter {
-    static func lines(_ source: [String], language: CodeLanguage, skippingComments: Bool) -> [PracticeLine] {
-        guard skippingComments, language != .plainText else {
+    static func lines(_ source: [String], language: CodeLanguage) -> [PracticeLine] {
+        guard language != .plainText else {
             return source.enumerated().map { PracticeLine(sourceIndex: $0.offset, text: $0.element) }
         }
         var blockDepth = 0
