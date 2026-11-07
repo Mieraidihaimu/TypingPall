@@ -42,6 +42,7 @@ struct PadLibraryView: View {
         }
         .navigationTitle("Library")
         .searchable(text: $search, prompt: showsScripts ? "Find scripts" : "Find patterns, cues, or languages")
+        .searchToolbarBehavior(.minimize)
         .onChange(of: showsScripts) { search = "" }
         .onChange(of: track) { topic = nil }
         .toolbar {
