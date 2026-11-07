@@ -42,14 +42,15 @@ struct PadPracticeScreen: View {
                            },
                            onAdd: showScript, onImport: { isImporting = true },
                            onClose: { columns = .detailOnly; compactColumn = .detail })
+                .toolbar(removing: .sidebarToggle)
         } detail: {
             practice
                 .navigationTitle(model.lessonTitle)
+                .navigationSubtitle(model.lessonSubtitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { practiceToolbar }
         }
         .navigationSplitViewStyle(.balanced)
-        .toolbar(removing: .sidebarToggle)
         .sheet(item: $sheet, onDismiss: {
             if focusAfterSavingDraft {
                 focusAfterSavingDraft = false
@@ -127,9 +128,12 @@ struct PadPracticeScreen: View {
                 .keyboardShortcut("l", modifiers: .command)
                 .accessibilityIdentifier("openLibrary")
         }
-        ToolbarItemGroup(placement: .topBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
             Button(action: restart) { Label("Repeat Pattern", systemImage: "arrow.counterclockwise") }
                 .keyboardShortcut("r", modifiers: .command)
+        }
+        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+        ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Button(action: showScript) { Label("Add Script", systemImage: "plus") }
                     .keyboardShortcut("n", modifiers: [.command, .shift])

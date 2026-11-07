@@ -61,7 +61,7 @@ Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. T
 
 ### Build for iPad
 
-Select the **TypingPallPad** scheme and run on an iPad simulator or an iPad with iPadOS 18 or later. For a physical iPad, select your development team for the TypingPallPad target. The same project contains the Mac and iPad apps.
+In Xcode 26 or later, select the **TypingPallPad** scheme and run on an iPad or simulator with iPadOS 26 or later. For a physical iPad, select your development team for the TypingPallPad target. The same project contains the Mac and iPad apps.
 
 The iPad app supports Copy, Key Lines, and Recall. Type with Magic Keyboard or the software keyboard, then press **Return** or tap the line action. Open **Library** to browse lessons or saved scripts. Use **Actions** to add a snippet, import a UTF-8 file from Files, or change practice settings. Scripts and mastery are stored locally on the iPad.
 
