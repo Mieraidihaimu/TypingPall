@@ -25,6 +25,9 @@ final class TypingScreenViewModel: ObservableObject {
                 submitFeedback = nil
                 hintOffset = nil
                 syncPhase()
+                if case let .typing(_, _, progress) = phase, progress.errorUTF16Range != nil {
+                    currentLineHadError = true
+                }
             }
         }
     }
@@ -496,25 +499,15 @@ final class TypingScreenViewModel: ObservableObject {
             self.phase = .typing(subMode: subMode, currentLineIndex: lineIndex, lineProgress: progress)
 
         case (var .typing(subMode, lineIndex, progress), .commitLineOnReturn):
-            if subMode == .recall && !progress.isLineComplete && !progress.isRevealedByReturn {
+            if subMode == .recall && !isCurrentLineAccepted && !progress.isRevealedByReturn {
                 revealHint()
                 progress.isRevealedByReturn = true
                 self.phase = .typing(subMode: subMode, currentLineIndex: lineIndex, lineProgress: progress)
                 return
             }
-            if !progress.isLineComplete {
-                lineAttempts[currentLineIndex, default: LineAttempt()].wrongSubmits += 1
-                if let errRange = progress.errorUTF16Range {
-                    submitFeedback = "Not quite: the first difference is at character \(errRange.location + 1)."
-                } else if progress.matchedCount < currentLine.count {
-                    submitFeedback = "So far so good. The line continues."
-                } else {
-                    submitFeedback = SubmitFeedback.message(typed: editorText, target: currentLine,
-                                                            explanation: lesson?.knownMistake(on: currentLineIndex, typed: editorText)?.explanation)
-                }
-                syncPhase()
-                return
-            }
+            advanceLine()
+
+        case (.bugHunt, .commitLineOnReturn), (.contrast, .commitLineOnReturn):
             advanceLine()
 
         case (.typing, let .selectSubMode(newSubMode)):

@@ -53,11 +53,6 @@
 		C30000000000000000000016 /* PatternDrillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000015 /* PatternDrillTests.swift */; };
 		C90000000000000000000002 /* TypingPall/Utils/TypingPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */; };
 		CA0000000000000000000002 /* TypingPall/Models/MasteryTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0000000000000000000001 /* TypingPall/Models/MasteryTelemetry.swift */; };
-		CB0000000000000000000002 /* InterleavedCodeCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0000000000000000000001 /* InterleavedCodeCanvasView.swift */; };
-		CC0000000000000000000002 /* TypingPall/Views/Workspace/CurriculumSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000001 /* TypingPall/Views/Workspace/CurriculumSidebarView.swift */; };
-		CD0000000000000000000002 /* TypingPall/Views/Workspace/QuickSwitcherOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0000000000000000000001 /* TypingPall/Views/Workspace/QuickSwitcherOverlay.swift */; };
-		CE0000000000000000000002 /* TypingPall/Views/Workspace/TheoryInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE0000000000000000000001 /* TypingPall/Views/Workspace/TheoryInspectorView.swift */; };
-		CF0000000000000000000002 /* SymbolErgonomicsStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0000000000000000000001 /* SymbolErgonomicsStripView.swift */; };
 		D10000000000000000000002 /* MasteryTelemetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* MasteryTelemetryTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -134,11 +129,6 @@
 		C80000000000000000000001 /* DrillStateMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrillStateMachineTests.swift; sourceTree = "<group>"; };
 		C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Utils/TypingPalette.swift; sourceTree = SOURCE_ROOT; };
 		CA0000000000000000000001 /* TypingPall/Models/MasteryTelemetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/MasteryTelemetry.swift; sourceTree = SOURCE_ROOT; };
-		CB0000000000000000000001 /* InterleavedCodeCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterleavedCodeCanvasView.swift; sourceTree = "<group>"; };
-		CC0000000000000000000001 /* TypingPall/Views/Workspace/CurriculumSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Views/Workspace/CurriculumSidebarView.swift; sourceTree = SOURCE_ROOT; };
-		CD0000000000000000000001 /* TypingPall/Views/Workspace/QuickSwitcherOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Views/Workspace/QuickSwitcherOverlay.swift; sourceTree = SOURCE_ROOT; };
-		CE0000000000000000000001 /* TypingPall/Views/Workspace/TheoryInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Views/Workspace/TheoryInspectorView.swift; sourceTree = SOURCE_ROOT; };
-		CF0000000000000000000001 /* SymbolErgonomicsStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolErgonomicsStripView.swift; sourceTree = "<group>"; };
 		D10000000000000000000001 /* MasteryTelemetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasteryTelemetryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -173,7 +163,6 @@
 				7DCAA2A72A5F340100AFC118 /* TypingScreenView.swift */,
 				7D76E1942A6FBC7F00D76E59 /* TypingScreenViewModel.swift */,
 				C10000000000000000000005 /* ReferenceCodeView.swift */,
-				CB0000000000000000000001 /* InterleavedCodeCanvasView.swift */,
 				C10000000000000000000007 /* PracticeInputPanel.swift */,
 				C1000000000000000000000B /* PracticeOptionsPopover.swift */,
 				C10000000000000000000009 /* CompletionCard.swift */,
@@ -292,10 +281,6 @@
 				7DC1508E2A7D3D2700AE7358 /* Setting */,
 				7D76E1962A6FBE4F00D76E59 /* Editor */,
 				7D76E1932A6FBC6E00D76E59 /* TypingScreenView */,
-				CF0000000000000000000001 /* SymbolErgonomicsStripView.swift */,
-				CC0000000000000000000001 /* TypingPall/Views/Workspace/CurriculumSidebarView.swift */,
-				CD0000000000000000000001 /* TypingPall/Views/Workspace/QuickSwitcherOverlay.swift */,
-				CE0000000000000000000001 /* TypingPall/Views/Workspace/TheoryInspectorView.swift */,
 				7DCAA2AA2A5FEC8800AFC118 /* KeyboardLayoutView.swift */,
 				7DCAA2B02A5FF5C700AFC118 /* HistoryUploadsView.swift */,
 				C30000000000000000000003 /* LessonNotesView.swift */,
@@ -477,11 +462,6 @@
 				C60000000000000000000002 /* TypingPall/PersistenceRepository.swift in Sources */,
 				C90000000000000000000002 /* TypingPall/Utils/TypingPalette.swift in Sources */,
 				CA0000000000000000000002 /* TypingPall/Models/MasteryTelemetry.swift in Sources */,
-				CB0000000000000000000002 /* InterleavedCodeCanvasView.swift in Sources */,
-				CC0000000000000000000002 /* TypingPall/Views/Workspace/CurriculumSidebarView.swift in Sources */,
-				CD0000000000000000000002 /* TypingPall/Views/Workspace/QuickSwitcherOverlay.swift in Sources */,
-				CE0000000000000000000002 /* TypingPall/Views/Workspace/TheoryInspectorView.swift in Sources */,
-				CF0000000000000000000002 /* SymbolErgonomicsStripView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

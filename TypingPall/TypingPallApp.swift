@@ -66,7 +66,7 @@ struct TypingPallApp: App {
                 }
             }
         }
-        .defaultSize(width: 1160, height: 760)
+        .defaultSize(width: 900, height: 740)
         Settings { SettingsView() }
     }
 }

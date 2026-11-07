@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreData
 import UniformTypeIdentifiers
 
 struct TypingScreenView: View {
@@ -7,78 +6,98 @@ struct TypingScreenView: View {
 
     @Environment(\.persistenceRepository) private var repository
     @StateObject private var viewModel = TypingScreenViewModel()
-
-    // Workspace & Navigation State
-    @State private var sidebarSelection: SidebarSelection? = .smartCollection(.allPatterns)
-    @State private var savedScripts: [HistoryRecordDTO] = []
-    @State private var activeSmartFilter: SmartFilter = .allPatterns
-    @State private var selectedDrill: DrillDestination? = nil
-    @State private var sidebarVisibility: NavigationSplitViewVisibility = .all
-    @State private var isShowingInspector: Bool = true
-    @State private var isZenMode: Bool = false
-
-    // Overlays & Actions
-    @State private var isShowingQuickSwitcher = false
-    @State private var isShowingOptions = false
     @State private var isImporting = false
+    @State private var isShowingOptions = false
+    @State private var isShowingDrill = false
+    @State private var isShowingQuickSwitcher = false
     @State private var pendingLibraryAction: LibraryAction?
     @State private var errorMessage: String?
-    @State private var contrastStatement = ""
+    @State private var contrastStatement = ""   // unsaved
     @State private var isComparingMantras = false
 
     var body: some View {
-        ZStack {
-            NavigationSplitView(columnVisibility: Binding(
-                get: { isZenMode ? .detailOnly : sidebarVisibility },
-                set: { if !isZenMode { sidebarVisibility = $0 } }
-            )) {
-                CurriculumSidebarView(
-                    viewModel: viewModel,
-                    selection: $sidebarSelection,
-                    activeSmartFilter: $activeSmartFilter,
-                    selectedDrill: $selectedDrill,
-                    savedScripts: savedScripts,
-                    onSelectScript: loadSavedScript,
-                    onSelectLesson: { lesson in
-                        selectedDrill = nil
-                        loadLesson(lesson)
-                    },
-                    onSelectBugHunt: { lesson in
-                        selectedDrill = .bugHunt
-                        startBugHunt(lesson)
-                    },
-                    onSelectDrill: { drill in
-                        selectedDrill = drill
-                        if drill == .bugHunt, let lesson = viewModel.currentLesson {
-                            startBugHunt(lesson)
-                        }
-                    },
-                    onAddScript: showScriptSheet
-                )
-            } detail: {
-                centralStudioCanvas
-            }
-            .inspector(isPresented: Binding(
-                get: { isShowingInspector && !isZenMode },
-                set: { if !isZenMode { isShowingInspector = $0 } }
-            )) {
-                TheoryInspectorView(viewModel: viewModel)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .center, spacing: 12) {
+                Picker("Practice Mode", selection: Binding(get: { viewModel.mode }, set: { viewModel.setMode($0) })) {
+                    ForEach(PracticeMode.allCases) { mode in
+                        Text("\(mode.title) (⌘\(mode.rawValue + 1))").tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .frame(maxWidth: 360)
+                .accessibilityIdentifier("practiceLadderPicker")
+                .disabled(viewModel.bugHunt != nil)
+
+                Spacer()
+
+                Label(viewModel.progressText, systemImage: viewModel.isComplete ? "checkmark.circle" : "text.line.first.and.arrowtriangle.forward")
+                    .font(.headline)
+                    .accessibilityIdentifier("patternProgress")
             }
 
-            // Floating Command Palette ⌘K (Zero-sheet latency)
-            QuickSwitcherOverlay(
-                isPresented: $isShowingQuickSwitcher,
-                lessons: PracticeCatalog.lessons,
-                onSelect: { lesson in
-                    loadLesson(lesson)
+            HStack(alignment: .firstTextBaseline) {
+                Text(viewModel.displayedSummary)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                Spacer()
+            }
+
+            ProgressView(value: Double(viewModel.completedLineCount), total: Double(max(1, viewModel.practiceLines.count)))
+                .accessibilityLabel("Lines practiced")
+                .accessibilityValue(viewModel.progressText)
+                .animation(.easeInOut(duration: 0.2), value: viewModel.completedLineCount)
+            if let hunt = viewModel.bugHunt, hunt.phase != .solved {
+                BugHuntBanner(hunt: hunt)
+            }
+            if let pair = viewModel.contrast {
+                ContrastReferenceView(baseTitle: pair.base.title, baseRows: viewModel.contrastBaseRows,
+                                      variantTitle: pair.variant.title, variantRows: viewModel.referenceRows,
+                                      fontSize: safeFontSize, currentIndex: viewModel.currentLineIndex, contentKey: viewModel.placeholderText)
+            } else {
+                ReferenceCodeView(rows: viewModel.referenceRows, fontSize: safeFontSize,
+                                  currentIndex: viewModel.currentLineIndex, contentKey: viewModel.placeholderText,
+                                  language: viewModel.language,
+                                  onSelectRow: rowSelectionHandler)
+            }
+            if viewModel.isComplete {
+                CompletionCard(title: viewModel.lessonTitle, nextLesson: viewModel.nextLesson,
+                               isUserScript: !viewModel.isStarterPattern && viewModel.currentLessonID == nil,
+                               accessoryOwnsDefaultAction: viewModel.contrast != nil,
+                               onNext: { if let next = viewModel.nextLesson { loadLesson(next) } },
+                               onRepeat: { viewModel.restart() },
+                               onLibrary: { viewModel.isShowingHistoryUploads = true }) {
+                    completionAccessory
                 }
-            )
+            } else if viewModel.bugHunt?.phase != .finding {
+                PracticeInputPanel(viewModel: viewModel, fontSize: safeFontSize)
+            }
+            if viewModel.isShowingKeyboard {
+                KeyboardLayoutView(typedLetter: $viewModel.lastKeyboardType)
+                    .frame(height: 250)
+                    .accessibilityHidden(true)
+            }
         }
+        .padding(24)
         .background(modeShortcuts)
-        .frame(minWidth: 1000, idealWidth: 1160, minHeight: 600, idealHeight: 760)
+        .frame(minWidth: 760, idealWidth: 900, minHeight: 620, idealHeight: 740)
         .navigationTitle(viewModel.lessonTitle)
         .modifier(SubtitleModifier(text: viewModel.lessonSubtitle))
+        .onChange(of: viewModel.editorText) { text in
+            viewModel.lastKeyboardType = text.last.map(String.init)
+        }
         .sheet(isPresented: $viewModel.isShowingPlaceholderText) { scriptSheet }
+        .sheet(isPresented: $isShowingQuickSwitcher) {
+            QuickSwitcherPaletteView(lessons: PracticeCatalog.lessons) { loadLesson($0) }
+        }
+        .sheet(isPresented: $isShowingDrill) {
+            RecognitionDrillView { lesson in
+                do { try viewModel.loadLesson(lesson); viewModel.setMode(.recall) }
+                catch { errorMessage = error.localizedDescription }
+            }
+            .frame(minWidth: 560, minHeight: 460)
+        }
         .sheet(isPresented: $viewModel.isShowingHistoryUploads, onDismiss: runPendingLibraryAction) {
             HistoryUploadsView(onSelect: { text, language in load(text, language: language) }, onSelectLesson: loadLesson,
                                onAddScript: { pendingLibraryAction = .addScript }, onImport: { pendingLibraryAction = .importFile },
@@ -105,163 +124,28 @@ struct TypingScreenView: View {
         .alert("Couldn’t complete that action", isPresented: Binding(get: { errorMessage != nil && !viewModel.isShowingPlaceholderText }, set: { if !$0 { errorMessage = nil } })) {
             Button("OK", role: .cancel) { errorMessage = nil }
         } message: { Text(errorMessage ?? "") }
-        .task { await refreshSavedScripts() }
-        .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave).receive(on: RunLoop.main)) { _ in
-            Task { await refreshSavedScripts() }
-        }
         .toolbar {
             ToolbarItemGroup {
-                Button {
-                    isShowingQuickSwitcher = true
-                } label: {
-                    Label("Quick Switcher", systemImage: "magnifyingglass")
-                }
-                .keyboardShortcut("k", modifiers: .command)
-                .accessibilityIdentifier("quickSwitcher")
-
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isZenMode.toggle()
-                    }
-                } label: {
-                    Label("Zen Focus", systemImage: isZenMode ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                }
-                .keyboardShortcut("f", modifiers: [.command, .shift])
-                .help("Toggle Zen Focus Mode (⇧⌘F)")
-
-                Button {
-                    withAnimation {
-                        isShowingInspector.toggle()
-                    }
-                } label: {
-                    Label("Inspector", systemImage: "sidebar.right")
-                }
-                .keyboardShortcut("i", modifiers: [.command, .option])
-                .help("Toggle Theory & Telemetry Inspector (⌥⌘I)")
-
-                Button {
-                    isShowingOptions = true
-                } label: {
-                    Label("Options", systemImage: "slider.horizontal.3")
-                }
-                .accessibilityIdentifier("practiceOptions")
-                .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) {
-                    PracticeOptionsPopover(viewModel: viewModel)
-                }
-
-                Button {
-                    viewModel.restart()
-                } label: {
-                    Label("Repeat Pattern", systemImage: "arrow.counterclockwise")
-                }
-                .keyboardShortcut("r", modifiers: .command)
-                .accessibilityIdentifier("restartPractice")
-
-                Button(action: showScriptSheet) {
-                    Label("Add Script", systemImage: "plus")
-                }
-                .keyboardShortcut("n", modifiers: [.command, .shift])
-
-                Button {
-                    isImporting = true
-                } label: {
-                    Label("Import File", systemImage: "square.and.arrow.down")
-                }
-                .keyboardShortcut("o", modifiers: .command)
+                Button { isShowingQuickSwitcher = true } label: { Label("Quick Switcher", systemImage: "magnifyingglass") }
+                    .keyboardShortcut("k", modifiers: .command)
+                    .accessibilityIdentifier("quickSwitcher")
+                Button { isShowingOptions = true } label: { Label("Options", systemImage: "slider.horizontal.3") }
+                    .accessibilityIdentifier("practiceOptions")
+                    .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) { PracticeOptionsPopover(viewModel: viewModel) }
+                Button { viewModel.restart() } label: { Label("Repeat Pattern", systemImage: "arrow.counterclockwise") }
+                    .keyboardShortcut("r", modifiers: .command)
+                    .accessibilityIdentifier("restartPractice")
+                Button(action: showScriptSheet) { Label("Add Script", systemImage: "plus") }
+                    .keyboardShortcut("n", modifiers: [.command, .shift])
+                Button { isImporting = true } label: { Label("Import File", systemImage: "square.and.arrow.down") }
+                    .keyboardShortcut("o", modifiers: .command)
+                Button { viewModel.isShowingHistoryUploads = true } label: { Label("Library", systemImage: "books.vertical") }
+                    .keyboardShortcut("l", modifiers: .command)
+                Button { isShowingDrill = true } label: { Label("Which Pattern?", systemImage: "questionmark.circle") }
+                    .keyboardShortcut("d", modifiers: [.command, .shift])
+                    .accessibilityIdentifier("whichPattern")
             }
         }
-    }
-
-    // MARK: - Central Practice Canvas
-
-    private var centralStudioCanvas: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // Invariant Cue & Practice Mode Bar
-            HStack(alignment: .center, spacing: 14) {
-                Picker("Practice Mode", selection: Binding(get: { viewModel.mode }, set: { viewModel.setMode($0) })) {
-                    ForEach(PracticeMode.allCases) { mode in
-                        Text("\(mode.title) (⌘\(mode.rawValue + 1))").tag(mode)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(maxWidth: 320)
-                .accessibilityIdentifier("practiceLadderPicker")
-                .disabled(viewModel.bugHunt != nil)
-
-                Spacer()
-
-                Label(viewModel.progressText, systemImage: viewModel.isComplete ? "checkmark.circle" : "text.line.first.and.arrowtriangle.forward")
-                    .font(.headline)
-                    .accessibilityIdentifier("patternProgress")
-            }
-
-            // Invariant cue banner callout
-            HStack(alignment: .firstTextBaseline) {
-                Text(viewModel.displayedSummary)
-                    .font(.callout)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-                Spacer()
-            }
-
-            // Subtle integrated line progress
-            ProgressView(value: Double(viewModel.completedLineCount), total: Double(max(1, viewModel.practiceLines.count)))
-                .accessibilityLabel("Lines practiced")
-                .accessibilityValue(viewModel.progressText)
-                .animation(.easeInOut(duration: 0.2), value: viewModel.completedLineCount)
-
-            // Dynamic Central Content
-            if selectedDrill == .whichPattern {
-                RecognitionDrillView { lesson in
-                    selectedDrill = nil
-                    do {
-                        try viewModel.loadLesson(lesson)
-                        viewModel.setMode(.recall)
-                    } catch {
-                        errorMessage = error.localizedDescription
-                    }
-                }
-                .frame(minHeight: 400)
-            } else {
-                if let hunt = viewModel.bugHunt, hunt.phase != .solved {
-                    BugHuntBanner(hunt: hunt)
-                }
-
-                if let pair = viewModel.contrast {
-                    ContrastReferenceView(baseTitle: pair.base.title, baseRows: viewModel.contrastBaseRows,
-                                          variantTitle: pair.variant.title, variantRows: viewModel.referenceRows,
-                                          fontSize: safeFontSize, currentIndex: viewModel.currentLineIndex, contentKey: viewModel.placeholderText)
-                } else {
-                    // Unified Active Line Accordion Canvas
-                    InterleavedCodeCanvasView(
-                        viewModel: viewModel,
-                        fontSize: safeFontSize,
-                        onSelectRow: rowSelectionHandler
-                    )
-                }
-
-                if viewModel.isComplete {
-                    CompletionCard(title: viewModel.lessonTitle, nextLesson: viewModel.nextLesson,
-                                   isUserScript: !viewModel.isStarterPattern && viewModel.currentLessonID == nil,
-                                   accessoryOwnsDefaultAction: viewModel.contrast != nil,
-                                   onNext: { if let next = viewModel.nextLesson { loadLesson(next) } },
-                                   onRepeat: { viewModel.restart() },
-                                   onLibrary: { viewModel.isShowingHistoryUploads = true }) {
-                        completionAccessory
-                    }
-                }
-
-                // Code Symbol Ergonomics Strip (44pt)
-                if !viewModel.isComplete && viewModel.hasPracticeLines {
-                    SymbolErgonomicsStripView(targetLine: viewModel.currentLine, typedText: viewModel.editorText)
-                }
-            }
-        }
-        .padding(20)
-        // Keep content-dependent minimum sizes out of AppKit's split-view sizing loop.
-        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-        .background(TypingPalette.windowBackground)
     }
 
     private var safeFontSize: Double {
@@ -273,7 +157,7 @@ struct TypingScreenView: View {
         return { line in viewModel.selectReferenceLine(line) }
     }
 
-    // Keyboard Shortcuts
+    // Interim ⌘1–⌘3 until menus exist; opacity 0 (not hidden) keeps the shortcuts registered.
     private var modeShortcuts: some View {
         ZStack {
             ForEach(PracticeMode.allCases) { mode in
@@ -292,7 +176,7 @@ struct TypingScreenView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Add a pattern to practice").font(.title2).fontWeight(.semibold)
             Text("Paste an algorithm, language idiom, or concurrency pattern. Up to 20,000 characters.").foregroundColor(.secondary)
-            Text("Saved scripts appear in My Scripts in the sidebar.").font(.caption).foregroundColor(.secondary)
+            Text("Saved scripts appear under My scripts in the Library.").font(.caption).foregroundColor(.secondary)
             Picker("Language", selection: $viewModel.draftLanguage) {
                 ForEach(CodeLanguage.allCases) { Text($0.title).tag($0) }
             }
@@ -321,23 +205,8 @@ struct TypingScreenView: View {
     private func saveAndLoad(_ text: String, language: CodeLanguage) async throws {
         let width = PracticeText.tabWidth(UserDefaults.standard.object(forKey: "tabEqualsToSpaces") as? Double ?? 4)
         let normalized = try PracticeText.validated(text, tabSpaces: width)
-        let script = try await repository.saveScript(text: normalized, language: language.rawValue)
-        savedScripts.removeAll { $0.id == script.id }
-        savedScripts.insert(script, at: 0)
-        loadSavedScript(script)
-    }
-
-    private func refreshSavedScripts() async {
-        do {
-            savedScripts = try await repository.fetchRecentScripts(limit: 0)
-        } catch { errorMessage = error.localizedDescription }
-    }
-
-    private func loadSavedScript(_ script: HistoryRecordDTO) {
-        selectedDrill = nil
-        activeSmartFilter = .myScripts
-        sidebarSelection = .script(script.id)
-        load(script.text, language: CodeLanguage(rawValue: script.language) ?? .plainText)
+        try await repository.saveScript(text: normalized, language: language.rawValue)
+        load(normalized, language: language)
     }
 
     private func load(_ text: String, language: CodeLanguage) {
@@ -375,7 +244,7 @@ struct TypingScreenView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("bugExplanation")
                 HStack {
-                    if (lesson.mutations ?? []).isEmpty == false {
+                    if (lesson.mutations?.count ?? 0) > 1 {
                         Button("Another Bug") {
                             let others = (lesson.mutations ?? []).indices.filter { lesson.mutations?[$0] != hunt.mutation }
                             startBugHunt(lesson, mutationIndex: others.randomElement())
@@ -407,7 +276,7 @@ struct TypingScreenView: View {
                     Button("Contrast with \(pair.variant.title)") { startContrast(pair) }
                         .accessibilityIdentifier("completionContrast")
                 }
-                if let lesson = viewModel.currentLesson, (lesson.mutations ?? []).count > 0 {
+                if let lesson = viewModel.currentLesson, (lesson.mutations?.count ?? 0) > 0 {
                     Button("Find the Bug 🐞") { startBugHunt(lesson) }
                         .accessibilityIdentifier("completionFindBug")
                 }
@@ -429,6 +298,7 @@ struct TypingScreenView: View {
         viewModel.isShowingPlaceholderText = true
     }
 
+    // A sheet can't open while the library sheet is still presented.
     private func runPendingLibraryAction() {
         defer { pendingLibraryAction = nil }
         switch pendingLibraryAction {

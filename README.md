@@ -100,8 +100,8 @@ Indentation remains visible in the reference, but leading spaces and tabs are ex
 
 Imports accept UTF-8 files up to 1 MB and 20,000 normalized characters. Line endings are normalized, tabs expand to your configured width, and Unicode is preserved. The practice input accepts one line at a time; paste complete snippets into **Add Script**. Saved patterns survive relaunches; your current practice position does not.
 
-**Save & Practice** adds your script to **My Scripts** in the sidebar and selects it.
-Choose **My Scripts** to search and reopen saved scripts; imported files appear there too.
+**Save & Practice** opens your script for practice and saves it under **Library → My scripts**.
+Search and reopen saved scripts and imported files there.
 
 Comment filtering supports Python, Ruby, Shell, C++, Rust, and Go. Select **Plain text** for other languages, or turn off **Skip comments** in **Options** to practice the complete text. Changing an option mid-pattern keeps your place. Python docstrings stay in the exercise.
 

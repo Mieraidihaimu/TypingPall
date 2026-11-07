@@ -24,6 +24,10 @@ final class TypingPallUITests: XCTestCase {
         app.buttons["Save & Practice"].click()
         let input = app.textViews["practiceInput"]
         XCTAssertTrue(input.waitForExistence(timeout: 5))
+        let inputFrame = input.frame
+        XCTAssertGreaterThan(inputFrame.midY, app.windows.firstMatch.frame.midY)
+        XCTAssertFalse(app.textFields["sidebarSearch"].exists)
+        XCTAssertFalse(app.scrollViews["theoryInspector"].exists)
         XCTAssertEqual(app.staticTexts["targetLine"].text, "abc")
         input.click()
         input.typeText("abx")
@@ -32,6 +36,7 @@ final class TypingPallUITests: XCTestCase {
         XCTAssertTrue(app.buttons["nextLine"].isEnabled)
         input.typeText(XCUIKeyboardKey.return.rawValue)
         XCTAssertEqual(input.value as? String, "")
+        XCTAssertEqual(input.frame.minY, inputFrame.minY, accuracy: 1, "The editor stays put as the active line changes")
         XCTAssertEqual(app.staticTexts["targetLine"].text, "def", "Indentation is skipped")
         input.typeText("de")
         app.buttons["repeatLine"].click()
@@ -61,36 +66,10 @@ final class TypingPallUITests: XCTestCase {
         XCTAssertTrue(app.textViews["practiceInput"].exists)
     }
 
-    func testWorkspaceSurvivesZenAndInspectorToggles() {
-        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
-        let input = app.textViews["practiceInput"]
-        let progress = app.staticTexts["patternProgress"]
-        let inspector = app.scrollViews["theoryInspector"]
-        XCTAssertTrue(input.waitForExistence(timeout: 10))
-        XCTAssertTrue(inspector.waitForExistence(timeout: 5))
-        for _ in 0..<3 {
-            app.buttons["Zen Focus"].click()
-            XCTAssertTrue(progress.waitForExistence(timeout: 5), "Zen Focus keeps the practice canvas alive")
-            XCTAssertFalse(app.textFields["sidebarSearch"].exists, "Zen Focus hides the sidebar")
-            app.buttons["Zen Focus"].click()
-            XCTAssertTrue(app.textFields["sidebarSearch"].waitForExistence(timeout: 5), "Leaving Zen Focus restores the sidebar")
-            XCTAssertTrue(inspector.waitForExistence(timeout: 5), "Leaving Zen Focus restores the inspector")
-            app.buttons["Inspector"].click()
-            let inspectorHidden = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: inspector)
-            wait(for: [inspectorHidden], timeout: 5)
-            app.buttons["Inspector"].click()
-            XCTAssertTrue(inspector.waitForExistence(timeout: 5))
-            XCTAssertTrue(input.waitForExistence(timeout: 5), "Inspector changes keep the practice canvas alive")
-        }
-    }
-
-    func testSavedScriptAppearsInSidebarAndCanBeReopened() {
+    func testSavedScriptCanBeFoundAndReopenedInLibrary() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-ux.lastScriptLanguage", "plainText"])
         let addScript = app.buttons["Add Script"]
         XCTAssertTrue(addScript.waitForExistence(timeout: 10))
-        let search = app.textFields["sidebarSearch"]
-        search.click()
-        search.typeText("no-matching-pattern")
         addScript.click()
         let editor = app.textViews["scriptText"]
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
@@ -98,15 +77,16 @@ final class TypingPallUITests: XCTestCase {
         editor.typeText("saved_script_probe = 42")
         app.buttons["Save & Practice"].click()
 
-        let savedRow = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "savedScript-")).firstMatch
-        XCTAssertTrue(savedRow.waitForExistence(timeout: 5), "A new script appears in My Scripts even after a library search")
-
-        app.descendants(matching: .any)["collection-All Patterns"].firstMatch.click()
-        app.staticTexts["Sliding window"].firstMatch.click()
-        app.descendants(matching: .any)["collection-My Scripts"].firstMatch.click()
-        XCTAssertTrue(savedRow.waitForExistence(timeout: 5))
-        savedRow.click()
+        app.buttons["Library"].click()
+        app.segment("My scripts").click()
+        let search = app.textFields["scriptSearch"]
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.click()
+        search.typeText("no-matching-script")
+        XCTAssertFalse(app.buttons["Practice"].exists)
+        search.typeKey("a", modifierFlags: .command)
+        search.typeText("script_probe")
+        app.buttons["Practice"].click()
         let input = app.textViews["practiceInput"]
         XCTAssertTrue(input.waitForExistence(timeout: 5))
         input.click()

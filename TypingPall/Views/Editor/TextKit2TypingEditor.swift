@@ -8,6 +8,7 @@ struct TextKit2TypingEditor: NSViewRepresentable {
     @Binding var targetText: String
     var fontSize: CGFloat
     var tabSpaces: Int = 4
+    var diffTolerance: DiffTolerance = .strictCharacter
     var isEnabled = true
     var resetID: UUID? = nil
     var liveFeedback = true
@@ -114,7 +115,9 @@ final class TextKit2Coordinator: NSObject, NSTextViewDelegate {
         let base: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: NSColor.labelColor]
         storage.beginEditing()
         storage.setAttributes(base, range: NSRange(location: 0, length: storage.length))
-        let mismatch = parent.liveFeedback ? LineDiff(typed: storage.string, target: parent.targetText).mismatchRange : submittedMismatch
+        let mismatch = parent.liveFeedback ? LineDiff.evaluate(target: PreparedTargetLine(rawLine: parent.targetText),
+                                                               typed: storage.string,
+                                                               tolerance: parent.diffTolerance).errorUTF16Range : submittedMismatch
         if let rest = mismatch, NSMaxRange(rest) <= storage.length {
             storage.addAttribute(.foregroundColor, value: NSColor.tertiaryLabelColor, range: rest)
             let first = (storage.string as NSString).rangeOfComposedCharacterSequence(at: rest.location)

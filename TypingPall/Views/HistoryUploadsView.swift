@@ -5,10 +5,13 @@ struct HistoryUploadsView: View {
 
     @Environment(\.persistenceRepository) private var repository
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var masteryStore = MasteryStore.shared
     @State private var savedScriptsList: [HistoryRecordDTO] = []
     @State private var errorMessage: String?
     @State private var pendingDeletion: HistoryRecordDTO?
     @State private var search = ""
+    @State private var scriptSearch = ""
+    @State private var dueForRecallOnly = false
     @State private var shelf = Shelf.lessons(nil)
     @State private var category: String?
     @State private var selection: String?
@@ -24,9 +27,20 @@ struct HistoryUploadsView: View {
         return nil
     }
     private var sections: [LessonSection] {
-        PracticeCatalog.sections(of: PracticeCatalog.lessons, track: track, category: category, search: search)
+        let lessons = PracticeCatalog.lessons
+        let filtered = dueForRecallOnly ? lessons.filter { masteryStore.isDueForRecall(patternID: $0.id) } : lessons
+        return PracticeCatalog.sections(of: filtered, track: track, category: category, search: search)
     }
     private var selectedLesson: PracticeLesson? { sections.lazy.flatMap(\.lessons).first { $0.id == selection } }
+
+    private var filteredScripts: [HistoryRecordDTO] {
+        let query = scriptSearch.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return savedScriptsList }
+        return savedScriptsList.filter {
+            $0.text.localizedCaseInsensitiveContains(query) ||
+            (CodeLanguage(rawValue: $0.language) ?? .plainText).title.localizedCaseInsensitiveContains(query)
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -73,7 +87,7 @@ struct HistoryUploadsView: View {
     private func loadScripts() {
         Task {
             do {
-                savedScriptsList = try await repository.fetchRecentScripts()
+                savedScriptsList = try await repository.fetchRecentScripts(limit: 0)
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -89,7 +103,8 @@ struct HistoryUploadsView: View {
                 Picker("Topic", selection: $category) {
                     Text("All topics").tag(String?.none)
                     ForEach(PracticeCatalog.categories(of: PracticeCatalog.lessons, in: track), id: \.self) { Text($0).tag(String?.some($0)) }
-                }.frame(width: 260)
+                }.frame(width: 220)
+                Toggle("Due for recall", isOn: $dueForRecallOnly)
             }
             HStack(spacing: 16) {
                 List(selection: $selection) {
@@ -98,6 +113,8 @@ struct HistoryUploadsView: View {
                             ForEach(section.lessons) { lesson in
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack {
+                                        TriRingMasteryGlyph(level: masteryStore.level(for: lesson.id),
+                                                            isDueForRecall: masteryStore.isDueForRecall(patternID: lesson.id), size: 14)
                                         Text(lesson.title).fontWeight(.medium)
                                         Spacer()
                                         if !(lesson.mutations ?? []).isEmpty {
@@ -123,6 +140,11 @@ struct HistoryUploadsView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(lesson.title).font(.title3).fontWeight(.semibold)
                         Text(lesson.summary).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+                        let record = masteryStore.record(for: lesson.id)
+                        if let nextReview = record.nextReviewDate {
+                            Text(record.isDueForRecall ? "\(record.level.title) · Review due" : "\(record.level.title) · Next review \(nextReview.formatted(date: .abbreviated, time: .omitted))")
+                                .font(.caption).foregroundColor(.secondary)
+                        }
                         ScrollView {
                             LessonNotesView(lesson: lesson, onContrast: { onSelectContrast($0); dismiss() })
                         }
@@ -145,8 +167,11 @@ struct HistoryUploadsView: View {
                     }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if sections.isEmpty {
                     VStack(spacing: 12) {
-                        Text("No lessons match “\(search)”.").foregroundColor(.secondary)
-                        Button("Clear Search") { search = "" }.accessibilityIdentifier("clearSearch")
+                        Text(dueForRecallOnly ? "No matching lessons are due for recall." : "No lessons match “\(search)”.")
+                            .foregroundColor(.secondary)
+                        if !search.isEmpty {
+                            Button("Clear Search") { search = "" }.accessibilityIdentifier("clearSearch")
+                        }
                     }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     Text("Choose a lesson to preview its code and learning focus.")
@@ -171,26 +196,41 @@ struct HistoryUploadsView: View {
                     }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List {
-                    ForEach(savedScriptsList) { item in
-                        HStack(spacing: 16) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(item.text).font(.system(.body, design: .monospaced)).lineLimit(2)
-                                HStack {
-                                    Text((CodeLanguage(rawValue: item.language) ?? .plainText).title)
-                                    Text(item.timestamp, style: .date)
-                                }.font(.caption).foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Button("Practice") {
-                                onSelect(item.text, CodeLanguage(rawValue: item.language) ?? .plainText)
-                                dismiss()
-                            }.disabled(item.text.isEmpty)
-                            Button { pendingDeletion = item } label: { Image(systemName: "trash") }
-                                .accessibilityLabel("Delete script")
-                        }.padding(.vertical, 8)
+                VStack(spacing: 12) {
+                    TextField("Filter scripts…", text: $scriptSearch)
+                        .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("scriptSearch")
+                    if filteredScripts.isEmpty {
+                        Text("No scripts match “\(scriptSearch)”.")
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        scriptList
                     }
                 }
+            }
+        }
+    }
+
+    private var scriptList: some View {
+        List {
+            ForEach(filteredScripts) { item in
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(item.text).font(.system(.body, design: .monospaced)).lineLimit(2)
+                        HStack {
+                            Text((CodeLanguage(rawValue: item.language) ?? .plainText).title)
+                            Text(item.timestamp, style: .date)
+                        }.font(.caption).foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button("Practice") {
+                        onSelect(item.text, CodeLanguage(rawValue: item.language) ?? .plainText)
+                        dismiss()
+                    }.disabled(item.text.isEmpty)
+                    Button { pendingDeletion = item } label: { Image(systemName: "trash") }
+                        .accessibilityLabel("Delete script")
+                }.padding(.vertical, 8)
             }
         }
     }
