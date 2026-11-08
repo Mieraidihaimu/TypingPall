@@ -110,7 +110,7 @@ struct PadPracticeScreen: View {
                 }
             } else {
                 ReferenceCodeView(rows: model.referenceRows, fontSize: fontSize, currentIndex: model.currentLineIndex,
-                                  contentKey: model.placeholderText, language: model.language, minHeight: 0)
+                                  contentKey: model.placeholderText, minHeight: 0)
                     .frame(maxHeight: .infinity)
                 PracticeInputPanel(viewModel: model, fontSize: fontSize, editorActive: editorActive, focusRequest: focusRequest)
                     .layoutPriority(1)

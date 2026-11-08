@@ -58,7 +58,6 @@ struct TypingScreenView: View {
             } else {
                 ReferenceCodeView(rows: viewModel.referenceRows, fontSize: safeFontSize,
                                   currentIndex: viewModel.currentLineIndex, contentKey: viewModel.placeholderText,
-                                  language: viewModel.language,
                                   onSelectRow: rowSelectionHandler)
             }
             if viewModel.isComplete {

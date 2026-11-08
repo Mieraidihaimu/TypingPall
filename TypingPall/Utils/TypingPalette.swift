@@ -115,52 +115,33 @@ public enum TypingPalette {
         }
     }
 
-    // MARK: - Calm Contrast Syntax Tokens
-    public static var syntaxKeyword: Color {
-        Color(nsColor: NSColor(name: nil) { appearance in
-            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                ? NSColor(red: 0x82/255.0, green: 0xAA/255.0, blue: 1.0, alpha: 1.0) // #82AAFF
-                : NSColor(red: 0x5C/255.0, green: 0x6A/255.0, blue: 0xC4/255.0, alpha: 1.0) // #5C6AC4
-        })
-    }
-
-    public static var syntaxType: Color {
-        Color(nsColor: NSColor(name: nil) { appearance in
-            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                ? NSColor(red: 0x4F/255.0, green: 0xD1/255.0, blue: 0xC5/255.0, alpha: 1.0) // #4FD1C5
-                : NSColor(red: 0x0D/255.0, green: 0x94/255.0, blue: 0x88/255.0, alpha: 1.0) // #0D9488
-        })
-    }
-
-    public static var syntaxString: Color {
-        Color(nsColor: NSColor(name: nil) { appearance in
-            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                ? NSColor(red: 0xC3/255.0, green: 0xE8/255.0, blue: 0x8D/255.0, alpha: 1.0) // #C3E88D
-                : NSColor(red: 0x2E/255.0, green: 0x7D/255.0, blue: 0x32/255.0, alpha: 1.0) // #2E7D32
-        })
-    }
-
-    public static var syntaxNumber: Color {
-        Color(nsColor: NSColor(name: nil) { appearance in
-            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                ? NSColor(red: 0xF7/255.0, green: 0x8C/255.0, blue: 0x6C/255.0, alpha: 1.0) // #F78C6C
-                : NSColor(red: 0xB4/255.0, green: 0x53/255.0, blue: 0x09/255.0, alpha: 1.0) // #B45309
-        })
-    }
-
-    public static var syntaxComment: Color {
-        Color(nsColor: NSColor(name: nil) { appearance in
-            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                ? NSColor(red: 0x54/255.0, green: 0x58/255.0, blue: 0x62/255.0, alpha: 1.0) // #545862
-                : NSColor(red: 0x8C/255.0, green: 0x8D/255.0, blue: 0x92/255.0, alpha: 1.0) // #8C8D92
-        })
-    }
     #else
     static var statusCorrected: Color { .orange }
-    static var syntaxKeyword: Color { .indigo }
-    static var syntaxType: Color { .teal }
-    static var syntaxString: Color { .green }
-    static var syntaxNumber: Color { .purple }
-    static var syntaxComment: Color { .secondary }
     #endif
+
+    public static let syntaxKeyword = syntaxColor(light: 0x4C5BAD, dark: 0x82AAFF)
+    public static let syntaxType = syntaxColor(light: 0x08766D, dark: 0x4FD1C5)
+    public static let syntaxString = syntaxColor(light: 0x2E6C32, dark: 0xC3E88D)
+    public static let syntaxNumber = syntaxColor(light: 0x9C4808, dark: 0xF78C6C)
+    public static let syntaxComment = syntaxColor(light: 0x5F636F, dark: 0xA0A5AF)
+
+    private static func syntaxColor(light: UInt32, dark: UInt32) -> Color {
+        #if os(macOS)
+        return Color(nsColor: NSColor(name: nil) { appearance in
+            let rgb = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light
+            let (red, green, blue) = colorComponents(rgb)
+            return NSColor(srgbRed: red, green: green, blue: blue, alpha: 1)
+        })
+        #else
+        return Color(uiColor: UIColor { traits in
+            let rgb = traits.userInterfaceStyle == .dark ? dark : light
+            let (red, green, blue) = colorComponents(rgb)
+            return UIColor(red: red, green: green, blue: blue, alpha: 1)
+        })
+        #endif
+    }
+
+    private static func colorComponents(_ rgb: UInt32) -> (CGFloat, CGFloat, CGFloat) {
+        (CGFloat((rgb >> 16) & 0xff) / 255, CGFloat((rgb >> 8) & 0xff) / 255, CGFloat(rgb & 0xff) / 255)
+    }
 }

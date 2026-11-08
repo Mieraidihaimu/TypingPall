@@ -65,6 +65,9 @@ final class TypingScreenViewModel: ObservableObject {
     private var scaffoldLineIndices: Set<Int> = []
     private var weakLineIndices: Set<Int> = []
     private var resumeMode: PracticeMode?   // the learner's mode before a bug hunt or contrast pair
+    private var highlightedReference: [AttributedString] = []
+    private var highlightedPractice: [Int: AttributedString] = [:]
+    private var highlightedContrastBase: [AttributedString] = []
 
     // MARK: - State Machine & Reducer Integration (Argon Architecture)
     @Published public private(set) var phase: DrillPhase = .typing(subMode: .copy, currentLineIndex: 0, lineProgress: LineProgress())
@@ -108,7 +111,10 @@ final class TypingScreenViewModel: ObservableObject {
     var currentLine: String {
         guard hasPracticeLines else { return "" }
         // Keep the source indentation visible, but start practice at the first content character.
-        return String(practiceLines[practicePosition].text.drop(while: { $0 == " " || $0 == "\t" }))
+        return Self.practiceTarget(practiceLines[practicePosition].text)
+    }
+    private static func practiceTarget(_ text: String) -> String {
+        String(text.drop(while: { $0 == " " || $0 == "\t" }))
     }
     var isLineMatched: Bool {
         guard hasPracticeLines else { return false }
@@ -124,6 +130,10 @@ final class TypingScreenViewModel: ObservableObject {
     /// The target strip: the line in Copy, else bars plus hint-revealed text.
     var visibleTarget: String {
         mode.isGraded ? MaskedLine.placeholder(source: currentLine, typed: currentLine, revealed: revealedLength) : currentLine
+    }
+    var highlightedTarget: AttributedString? {
+        guard !mode.isGraded, hasPracticeLines else { return nil }
+        return highlightedPractice[currentLineIndex]
     }
     /// Replaces live guidance in graded modes.
     var learningStatus: String? {
@@ -158,17 +168,19 @@ final class TypingScreenViewModel: ObservableObject {
             return lines.indices.map { index in
                 let marker: ReferenceRow.Marker? = hunt.wrongGuesses.contains(index) ? .notTheBug
                     : hunt.phase != .finding && index == hunt.bugLine ? .plantedBug : nil
-                return ReferenceRow(sourceIndex: index, text: lines[index], isCurrent: index == current, marker: marker)
+                return ReferenceRow(sourceIndex: index, text: lines[index], isCurrent: index == current,
+                                    marker: marker, highlightedText: highlightedReference[index])
             }
         }
         let skipped = skippedLineIndices, masked = maskedLineIndices
         let typed = Dictionary(uniqueKeysWithValues: practiceLines.map { ($0.sourceIndex, $0.text) })
         return lines.indices.map { index in
             guard masked.contains(index), let text = typed[index] else {
-                return ReferenceRow(sourceIndex: index, text: lines[index], isCurrent: index == current, isSkipped: skipped.contains(index))
+                return ReferenceRow(sourceIndex: index, text: lines[index], isCurrent: index == current,
+                                    isSkipped: skipped.contains(index), highlightedText: highlightedReference[index])
             }
             // The hidden text never reaches the view.
-            let placeholder = MaskedLine.placeholder(source: lines[index], typed: String(text.drop(while: { $0 == " " || $0 == "\t" })),
+            let placeholder = MaskedLine.placeholder(source: lines[index], typed: Self.practiceTarget(text),
                                                      revealed: index == current ? revealedLength : 0)
             return ReferenceRow(sourceIndex: index, text: placeholder, isCurrent: index == current, isMasked: true)
         }
@@ -242,19 +254,22 @@ final class TypingScreenViewModel: ObservableObject {
         try loadLesson(variant)   // ends any hunt or earlier pair and restores the suspended mode
         resumeMode = mode
         setMode(.keyLines)
+        highlightedContrastBase = CodeHighlighter.highlight(pair.base.sourceLines, language: pair.base.language)
         contrast = pair
     }
 
     var contrastBaseRows: [ReferenceRow] {
         guard let pair = contrast else { return [] }
         return pair.base.sourceLines.enumerated().map { index, text in
-            ReferenceRow(sourceIndex: index, text: text, marker: pair.baseMarkedLines.contains(index) ? .differs : nil)
+            ReferenceRow(sourceIndex: index, text: text, marker: pair.baseMarkedLines.contains(index) ? .differs : nil,
+                         highlightedText: highlightedContrastBase[index])
         }
     }
 
     private func endPatternSession() {
         bugHunt = nil
         contrast = nil
+        highlightedContrastBase = []
         if let mode = resumeMode {
             resumeMode = nil
             setMode(mode)
@@ -273,11 +288,12 @@ final class TypingScreenViewModel: ObservableObject {
         lessonTitle = lesson?.title ?? "Your pattern"
         lessonSummary = lesson?.summary ?? "Practice this code one line at a time."
         placeholderText = validated
-        lines = validated.components(separatedBy: "\n")
-        // A final newline terminates the last line; it isn't another exercise.
-        if lines.last == "" { lines.removeLast() }
         scaffoldLineIndices = Set(lesson?.scaffoldLineIndices ?? [])
         weakLineIndices = []
+        var sourceLines = validated.components(separatedBy: "\n")
+        // A final newline terminates the last line; it isn't another exercise.
+        if sourceLines.last == "" { sourceLines.removeLast() }
+        lines = sourceLines
         rebuildPracticeLines()
     }
 
@@ -391,14 +407,20 @@ final class TypingScreenViewModel: ObservableObject {
     }
 
     private func rebuildPracticeLines(keepingPosition: Bool = false) {
+        highlightedReference = CodeHighlighter.highlight(lines, language: language)
+        highlightedPractice = [:]
         if let hunt = bugHunt {
             practiceLines = hunt.phase == .finding ? [] : [PracticeLine(sourceIndex: hunt.bugLine, text: hunt.originalLine)]
             restart()
             return
         }
         let anchor = keepingPosition && hasPracticeLines && !isComplete ? currentLineIndex : nil
-        let code = CommentFilter.lines(lines, language: language)
-            .filter { !scaffoldLineIndices.contains($0.sourceIndex) }
+        let filtered = CommentFilter.lines(lines, language: language)
+        if !mode.isGraded && language != .plainText {
+            let targets = CodeHighlighter.highlight(filtered.map { Self.practiceTarget($0.text) }, language: language)
+            highlightedPractice = Dictionary(uniqueKeysWithValues: zip(filtered.map(\.sourceIndex), targets))
+        }
+        let code = filtered.filter { !scaffoldLineIndices.contains($0.sourceIndex) }
         practiceLines = PracticeLineSelection.lines(for: mode, from: code, keyLines: lesson?.keyLineIndices ?? [], weakLines: weakLineIndices)
         guard let anchor, let position = practiceLines.firstIndex(where: { $0.sourceIndex >= anchor }) else {
             restart()

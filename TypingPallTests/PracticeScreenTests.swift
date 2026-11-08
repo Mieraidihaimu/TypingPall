@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 @testable import TypingPall
 
@@ -99,6 +100,70 @@ final class LegacyLineDiffTests: XCTestCase {
     }
 }
 
+final class CodeHighlighterTests: XCTestCase {
+    func testCppDirectivesAndRawStringsDoNotLookLikeComments() {
+        let source = [
+            "#include <vector>",
+            #"constexpr auto text = R"demo(// return 0"#,
+            #"if 123)demo"; /* true"#,
+            "false */ return 1'000; // return 2"
+        ]
+        let styled = CodeHighlighter.highlight(source, language: .cpp)
+        XCTAssertEqual(styled.map { String($0.characters) }, source)
+        assertColor(TypingPalette.syntaxKeyword, of: "#include", in: styled[0])
+        assertColor(TypingPalette.syntaxKeyword, of: "constexpr", in: styled[1])
+        assertColor(TypingPalette.syntaxString, of: "// return 0", in: styled[1])
+        assertColor(TypingPalette.syntaxString, of: "if 123", in: styled[2])
+        assertColor(TypingPalette.syntaxComment, of: "/* true", in: styled[2])
+        assertColor(TypingPalette.syntaxComment, of: "false */", in: styled[3])
+        assertColor(TypingPalette.syntaxNumber, of: "1'000", in: styled[3])
+        assertColor(TypingPalette.syntaxComment, of: "// return 2", in: styled[3])
+    }
+
+    func testPythonStringsAndCommentsTakePrecedenceOverWordsAndNumbers() {
+        let source = [
+            "def café() -> str:",
+            "    \"\"\"return 42 # part of the docstring",
+            "    if 123\"\"\"",
+            #"    msg = "🙂 \" if 42 # text" # return 0"#,
+            "    return 7 // 2"
+        ]
+        let styled = CodeHighlighter.highlight(source, language: .python)
+        XCTAssertEqual(styled.map { String($0.characters) }, source)
+        assertColor(TypingPalette.syntaxType, of: "str", in: styled[0])
+        assertColor(TypingPalette.syntaxString, of: "return 42 # part of the docstring", in: styled[1])
+        assertColor(TypingPalette.syntaxString, of: "if 123", in: styled[2])
+        assertColor(TypingPalette.syntaxString, of: "if 42 # text", in: styled[3])
+        assertColor(TypingPalette.syntaxComment, of: "# return 0", in: styled[3])
+        assertColor(TypingPalette.syntaxKeyword, of: "return", in: styled[4])
+        assertColor(TypingPalette.syntaxNumber, of: "2", in: styled[4])
+    }
+
+    func testEachAdditionalLanguageUsesItsOwnKeywordsAndComments() {
+        let samples: [(CodeLanguage, String, String)] = [
+            (.rust, "fn", "//"), (.go, "func", "//"), (.ruby, "def", "#"), (.shell, "then", "#"),
+            (.swift, "let", "//"), (.javascript, "function", "//"), (.typescript, "interface", "//"),
+            (.sql, "SeLeCt", "--"), (.java, "public", "//"), (.kotlin, "fun", "//")
+        ]
+        for (language, word, marker) in samples {
+            let styled = CodeHighlighter.highlight(["\(word) value \(marker) 123"], language: language)[0]
+            assertColor(TypingPalette.syntaxKeyword, of: word, in: styled)
+            assertColor(TypingPalette.syntaxComment, of: "\(marker) 123", in: styled)
+        }
+        let plain = CodeHighlighter.highlight(["return 1 # note"], language: .plainText)[0]
+        XCTAssertTrue(plain.runs.allSatisfy { $0.foregroundColor == nil })
+    }
+
+    private func assertColor(_ color: Color, of text: String, in line: AttributedString,
+                             file: StaticString = #filePath, lineNumber: UInt = #line) {
+        guard let range = line.range(of: text) else {
+            return XCTFail("Missing \(text)", file: file, line: lineNumber)
+        }
+        XCTAssertTrue(line[range].runs.allSatisfy { $0.foregroundColor == color },
+                      "Unexpected color for \(text)", file: file, line: lineNumber)
+    }
+}
+
 @MainActor
 final class PracticeScreenModelTests: XCTestCase {
     func testReferenceRowsFlagCurrentAndSkippedLines() throws {
@@ -124,6 +189,25 @@ final class PracticeScreenModelTests: XCTestCase {
         XCTAssertEqual(model.progressText, "Pattern complete")
         try model.updatePlaceholder(with: "# only", language: .python)
         XCTAssertEqual(model.progressText, "No code to practice")
+    }
+
+    func testHighlightingFollowsTheVisibleTargetAndHidesInRecall() throws {
+        let model = TypingScreenViewModel(defaults: makeDefaults())
+        try model.updatePlaceholder(with: "# intro\n    return 42 # note", language: .python)
+        let target = try XCTUnwrap(model.highlightedTarget)
+        XCTAssertEqual(String(target.characters), "return 42")
+        XCTAssertEqual(target.runs.first?.foregroundColor, TypingPalette.syntaxKeyword)
+        XCTAssertEqual(model.referenceRows[0].highlightedText?.foregroundColor, TypingPalette.syntaxComment)
+
+        model.setLanguage(.plainText)
+        XCTAssertNil(model.highlightedTarget)
+        model.setLanguage(.python)
+        XCTAssertNotNil(model.highlightedTarget)
+
+        model.setMode(.recall)
+        XCTAssertNil(model.highlightedTarget)
+        XCTAssertTrue(model.referenceRows[1].isMasked)
+        XCTAssertNil(model.referenceRows[1].highlightedText)
     }
 
     func testSubtitleNamesTheSource() throws {

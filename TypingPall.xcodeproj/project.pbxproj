@@ -52,6 +52,8 @@
 		C30000000000000000000014 /* ContrastReferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000013 /* ContrastReferenceView.swift */; };
 		C30000000000000000000016 /* PatternDrillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000015 /* PatternDrillTests.swift */; };
 		C90000000000000000000002 /* TypingPall/Utils/TypingPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */; };
+		C90000000000000000000004 /* CodeHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000003 /* CodeHighlighter.swift */; };
+		C90000000000000000000005 /* CodeHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90000000000000000000003 /* CodeHighlighter.swift */; };
 		CA0000000000000000000002 /* TypingPall/Models/MasteryTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0000000000000000000001 /* TypingPall/Models/MasteryTelemetry.swift */; };
 		D10000000000000000000002 /* MasteryTelemetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* MasteryTelemetryTests.swift */; };
 		F80000000000000000000009 /* TypingPallPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* TypingPallPadApp.swift */; };
@@ -175,6 +177,7 @@
 		C70000000000000000000001 /* PersistenceRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceRepositoryTests.swift; sourceTree = "<group>"; };
 		C80000000000000000000001 /* DrillStateMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrillStateMachineTests.swift; sourceTree = "<group>"; };
 		C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Utils/TypingPalette.swift; sourceTree = SOURCE_ROOT; };
+		C90000000000000000000003 /* CodeHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeHighlighter.swift; sourceTree = "<group>"; };
 		CA0000000000000000000001 /* TypingPall/Models/MasteryTelemetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/MasteryTelemetry.swift; sourceTree = SOURCE_ROOT; };
 		D10000000000000000000001 /* MasteryTelemetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasteryTelemetryTests.swift; sourceTree = "<group>"; };
 		F80000000000000000000001 /* TypingPallPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TypingPallPadApp.swift"; sourceTree = "<group>"; };
@@ -376,6 +379,7 @@
 			children = (
 				7DCAA2B32A60024A00AFC118 /* String+Utils.swift */,
 				C90000000000000000000001 /* TypingPall/Utils/TypingPalette.swift */,
+				C90000000000000000000003 /* CodeHighlighter.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -635,6 +639,7 @@
 				C40000000000000000000002 /* TypingPall/Models/DrillState.swift in Sources */,
 				C60000000000000000000002 /* TypingPall/PersistenceRepository.swift in Sources */,
 				C90000000000000000000002 /* TypingPall/Utils/TypingPalette.swift in Sources */,
+				C90000000000000000000004 /* CodeHighlighter.swift in Sources */,
 				CA0000000000000000000002 /* TypingPall/Models/MasteryTelemetry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -689,6 +694,7 @@
 				F8000000000000000000001B /* TypingPall/Models/DrillState.swift in Sources */,
 				F8000000000000000000001C /* TypingPall/PersistenceRepository.swift in Sources */,
 				F8000000000000000000001D /* TypingPall/Utils/TypingPalette.swift in Sources */,
+				C90000000000000000000005 /* CodeHighlighter.swift in Sources */,
 				F8000000000000000000001E /* TypingPall/Models/MasteryTelemetry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

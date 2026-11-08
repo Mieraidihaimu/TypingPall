@@ -156,7 +156,7 @@ struct PracticeInputPanel: View {
     }
 
     private var styledTarget: AttributedString {
-        var text = AttributedString(targetText.isEmpty ? " " : targetText)
+        var text = viewModel.highlightedTarget ?? AttributedString(targetText.isEmpty ? " " : targetText)
         if let offset = highlightOffset, offset < targetText.count {
             let start = text.characters.index(text.startIndex, offsetBy: offset)
             text[start..<text.characters.index(after: start)].backgroundColor = Color.accentColor.opacity(0.25)

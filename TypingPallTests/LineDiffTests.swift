@@ -85,18 +85,21 @@ struct LineDiffTests {
     @Test("Headless visual snapshot of ReferenceCodeView in dark mode")
     @MainActor
     func headlessSnapshotReferenceCodeView() {
-        let rows = [
-            ReferenceRow(sourceIndex: 0, text: "func binarySearch(values: [Int], target: Int) -> Int {", isCurrent: false),
-            ReferenceRow(sourceIndex: 1, text: "    var left = 0", isCurrent: true),
-            ReferenceRow(sourceIndex: 2, text: "    var right = values.count", isCurrent: false),
-            ReferenceRow(sourceIndex: 3, text: "    return left", isCurrent: false)
+        let source = [
+            "func binarySearch(values: [Int], target: Int) -> Int {",
+            "    var left = 0",
+            "    var right = values.count",
+            "    return left"
         ]
+        let highlighted = CodeHighlighter.highlight(source, language: .swift)
+        let rows = source.enumerated().map { index, line in
+            ReferenceRow(sourceIndex: index, text: line, isCurrent: index == 1, highlightedText: highlighted[index])
+        }
         let view = ReferenceCodeView(
             rows: rows,
             fontSize: 16,
             currentIndex: 1,
-            contentKey: "testContent",
-            language: .swift
+            contentKey: "testContent"
         )
         let hosting = NSHostingView(rootView: view)
         hosting.frame = NSRect(x: 0, y: 0, width: 600, height: 240)

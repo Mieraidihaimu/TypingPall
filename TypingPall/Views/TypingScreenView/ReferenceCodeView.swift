@@ -8,6 +8,7 @@ struct ReferenceRow: Identifiable, Equatable {
     var isSkipped = false
     var isMasked = false
     var marker: Marker? = nil
+    var highlightedText: AttributedString? = nil
     var id: Int { sourceIndex }
 }
 
@@ -16,7 +17,6 @@ struct ReferenceCodeView: View {
     let fontSize: Double          // the typing size; rows draw at referenceFontSize(for:)
     let currentIndex: Int
     let contentKey: String        // changes when a new pattern loads → scroll to top
-    var language: CodeLanguage = .plainText
     var onSelectRow: ((Int) -> Void)? = nil
     var minHeight: CGFloat = 180
 
@@ -58,14 +58,14 @@ struct ReferenceCodeView: View {
 
     private func content(of row: ReferenceRow) -> some View {
         let line = Self.split(row.text)
-        let codeView: Text
-        if row.isMasked || row.isSkipped || language == .plainText {
-            let base = Text(line.code.isEmpty ? " " : line.code)
-            codeView = row.isSkipped ? base.italic() : base
+        let code: Text
+        if !row.isMasked, let highlighted = row.highlightedText, !line.code.isEmpty {
+            let start = highlighted.characters.index(highlighted.startIndex, offsetBy: line.indent.count)
+            code = Text(AttributedString(highlighted[start...]))
         } else {
-            let highlighted = CodeHighlighter.highlight(code: line.code.isEmpty ? " " : line.code, language: language)
-            codeView = Text(highlighted)
+            code = Text(line.code.isEmpty ? " " : line.code)
         }
+        let codeView = row.isSkipped ? code.italic() : code
         return HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text("\(row.sourceIndex + 1)")
                 .font(.system(.caption, design: .monospaced))
@@ -117,103 +117,3 @@ struct ReferenceCodeView: View {
         return parts.joined(separator: ", ")
     }
 }
-
-enum CodeHighlighter {
-    static func highlight(code: String, language: CodeLanguage) -> AttributedString {
-        var attributed = AttributedString(code)
-        guard language != .plainText, !code.isEmpty else { return attributed }
-
-        let trimmed = code.trimmingCharacters(in: .whitespaces)
-        if trimmed.hasPrefix("//") || trimmed.hasPrefix("#") || trimmed.hasPrefix("--") {
-            attributed.foregroundColor = TypingPalette.syntaxComment
-            return attributed
-        }
-
-        let kw = keywords(for: language)
-        let tp = types(for: language)
-
-        highlightPattern(in: &attributed, text: code, pattern: "\"[^\"]*\"|'[^']*'", color: TypingPalette.syntaxString)
-        highlightPattern(in: &attributed, text: code, pattern: "\\b\\d+(\\.\\d+)?\\b", color: TypingPalette.syntaxNumber)
-
-        for keyword in kw {
-            highlightWord(in: &attributed, text: code, word: keyword, color: TypingPalette.syntaxKeyword)
-        }
-
-        for typeName in tp {
-            highlightWord(in: &attributed, text: code, word: typeName, color: TypingPalette.syntaxType)
-        }
-
-        return attributed
-    }
-
-    private static func highlightPattern(in attributed: inout AttributedString, text: String, pattern: String, color: Color) {
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return }
-        let matches = regex.matches(in: text, range: NSRange(text.startIndex..., in: text))
-        for match in matches {
-            if let stringRange = Range(match.range, in: text),
-               let attrRange = Range(stringRange, in: attributed) {
-                attributed[attrRange].foregroundColor = color
-            }
-        }
-    }
-
-    private static func highlightWord(in attributed: inout AttributedString, text: String, word: String, color: Color) {
-        let pattern = "\\b\(NSRegularExpression.escapedPattern(for: word))\\b"
-        highlightPattern(in: &attributed, text: text, pattern: pattern, color: color)
-    }
-
-    private static func keywords(for language: CodeLanguage) -> Set<String> {
-        switch language {
-        case .python:
-            return ["def", "class", "return", "if", "elif", "else", "while", "for", "in", "try", "except", "finally", "with", "as", "import", "from", "lambda", "yield", "raise", "pass", "break", "continue", "and", "or", "not", "is", "None", "True", "False", "self", "async", "await"]
-        case .cpp:
-            return ["auto", "const", "static", "class", "struct", "public", "private", "protected", "virtual", "override", "template", "typename", "static_cast", "return", "if", "else", "while", "for", "new", "delete", "nullptr", "true", "false", "namespace", "using"]
-        case .rust:
-            return ["fn", "let", "mut", "pub", "struct", "enum", "impl", "trait", "for", "in", "while", "loop", "match", "if", "else", "return", "true", "false", "self", "Self", "use", "mod", "crate", "as", "where", "type", "async", "await", "Some", "None", "Ok", "Err"]
-        case .go:
-            return ["func", "var", "const", "type", "struct", "interface", "package", "import", "return", "if", "else", "for", "range", "switch", "case", "default", "select", "go", "defer", "chan", "map", "make", "new", "nil", "true", "false"]
-        case .ruby:
-            return ["def", "end", "class", "module", "return", "if", "elsif", "else", "unless", "while", "until", "for", "in", "do", "yield", "self", "nil", "true", "false", "require", "include"]
-        case .shell:
-            return ["if", "then", "else", "elif", "fi", "for", "while", "do", "done", "case", "esac", "function", "return", "exit", "echo", "export", "local", "alias"]
-        case .swift:
-            return ["func", "var", "let", "class", "struct", "enum", "protocol", "extension", "init", "deinit", "return", "if", "guard", "else", "while", "for", "in", "switch", "case", "default", "break", "continue", "fallthrough", "import", "public", "private", "fileprivate", "internal", "open", "static", "mutating", "self", "Self", "super", "try", "catch", "throw", "throws", "async", "await", "true", "false", "nil"]
-        case .javascript, .typescript:
-            return ["function", "const", "let", "var", "class", "return", "if", "else", "while", "for", "of", "in", "switch", "case", "default", "break", "continue", "import", "export", "from", "default", "new", "this", "super", "try", "catch", "finally", "throw", "async", "await", "yield", "true", "false", "null", "undefined", "typeof", "instanceof"]
-        case .sql:
-            return ["SELECT", "FROM", "WHERE", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER", "ON", "GROUP", "BY", "ORDER", "HAVING", "LIMIT", "OFFSET", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE", "DROP", "ALTER", "AS", "DISTINCT", "AND", "OR", "NOT", "IN", "IS", "NULL", "select", "from", "where", "join", "left", "right", "inner", "outer", "on", "group", "by", "order", "having", "limit", "offset", "insert", "into", "values", "update", "set", "delete", "create", "table", "drop", "alter", "as", "distinct", "and", "or", "not", "in", "is", "null"]
-        case .java:
-            return ["public", "private", "protected", "class", "interface", "extends", "implements", "static", "final", "void", "return", "if", "else", "while", "for", "switch", "case", "default", "break", "continue", "new", "this", "super", "try", "catch", "finally", "throw", "throws", "import", "package", "true", "false", "null"]
-        case .kotlin:
-            return ["fun", "val", "var", "class", "interface", "object", "return", "if", "else", "while", "for", "in", "when", "is", "as", "break", "continue", "package", "import", "public", "private", "protected", "internal", "override", "open", "data", "sealed", "suspend", "this", "super", "null", "true", "false"]
-        case .plainText:
-            return []
-        }
-    }
-
-    private static func types(for language: CodeLanguage) -> Set<String> {
-        switch language {
-        case .python:
-            return ["int", "str", "bool", "float", "list", "dict", "set", "tuple", "Optional", "List", "Dict", "Set"]
-        case .cpp:
-            return ["int", "long", "float", "double", "bool", "char", "void", "std", "vector", "string", "size_t", "pair", "unordered_map", "unordered_set"]
-        case .rust:
-            return ["i32", "i64", "u32", "u64", "usize", "isize", "f32", "f64", "bool", "char", "str", "String", "Vec", "Result", "Option"]
-        case .go:
-            return ["int", "int32", "int64", "uint", "uint32", "uint64", "string", "bool", "byte", "rune", "float32", "float64", "error"]
-        case .swift:
-            return ["Int", "Double", "Float", "Bool", "String", "Character", "Array", "Dictionary", "Set", "Optional", "Result", "Any", "AnyObject"]
-        case .javascript, .typescript:
-            return ["number", "string", "boolean", "object", "symbol", "bigint", "any", "unknown", "never", "void", "Array", "Promise", "Map", "Set", "Record"]
-        case .java:
-            return ["int", "long", "float", "double", "boolean", "char", "byte", "short", "void", "String", "List", "Map", "Set", "ArrayList", "HashMap", "HashSet"]
-        case .kotlin:
-            return ["Int", "Long", "Float", "Double", "Boolean", "Char", "Byte", "Short", "String", "List", "Map", "Set", "Array"]
-        case .sql:
-            return ["INT", "INTEGER", "BIGINT", "VARCHAR", "TEXT", "BOOLEAN", "DATE", "TIMESTAMP", "FLOAT", "DECIMAL", "NUMERIC"]
-        default:
-            return []
-        }
-    }
-}
-
