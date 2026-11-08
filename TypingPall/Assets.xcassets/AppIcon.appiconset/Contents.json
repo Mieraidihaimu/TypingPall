@@ -1,6 +1,12 @@
 {
   "images" : [
     {
+      "filename" : "App Icon-iPad.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
       "filename" : "App Icon-2 copy 8.png",
       "idiom" : "mac",
       "scale" : "1x",

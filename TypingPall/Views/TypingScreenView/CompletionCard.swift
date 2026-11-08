@@ -34,7 +34,7 @@ struct CompletionCard<Accessory: View>: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(TypingPalette.practiceSurface)
         .cornerRadius(12)
     }
 

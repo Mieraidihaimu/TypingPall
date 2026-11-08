@@ -1,7 +1,28 @@
 import SwiftUI
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 
 public enum TypingPalette {
+    static var practiceSurface: Color {
+        #if os(macOS)
+        Color(nsColor: .controlBackgroundColor)
+        #else
+        Color(uiColor: .secondarySystemBackground)
+        #endif
+    }
+
+    static var practiceInputBackground: Color {
+        #if os(macOS)
+        Color(nsColor: .textBackgroundColor)
+        #else
+        Color(uiColor: .systemBackground)
+        #endif
+    }
+
+    #if os(macOS)
     // MARK: - Surfaces
     public static var windowBackground: Color {
         Color(nsColor: NSColor(name: nil) { appearance in
@@ -134,4 +155,12 @@ public enum TypingPalette {
                 : NSColor(red: 0x8C/255.0, green: 0x8D/255.0, blue: 0x92/255.0, alpha: 1.0) // #8C8D92
         })
     }
+    #else
+    static var statusCorrected: Color { .orange }
+    static var syntaxKeyword: Color { .indigo }
+    static var syntaxType: Color { .teal }
+    static var syntaxString: Color { .green }
+    static var syntaxNumber: Color { .purple }
+    static var syntaxComment: Color { .secondary }
+    #endif
 }
