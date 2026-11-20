@@ -4,10 +4,11 @@
 
 **Make code patterns familiar, one line at a time.**
 
-A native macOS practice app for algorithms, low-level design, language idioms, and concurrency.
+A native Mac and iPad app for practicing algorithms, low-level design, language idioms, and concurrency.
 
-[![macOS checks](https://github.com/Mieraidihaimu/TypingPall/actions/workflows/run_tests.yml/badge.svg)](https://github.com/Mieraidihaimu/TypingPall/actions/workflows/run_tests.yml)
-![macOS 12+](https://img.shields.io/badge/macOS-12%2B-222222?logo=apple)
+[![Build and test checks](https://github.com/Mieraidihaimu/TypingPall/actions/workflows/run_tests.yml/badge.svg)](https://github.com/Mieraidihaimu/TypingPall/actions/workflows/run_tests.yml)
+![macOS 14+](https://img.shields.io/badge/macOS-14%2B-222222?logo=apple)
+![iPadOS 26+](https://img.shields.io/badge/iPadOS-26%2B-222222?logo=apple)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 [Get started](#get-started) · [Explore the lessons](#lessons-ready-to-practice) · [Contribute](CONTRIBUTING.md)
@@ -17,41 +18,35 @@ A native macOS practice app for algorithms, low-level design, language idioms, a
 Reading an algorithm is one step. Writing it again helps you notice the details. TypingPall keeps a complete code pattern in view while you reproduce it line by line, correct differences, and repeat the parts you want to remember.
 
 <p align="center">
-  <img src="screenshots/practice.jpg" alt="TypingPall practicing C++ binary search: the indented reference line is highlighted and matching input starts directly with int left = 0;" width="640">
+  <img src="screenshots/practice.jpg" alt="TypingPall on Mac with the current line of a C++ binary search exercise highlighted" width="640">
 </p>
 
 ## A small, focused practice loop
 
 1. **Choose a pattern.** Open a built-in lesson, paste your own snippet, or import a source file.
-2. **Type the line shown above the input.** Leading spaces and tabs are skipped automatically, and the first difference is underlined.
+2. **Type the line shown above the input.** Copy shows syntax-highlighted code and underlines input from the first difference. Practice skips leading indentation, blank lines, and code comments while keeping the full source visible in Copy.
 3. **Press Return to continue.** Repeat a tricky line or restart the entire pattern whenever you want. When you finish, the next lesson is one Return away.
 
-To check whether you can spot a pattern before writing it, press **⇧⌘D**: the *Which pattern?* drill shows a short scenario, then the cues that identify the answer.
+On Mac, press **⇧⌘D** to open *Which pattern?* and identify a pattern from a short scenario before you write it.
 
-- **Built-in lessons in three tracks** (LeetCode, Low-level design, Languages & syntax) across Python, Swift, C++, Rust, Go, Ruby, and Shell, with search and topic filters.
-- **LeetCode and design patterns include recall notes** (cues, invariant, pitfalls, anchors, mantra), and library search matches the cues.
-- **Practice from memory.** Key lines (⌘2) and Recall (⌘3) hide code, check each line when you press Return, offer one-token hints on request (⌘'), and grade the attempt without timing it.
-- **Optional comment skipping** lets you focus on code while the full reference stays visible.
+- **164 built-in lessons in three tracks** (LeetCode, Low-level design, Languages & syntax) across Python, Swift, C++, Rust, Go, Ruby, and Shell, with search and topic filters.
+- **Recall notes** cover cues, invariants, pitfalls, and related problems for selected lessons. Library search matches the cues.
+- **Practice from memory.** Key lines hides selected lines, and Recall hides the body of the pattern. Both check your answer on Return, reveal one token at a time on request, and grade the attempt without a time limit.
 - **Your own practice library** stores imported and pasted patterns locally.
-- **Calm progress** shows your place (2 of 13), with no timer or speed target.
-- **Native and offline** with SwiftUI, AppKit, and Core Data. No account, analytics, or third-party runtime dependencies.
-- **Comfortable input** with adjustable monospaced text, tab width, and an optional on-screen keyboard.
+- **Offline practice** with no account, analytics, or third-party runtime dependencies.
+- **Adjustable input** with monospaced text sizing, tab width, and an optional on-screen keyboard layout on Mac.
 
 ## Get started
 
 ### Download for macOS
 
-Download the DMG from [GitHub Releases](https://github.com/Mieraidihaimu/TypingPall/releases/latest), then drag **TypingPall** into **Applications**. The download requires an Apple Silicon Mac with macOS 14 or later.
+Download the DMG from [GitHub Releases](https://github.com/Mieraidihaimu/TypingPall/releases/latest), open it, and drag **TypingPall** into **Applications**. The download requires an Apple Silicon Mac with macOS 14 or later.
 
-### Install via Homebrew
+The 1.2.0 download is ad hoc signed. See the [1.2.0 release notes](https://github.com/Mieraidihaimu/TypingPall/releases/tag/v1.2.0) for first-launch instructions and checksums.
 
-```sh
-brew install --cask mieraidihaimu/tap/typingpall
-```
+### Build for macOS
 
-### Or build from source
-
-On a Mac with full Xcode installed:
+Clone the repository and open the project in Xcode.
 
 ```sh
 git clone https://github.com/Mieraidihaimu/TypingPall.git
@@ -67,7 +62,11 @@ Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. T
 
 In Xcode 26 or later, select the **TypingPallPad** scheme and run on an iPad or simulator with iPadOS 26 or later. For a physical iPad, select your development team for the TypingPallPad target. The same project contains the Mac and iPad apps.
 
-The iPad app supports Copy, Key Lines, and Recall. Type with Magic Keyboard or the software keyboard, then press **Return** or tap the line action. Open **Library** to browse lessons or saved scripts. Use **Actions** to add a snippet, import a UTF-8 file from Files, or change practice settings. Scripts and mastery are stored locally on the iPad.
+The iPad app supports Copy, Key lines, and Recall. Type with a hardware keyboard or the onscreen keyboard, then press **Return** or tap the line action. Open **Library** to browse lessons or saved scripts. Use **Actions** to add a snippet, import a UTF-8 file from Files, or change practice settings. Scripts and mastery are stored locally on the iPad.
+
+<p align="center">
+  <img src="screenshots/ipad-practice.png" alt="TypingPall practice screen on iPad" width="640">
+</p>
 
 In Xcode, use **Product → Test** with the TypingPallPad scheme to run the shared practice tests and iPad UI tests.
 
@@ -96,9 +95,9 @@ For senior practice, try **Advanced concurrency** and **Reliable components**. T
 
 ![The lesson library with a sliding-window Python example, searchable topics, and a code preview](screenshots/library.jpg)
 
-Browse the original examples in [lessons.json](TypingPall/Content/lessons.json). Imported snippets are used as practice text; the app does not execute them.
+Browse the [lesson source files](library/lessons/) or the [bundled catalog](TypingPall/Content/lessons.json).
 
-## Shortcuts
+## macOS shortcuts
 
 | Action | Shortcut |
 | --- | --- |
@@ -113,14 +112,14 @@ Browse the original examples in [lessons.json](TypingPall/Content/lessons.json).
 
 ## A few useful details
 
-Indentation and blank lines stay visible in the reference. Practice skips leading spaces, tabs, and blank lines. Internal and trailing spaces still count. Press Return to confirm each typed line.
+In Copy, **Strict** spacing checks internal and trailing spaces. **Relaxed** spacing accepts some whitespace differences around punctuation and operators while preserving spaces inside strings.
 
 Imports accept UTF-8 files up to 1 MB and 20,000 normalized characters. Line endings are normalized, tabs expand to your configured width, and Unicode is preserved. The practice input accepts one line at a time; paste complete snippets into **Add Script**. Saved patterns survive relaunches; your current practice position does not.
 
 **Save & Practice** opens your script for practice and saves it under **Library → My scripts**.
 Search and reopen saved scripts and imported files there.
 
-Code practice skips comments automatically and keeps them visible in the reference. Plain text keeps comment markers as ordinary text. Python docstrings stay in the exercise.
+Plain text keeps comment markers as ordinary text. Python docstrings stay in the exercise.
 
 ## Build and contribute
 
