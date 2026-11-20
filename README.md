@@ -40,9 +40,7 @@ On Mac, press **⇧⌘D** to open *Which pattern?* and identify a pattern from a
 
 ### Download for macOS
 
-Download the DMG from [GitHub Releases](https://github.com/Mieraidihaimu/TypingPall/releases/latest), open it, and drag **TypingPall** into **Applications**. The download requires an Apple Silicon Mac with macOS 14 or later.
-
-The 1.2.0 download is ad hoc signed. See the [1.2.0 release notes](https://github.com/Mieraidihaimu/TypingPall/releases/tag/v1.2.0) for first-launch instructions and checksums.
+Download the DMG, open it, and drag **TypingPall** into **Applications**. The app requires an Apple Silicon Mac with macOS 14 or later. The download, signing details, first-launch instructions, and checksums are on the [latest GitHub release](https://github.com/Mieraidihaimu/TypingPall/releases/latest).
 
 ### Build for macOS
 
