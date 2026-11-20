@@ -56,7 +56,7 @@ open TypingPall.xcodeproj
 
 Select the **TypingPall** scheme, choose **My Mac**, and press **⌘R**. The app targets macOS 14 or later. If Xcode requests signing configuration, choose your development team under Signing & Capabilities.
 
-Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. To practice your own code, use **Add Script** or **⌘O** to import a UTF-8 source file.
+Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. Open **Search** (⌘K) or **Settings → Library** to add a script, import a UTF-8 source file, or browse the library.
 
 ### Build for iPad
 

@@ -2,15 +2,18 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct TypingScreenView: View {
-    private enum LibraryAction { case addScript, importFile }
+    private enum Sheet: String, Identifiable {
+        case script, search, drill, library
+        var id: Self { self }
+    }
 
+    let practiceWindows: PracticeWindows
     @Environment(\.persistenceRepository) private var repository
     @StateObject private var viewModel = TypingScreenViewModel()
     @State private var isImporting = false
     @State private var isShowingOptions = false
-    @State private var isShowingDrill = false
-    @State private var isShowingQuickSwitcher = false
-    @State private var pendingLibraryAction: LibraryAction?
+    @State private var sheet: Sheet?
+    @State private var pendingLibraryAction: PracticeLibraryAction?
     @State private var errorMessage: String?
     @State private var contrastStatement = ""   // unsaved
     @State private var isComparingMantras = false
@@ -66,7 +69,7 @@ struct TypingScreenView: View {
                                accessoryOwnsDefaultAction: viewModel.contrast != nil,
                                onNext: { if let next = viewModel.nextLesson { loadLesson(next) } },
                                onRepeat: { viewModel.restart() },
-                               onLibrary: { viewModel.isShowingHistoryUploads = true }) {
+                               onLibrary: { sheet = .library }) {
                     completionAccessory
                 }
             } else if viewModel.bugHunt?.phase != .finding {
@@ -79,29 +82,40 @@ struct TypingScreenView: View {
             }
         }
         .padding(24)
-        .background(modeShortcuts)
+        .background(practiceShortcuts)
+        .background {
+            PracticeWindowAttachment(practiceWindows: practiceWindows, perform: openLibraryAction)
+                .frame(width: 0, height: 0)
+                .accessibilityHidden(true)
+        }
         .frame(minWidth: 760, idealWidth: 900, minHeight: 620, idealHeight: 740)
         .navigationTitle(viewModel.lessonTitle)
         .modifier(SubtitleModifier(text: viewModel.lessonSubtitle))
         .onChange(of: viewModel.editorText) { text in
             viewModel.lastKeyboardType = text.last.map(String.init)
         }
-        .sheet(isPresented: $viewModel.isShowingPlaceholderText) { scriptSheet }
-        .sheet(isPresented: $isShowingQuickSwitcher) {
-            QuickSwitcherPaletteView(lessons: PracticeCatalog.lessons) { loadLesson($0) }
-        }
-        .sheet(isPresented: $isShowingDrill) {
-            RecognitionDrillView { lesson in
-                do { try viewModel.loadLesson(lesson); viewModel.setMode(.recall) }
-                catch { errorMessage = error.localizedDescription }
+        .sheet(item: $sheet, onDismiss: runPendingLibraryAction) { presentedSheet in
+            switch presentedSheet {
+            case .script:
+                scriptSheet
+            case .search:
+                QuickSwitcherPaletteView(lessons: PracticeCatalog.lessons, onSelect: loadLesson,
+                                         onLibraryAction: { pendingLibraryAction = $0 })
+            case .drill:
+                RecognitionDrillView { lesson in
+                    do { try viewModel.loadLesson(lesson); viewModel.setMode(.recall) }
+                    catch { errorMessage = error.localizedDescription }
+                }
+                .frame(minWidth: 560, minHeight: 460)
+            case .library:
+                HistoryUploadsView(onSelect: { text, language in load(text, language: language) }, onSelectLesson: loadLesson,
+                                   onAddScript: { pendingLibraryAction = .addScript }, onImport: { pendingLibraryAction = .importFile },
+                                   onSelectBugHunt: { startBugHunt($0) }, onSelectContrast: startContrast)
+                    .frame(minWidth: 680, idealWidth: 860, minHeight: 460, idealHeight: 600)
             }
-            .frame(minWidth: 560, minHeight: 460)
         }
-        .sheet(isPresented: $viewModel.isShowingHistoryUploads, onDismiss: runPendingLibraryAction) {
-            HistoryUploadsView(onSelect: { text, language in load(text, language: language) }, onSelectLesson: loadLesson,
-                               onAddScript: { pendingLibraryAction = .addScript }, onImport: { pendingLibraryAction = .importFile },
-                               onSelectBugHunt: { startBugHunt($0) }, onSelectContrast: startContrast)
-                .frame(minWidth: 680, idealWidth: 860, minHeight: 460, idealHeight: 600)
+        .onChange(of: isImporting) { importing in
+            if !importing { runPendingLibraryAction() }
         }
         .fileImporter(isPresented: $isImporting, allowedContentTypes: [.data], allowsMultipleSelection: false) { result in
             do {
@@ -120,27 +134,23 @@ struct TypingScreenView: View {
                 }
             } catch { errorMessage = error.localizedDescription }
         }
-        .alert("Couldn’t complete that action", isPresented: Binding(get: { errorMessage != nil && !viewModel.isShowingPlaceholderText }, set: { if !$0 { errorMessage = nil } })) {
+        .alert("Couldn’t complete that action", isPresented: Binding(get: { errorMessage != nil && sheet != .script }, set: { if !$0 { errorMessage = nil } })) {
             Button("OK", role: .cancel) { errorMessage = nil }
         } message: { Text(errorMessage ?? "") }
         .toolbar {
-            ToolbarItemGroup {
-                Button { isShowingQuickSwitcher = true } label: { Label("Quick Switcher", systemImage: "magnifyingglass") }
+            ToolbarItem(placement: .navigation) {
+                Button { sheet = .search } label: { Label("Search", systemImage: "magnifyingglass") }
                     .keyboardShortcut("k", modifiers: .command)
                     .accessibilityIdentifier("quickSwitcher")
+            }
+            ToolbarItemGroup {
                 Button { isShowingOptions = true } label: { Label("Options", systemImage: "slider.horizontal.3") }
                     .accessibilityIdentifier("practiceOptions")
                     .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) { PracticeOptionsPopover(viewModel: viewModel) }
                 Button { viewModel.restart() } label: { Label("Repeat Pattern", systemImage: "arrow.counterclockwise") }
                     .keyboardShortcut("r", modifiers: .command)
                     .accessibilityIdentifier("restartPractice")
-                Button(action: showScriptSheet) { Label("Add Script", systemImage: "plus") }
-                    .keyboardShortcut("n", modifiers: [.command, .shift])
-                Button { isImporting = true } label: { Label("Import File", systemImage: "square.and.arrow.down") }
-                    .keyboardShortcut("o", modifiers: .command)
-                Button { viewModel.isShowingHistoryUploads = true } label: { Label("Library", systemImage: "books.vertical") }
-                    .keyboardShortcut("l", modifiers: .command)
-                Button { isShowingDrill = true } label: { Label("Which Pattern?", systemImage: "questionmark.circle") }
+                Button { sheet = .drill } label: { Label("Which Pattern?", systemImage: "questionmark.circle") }
                     .keyboardShortcut("d", modifiers: [.command, .shift])
                     .accessibilityIdentifier("whichPattern")
             }
@@ -156,16 +166,23 @@ struct TypingScreenView: View {
         return { line in viewModel.selectReferenceLine(line) }
     }
 
-    // Interim ⌘1–⌘3 until menus exist; opacity 0 (not hidden) keeps the shortcuts registered.
-    private var modeShortcuts: some View {
+    // Keep keyboard shortcuts registered without adding visible controls.
+    private var practiceShortcuts: some View {
         ZStack {
             ForEach(PracticeMode.allCases) { mode in
                 Button(mode.title) { viewModel.setMode(mode) }
                     .keyboardShortcut(KeyEquivalent(Character(String(mode.rawValue + 1))), modifiers: .command)
             }
-            Button("Quick Switcher") { isShowingQuickSwitcher = true }
+            Button("Search") { sheet = .search }
                 .keyboardShortcut("p", modifiers: .command)
+            Button("Add Script") { openLibraryAction(.addScript) }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button("Import File") { openLibraryAction(.importFile) }
+                .keyboardShortcut("o", modifiers: .command)
+            Button("Library") { openLibraryAction(.library) }
+                .keyboardShortcut("l", modifiers: .command)
         }
+        .disabled(sheet != nil || isImporting)
         .opacity(0)
         .frame(width: 0, height: 0)
         .accessibilityHidden(true)
@@ -185,13 +202,13 @@ struct TypingScreenView: View {
                 .frame(height: 280)
             if let errorMessage { Text(errorMessage).foregroundColor(.red).font(.caption) }
             HStack {
-                Button("Cancel") { viewModel.isShowingPlaceholderText = false }.keyboardShortcut(.cancelAction)
+                Button("Cancel") { sheet = nil }.keyboardShortcut(.cancelAction)
                 Spacer()
                 Button("Save & Practice") {
                     Task {
                         do {
                             try await saveAndLoad(viewModel.temPlaceholderText, language: viewModel.draftLanguage)
-                            viewModel.isShowingPlaceholderText = false
+                            sheet = nil
                         } catch { errorMessage = error.localizedDescription }
                     }
                 }
@@ -291,20 +308,27 @@ struct TypingScreenView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func showScriptSheet() {
-        errorMessage = nil
-        viewModel.temPlaceholderText = ""
-        viewModel.isShowingPlaceholderText = true
+    private func openLibraryAction(_ action: PracticeLibraryAction) {
+        guard sheet == nil, !isImporting else {
+            pendingLibraryAction = action
+            return
+        }
+        switch action {
+        case .addScript:
+            errorMessage = nil
+            viewModel.temPlaceholderText = ""
+            sheet = .script
+        case .importFile:
+            isImporting = true
+        case .library:
+            sheet = .library
+        }
     }
 
-    // A sheet can't open while the library sheet is still presented.
     private func runPendingLibraryAction() {
-        defer { pendingLibraryAction = nil }
-        switch pendingLibraryAction {
-        case .addScript?: showScriptSheet()
-        case .importFile?: isImporting = true
-        case nil: break
-        }
+        guard let action = pendingLibraryAction else { return }
+        pendingLibraryAction = nil
+        openLibraryAction(action)
     }
 }
 

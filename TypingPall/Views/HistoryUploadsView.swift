@@ -239,6 +239,7 @@ struct HistoryUploadsView: View {
 struct QuickSwitcherPaletteView: View {
     let lessons: [PracticeLesson]
     let onSelect: (PracticeLesson) -> Void
+    let onLibraryAction: (PracticeLibraryAction) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
     @FocusState private var isSearchFocused: Bool
@@ -345,6 +346,17 @@ struct QuickSwitcherPaletteView: View {
                 }
                 .listStyle(.inset)
             }
+
+            Divider()
+
+            HStack {
+                Button { select(.addScript) } label: { Label("Add Script", systemImage: "plus") }
+                Button { select(.importFile) } label: { Label("Import File", systemImage: "square.and.arrow.down") }
+                Spacer()
+                Button { select(.library) } label: { Label("Library", systemImage: "books.vertical") }
+            }
+            .labelStyle(.titleAndIcon)
+            .padding(12)
         }
         .frame(width: 580, height: 380)
         .onAppear {
@@ -352,6 +364,11 @@ struct QuickSwitcherPaletteView: View {
                 isSearchFocused = true
             }
         }
+    }
+
+    private func select(_ action: PracticeLibraryAction) {
+        onLibraryAction(action)
+        dismiss()
     }
 }
 

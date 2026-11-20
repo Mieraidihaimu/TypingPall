@@ -4,6 +4,8 @@ import SwiftUI
 /// Native plain-text input. The reference is rendered separately so it can never
 /// enter the user's input or undo history. Uses the macOS 12 NSTextView API.
 struct TextKit2TypingEditor: NSViewRepresentable {
+    private static let verticalInset: CGFloat = 4
+
     @Binding var typedText: String
     @Binding var targetText: String
     var fontSize: CGFloat
@@ -15,6 +17,15 @@ struct TextKit2TypingEditor: NSViewRepresentable {
     var onSubmit: (() -> Void)? = nil
     var onReject: ((PracticeText.InputRejection) -> Void)? = nil
 
+    static func height(fontSize: CGFloat, visibleLines: CGFloat) -> CGFloat {
+        let lineHeight = NSLayoutManager().defaultLineHeight(for: editorFont(size: fontSize))
+        return ceil(lineHeight * visibleLines) + 2 * verticalInset
+    }
+
+    fileprivate static func editorFont(size: CGFloat) -> NSFont {
+        .monospacedSystemFont(ofSize: min(30, max(10, size)), weight: .regular)
+    }
+
     func makeCoordinator() -> TextKit2Coordinator { TextKit2Coordinator(self) }
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -23,7 +34,7 @@ struct TextKit2TypingEditor: NSViewRepresentable {
         textView.delegate = context.coordinator
         textView.isRichText = false
         textView.allowsUndo = true
-        textView.textContainerInset = NSSize(width: 16, height: 8)
+        textView.textContainerInset = NSSize(width: 16, height: Self.verticalInset)
         textView.textContainer?.lineFragmentPadding = 0
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
@@ -111,7 +122,7 @@ final class TextKit2Coordinator: NSObject, NSTextViewDelegate {
 
     func applyStyle() {
         guard let textView, !textView.hasMarkedText(), let storage = textView.textStorage else { return }
-        let font = NSFont.monospacedSystemFont(ofSize: min(30, max(12, parent.fontSize)), weight: .regular)
+        let font = TextKit2TypingEditor.editorFont(size: parent.fontSize)
         let base: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: NSColor.labelColor]
         storage.beginEditing()
         storage.setAttributes(base, range: NSRange(location: 0, length: storage.length))

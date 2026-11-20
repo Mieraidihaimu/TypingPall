@@ -12,11 +12,21 @@ final class TypingPallUITests: XCTestCase {
         return app
     }
 
+    private func chooseSearchAction(_ title: String, in app: XCUIApplication) {
+        let search = app.buttons["quickSwitcher"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        search.click()
+        let action = app.buttons[title]
+        XCTAssertTrue(action.waitForExistence(timeout: 5))
+        action.click()
+    }
+
     func testLinePracticeCorrectionRepetitionCompletionAndLibrary() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
-        let addScript = app.buttons["Add Script"]
-        XCTAssertTrue(addScript.waitForExistence(timeout: 10))
-        addScript.click()
+        let search = app.buttons["quickSwitcher"]
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        XCTAssertLessThan(search.frame.midX, app.windows.firstMatch.frame.midX)
+        chooseSearchAction("Add Script", in: app)
         let script = app.textViews["scriptText"]
         XCTAssertTrue(script.waitForExistence(timeout: 5))
         script.click()
@@ -26,6 +36,7 @@ final class TypingPallUITests: XCTestCase {
         XCTAssertTrue(input.waitForExistence(timeout: 5))
         let inputFrame = input.frame
         XCTAssertGreaterThan(inputFrame.midY, app.windows.firstMatch.frame.midY)
+        XCTAssertLessThan(inputFrame.height, 60, "The input only reserves room for a short line and wrapping")
         XCTAssertFalse(app.textFields["sidebarSearch"].exists)
         XCTAssertFalse(app.scrollViews["theoryInspector"].exists)
         XCTAssertEqual(app.staticTexts["targetLine"].text, "abc")
@@ -50,7 +61,7 @@ final class TypingPallUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts["targetLine"].text, "abc")
         app.buttons["restartPractice"].click()
         XCTAssertEqual(app.textViews["practiceInput"].value as? String, "")
-        app.buttons["Library"].click()
+        chooseSearchAction("Library", in: app)
         app.segment("My scripts").click()
         app.buttons["Practice"].click()
         XCTAssertEqual(app.textViews["practiceInput"].value as? String, "")
@@ -58,26 +69,44 @@ final class TypingPallUITests: XCTestCase {
 
     func testEmptyScriptCannotBeSaved() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
-        let addScript = app.buttons["Add Script"]
-        XCTAssertTrue(addScript.waitForExistence(timeout: 10))
-        addScript.click()
+        chooseSearchAction("Add Script", in: app)
         XCTAssertFalse(app.buttons["Save & Practice"].isEnabled)
         app.buttons["Cancel"].click()
         XCTAssertTrue(app.textViews["practiceInput"].exists)
     }
 
+    func testSettingsLibraryActionsOpenInThePracticeWindow() {
+        let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
+        let input = app.textViews["practiceInput"]
+        XCTAssertTrue(input.waitForExistence(timeout: 10))
+        input.click()
+        input.typeText("draft")
+
+        app.typeKey(",", modifierFlags: .command)
+        let libraryTab = app.segment("Library")
+        XCTAssertTrue(libraryTab.waitForExistence(timeout: 5))
+        libraryTab.click()
+        app.buttons["Add Script"].click()
+        XCTAssertTrue(app.textViews["scriptText"].waitForExistence(timeout: 5))
+        app.buttons["Cancel"].click()
+
+        app.typeKey(",", modifierFlags: .command)
+        app.buttons["Open Library"].click()
+        XCTAssertTrue(app.textFields["lessonSearch"].waitForExistence(timeout: 5))
+        app.buttons["Done"].click()
+        XCTAssertEqual(input.value as? String, "draft")
+    }
+
     func testSavedScriptCanBeFoundAndReopenedInLibrary() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-ux.lastScriptLanguage", "plainText"])
-        let addScript = app.buttons["Add Script"]
-        XCTAssertTrue(addScript.waitForExistence(timeout: 10))
-        addScript.click()
+        chooseSearchAction("Add Script", in: app)
         let editor = app.textViews["scriptText"]
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.click()
         editor.typeText("saved_script_probe = 42")
         app.buttons["Save & Practice"].click()
 
-        app.buttons["Library"].click()
+        chooseSearchAction("Library", in: app)
         app.segment("My scripts").click()
         let search = app.textFields["scriptSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
@@ -96,9 +125,7 @@ final class TypingPallUITests: XCTestCase {
 
     func testBuiltInLessonSearchLoadAndCommentSkipping() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES", "-skipPracticeComments", "NO"])
-        let library = app.buttons["Library"]
-        XCTAssertTrue(library.waitForExistence(timeout: 10))
-        library.click()
+        chooseSearchAction("Library", in: app)
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -124,9 +151,7 @@ final class TypingPallUITests: XCTestCase {
 
     func testLibrarySearchMatchesTriggersAndShowsPatternNotes() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
-        let library = app.buttons["Library"]
-        XCTAssertTrue(library.waitForExistence(timeout: 10))
-        library.click()
+        chooseSearchAction("Library", in: app)
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -148,9 +173,7 @@ final class TypingPallUITests: XCTestCase {
 
     func testKeyLinesCheckOnReturnHintsAndSelfRating() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
-        let library = app.buttons["Library"]
-        XCTAssertTrue(library.waitForExistence(timeout: 10))
-        library.click()
+        chooseSearchAction("Library", in: app)
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -190,9 +213,7 @@ final class TypingPallUITests: XCTestCase {
 
     func testBugHuntFindFixAndExplanation() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
-        let library = app.buttons["Library"]
-        XCTAssertTrue(library.waitForExistence(timeout: 10))
-        library.click()
+        chooseSearchAction("Library", in: app)
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()
@@ -211,9 +232,7 @@ final class TypingPallUITests: XCTestCase {
 
     func testContrastPairFromTheLibrary() {
         let app = launchApp(arguments: ["-ux.hasSeenPracticeTip", "YES"])
-        let library = app.buttons["Library"]
-        XCTAssertTrue(library.waitForExistence(timeout: 10))
-        library.click()
+        chooseSearchAction("Library", in: app)
         let search = app.textFields["lessonSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.click()

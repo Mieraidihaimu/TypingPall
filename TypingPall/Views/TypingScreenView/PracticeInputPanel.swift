@@ -17,6 +17,14 @@ struct PracticeInputPanel: View {
     var primaryTitle: String { viewModel.mode.isGraded ? "Check" : viewModel.isLastPracticeLine ? "Finish Pattern" : "Next Line" }
     var primaryEnabled: Bool { viewModel.mode.isGraded ? viewModel.hasPracticeLines : viewModel.isLineMatched }
 
+    #if os(macOS)
+    private var inputFontSize: Double { max(10, ReferenceCodeView.referenceFontSize(for: fontSize) - 2) }
+    private let targetTopPadding: CGFloat = 6
+    #else
+    private var inputFontSize: Double { min(30, max(12, fontSize)) }
+    private let targetTopPadding: CGFloat = 12
+    #endif
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if !hasSeenTip {
@@ -32,10 +40,10 @@ struct PracticeInputPanel: View {
             VStack(alignment: .leading, spacing: 0) {
                 if viewModel.bugHunt == nil {
                     Text(styledTarget)
-                        .font(.system(size: min(30, max(12, fontSize)), design: .monospaced))
+                        .font(.system(size: inputFontSize, design: .monospaced))
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16).padding(.top, 12)
+                        .padding(.horizontal, 16).padding(.top, targetTopPadding)
                         .accessibilityIdentifier("targetLine")
                         .accessibilityLabel(stripLabel)
                         .accessibilityHint("The line to type")
@@ -88,12 +96,13 @@ struct PracticeInputPanel: View {
             .frame(height: max(48, fontSize * 2 + 12))
         #else
         TextKit2TypingEditor(typedText: $viewModel.editorText, targetText: .constant(viewModel.currentLine),
-                             fontSize: fontSize, tabSpaces: viewModel.sessionTabSpaces,
+                             fontSize: inputFontSize, tabSpaces: viewModel.sessionTabSpaces,
                              diffTolerance: viewModel.diffTolerance,
                              isEnabled: viewModel.hasPracticeLines, resetID: viewModel.sessionID,
                              liveFeedback: !viewModel.mode.isGraded,
                              onSubmit: { viewModel.send(.commitLineOnReturn) }, onReject: { notice = $0.message })
-            .frame(minHeight: 100, idealHeight: 130, maxHeight: 160)
+            .frame(height: TextKit2TypingEditor.height(fontSize: inputFontSize,
+                                                      visibleLines: viewModel.bugHunt == nil ? 1.5 : 2.5))
         #endif
     }
 

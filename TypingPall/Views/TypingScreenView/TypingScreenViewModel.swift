@@ -31,8 +31,6 @@ final class TypingScreenViewModel: ObservableObject {
             }
         }
     }
-    @Published var isShowingPlaceholderText = false
-    @Published var isShowingHistoryUploads = false
     @Published private(set) var placeholderText = starterPattern
     @Published private(set) var lines = starterPattern.components(separatedBy: "\n")
     @Published private(set) var practiceLines: [PracticeLine] = []
