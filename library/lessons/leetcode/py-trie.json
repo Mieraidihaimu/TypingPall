@@ -1,0 +1,91 @@
+{
+  "id": "py-trie",
+  "title": "Trie: insert, search and delete",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Store one character per edge and mark complete words. On deletion, prune the unused suffix while preserving shared prefixes.",
+  "code": [
+    "class Trie:",
+    "    def __init__(self):",
+    "        self.root = {}",
+    "",
+    "    def insert(self, word):",
+    "        node = self.root",
+    "        for char in word:",
+    "            node = node.setdefault(char, {})",
+    "        node[None] = True",
+    "",
+    "    def contains(self, word):",
+    "        node = self.root",
+    "        for char in word:",
+    "            if char not in node:",
+    "                return False",
+    "            node = node[char]",
+    "        return None in node",
+    "",
+    "    def delete(self, word):",
+    "        node = self.root",
+    "        path = []",
+    "        for char in word:",
+    "            if char not in node:",
+    "                return False",
+    "            path.append((node, char))",
+    "            node = node[char]",
+    "        if None not in node:",
+    "            return False",
+    "        del node[None]",
+    "        for parent, char in reversed(path):",
+    "            if parent[char]:",
+    "                break",
+    "            del parent[char]",
+    "        return True"
+  ],
+  "family": "trie",
+  "triggers": [
+    "many string keys share prefixes",
+    "remove a word while keeping longer words searchable"
+  ],
+  "prompts": [
+    "A command dictionary accepts a new command, then lets the user withdraw it.",
+    "Store route names that share prefixes and check whether a complete name is registered."
+  ],
+  "invariant": "A terminal mark represents a complete word even when the node has children.",
+  "mantra": "Follow the letters, mark the end, prune only empty branches.",
+  "pitfalls": [
+    "An existing path may be just a prefix. Check the terminal marker before deleting."
+  ],
+  "anchors": [
+    {
+      "name": "Implement Trie (Prefix Tree)",
+      "trick": "Keep the end marker separate from character edges."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    16,
+    30,
+    32
+  ],
+  "complexity": {
+    "time": "O(m) expected per word of length m",
+    "space": "O(total stored characters) for the trie, O(m) deletion path"
+  },
+  "mutations": [
+    {
+      "line": 30,
+      "replacement": "            if not parent[char]:",
+      "explanation": "Prunes a prefix that still carries another word."
+    }
+  ],
+  "test": [
+    "t = Trie()",
+    "for word in ['', 'car', 'cart', 'cat', 'cat']:",
+    "    t.insert(word)",
+    "assert t.contains('') and not t.contains('ca') and not t.delete('ca')",
+    "assert t.delete('car') and t.contains('cart') and not t.contains('car')",
+    "assert t.delete('cart') and t.contains('cat') and not t.delete('cart')",
+    "assert t.delete('cat') and t.delete('') and t.root == {}"
+  ],
+  "order": 11
+}

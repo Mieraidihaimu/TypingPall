@@ -1,0 +1,79 @@
+{
+  "id": "swift-actor-reentrancy",
+  "title": "Actor reentrancy and stale results",
+  "category": "Advanced concurrency",
+  "track": "languages",
+  "language": "swift",
+  "summary": "Use a generation check after an await so an older refresh cannot overwrite a newer request’s result.",
+  "code": [
+    "actor Preview {",
+    "    private(set) var text = \"\"",
+    "    private var generation = 0",
+    "",
+    "    func refresh(_ load: @Sendable () async throws -> String) async throws -> Bool {",
+    "        generation += 1",
+    "        let ticket = generation",
+    "        let updated = try await load()",
+    "        try Task.checkCancellation()",
+    "        guard ticket == generation else { return false }",
+    "        text = updated",
+    "        return true",
+    "    }",
+    "}"
+  ],
+  "family": "actor-reentrancy",
+  "triggers": [
+    "Swift actor reentrancy changes state across an await",
+    "out-of-order asynchronous responses overwrite newer state"
+  ],
+  "prompts": [
+    "Refresh a preview as the user changes inputs and let only the latest request update the display.",
+    "Pause the first load, finish a second refresh, then prove that the first result cannot replace it."
+  ],
+  "invariant": "Only the latest started refresh can commit. Validation and the write occur in one actor turn without an intervening await.",
+  "mantra": "Capture before await; revalidate before commit.",
+  "pitfalls": [
+    "Actor isolation protects memory access but does not make the entire async method atomic.",
+    "Checking the generation before the suspension would miss refreshes started while the load was running.",
+    "This policy discards older results even if the latest request fails. It does not cancel superseded work."
+  ],
+  "keyLineIndices": [
+    6,
+    7,
+    9,
+    10
+  ],
+  "test": [
+    "let preview = Preview()",
+    "let (starts, started) = AsyncStream<Void>.makeStream()",
+    "let (releases, release) = AsyncStream<Void>.makeStream()",
+    "let older = Task {",
+    "    try await preview.refresh {",
+    "        started.yield(())",
+    "        var iterator = releases.makeAsyncIterator()",
+    "        _ = await iterator.next()",
+    "        return \"old\"",
+    "    }",
+    "}",
+    "var iterator = starts.makeAsyncIterator()",
+    "_ = await iterator.next()",
+    "let applied = try await preview.refresh { \"new\" }",
+    "precondition(applied)",
+    "release.yield(())",
+    "let staleApplied = try await older.value",
+    "let final = await preview.text",
+    "precondition(!staleApplied && final == \"new\")",
+    "",
+    "let cancelled = Task {",
+    "    withUnsafeCurrentTask { $0?.cancel() }",
+    "    return try await preview.refresh { \"cancelled\" }",
+    "}",
+    "do {",
+    "    _ = try await cancelled.value",
+    "    preconditionFailure(\"Expected cancellation\")",
+    "} catch is CancellationError { }",
+    "let afterCancellation = await preview.text",
+    "precondition(afterCancellation == \"new\")"
+  ],
+  "order": 5
+}

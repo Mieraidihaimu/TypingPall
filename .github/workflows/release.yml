@@ -42,7 +42,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH"
 
-      - name: Archive, Sign & Notarize Universal Binary
+      - name: Build Apple Silicon Release
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -54,7 +54,7 @@ jobs:
               -scheme TypingPall \
               -destination "generic/platform=macOS" \
               -archivePath $RUNNER_TEMP/TypingPall.xcarchive \
-              ARCHS="arm64 x86_64" \
+              ARCHS=arm64 \
               ONLY_ACTIVE_ARCH=NO \
               OTHER_CODE_SIGN_FLAGS="--timestamp --options=runtime"
 
@@ -68,11 +68,11 @@ jobs:
 
             xcrun stapler staple "$RUNNER_TEMP/TypingPall.xcarchive/Products/Applications/TypingPall.app"
           else
-            echo "Signing secrets not configured. Creating unsigned Release binary."
+            echo "Signing secrets unavailable. Creating an ad hoc signed Release binary."
             xcodebuild -project TypingPall.xcodeproj -scheme TypingPall \
               -configuration Release -destination 'generic/platform=macOS' \
-              -derivedDataPath build/DerivedData ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO \
-              CODE_SIGNING_ALLOWED=NO build
+              -derivedDataPath build/DerivedData ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
+              CODE_SIGN_IDENTITY=- build
           fi
 
       - name: Destroy Ephemeral Keychain & Secrets

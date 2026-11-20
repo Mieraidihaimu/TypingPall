@@ -1,0 +1,143 @@
+{
+  "id": "py-avl-insert",
+  "title": "AVL tree insertion",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Insert a distinct key and restore height balance on the way back to the root. The rotation helpers update the lower node first.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, key):",
+    "        self.key = key",
+    "        self.left = self.right = None",
+    "        self.height = 1",
+    "",
+    "def height(node):",
+    "    return node.height if node else 0",
+    "",
+    "def refresh(node):",
+    "    node.height = 1 + max(height(node.left), height(node.right))",
+    "",
+    "def rotate_right(root):",
+    "    top = root.left",
+    "    root.left = top.right",
+    "    top.right = root",
+    "    refresh(root)",
+    "    refresh(top)",
+    "    return top",
+    "",
+    "def rotate_left(root):",
+    "    top = root.right",
+    "    root.right = top.left",
+    "    top.left = root",
+    "    refresh(root)",
+    "    refresh(top)",
+    "    return top",
+    "",
+    "def insert(root, key):",
+    "    if root is None:",
+    "        return Node(key)",
+    "    if key < root.key:",
+    "        root.left = insert(root.left, key)",
+    "    elif key > root.key:",
+    "        root.right = insert(root.right, key)",
+    "    else:",
+    "        return root",
+    "    refresh(root)",
+    "    balance = height(root.left) - height(root.right)",
+    "    if balance > 1:",
+    "        if key > root.left.key:",
+    "            root.left = rotate_left(root.left)",
+    "        return rotate_right(root)",
+    "    if balance < -1:",
+    "        if key < root.right.key:",
+    "            root.right = rotate_right(root.right)",
+    "        return rotate_left(root)",
+    "    return root"
+  ],
+  "family": "avl-tree",
+  "triggers": [
+    "keep subtree heights within one after insertion",
+    "single or double rotations around a heavy child"
+  ],
+  "prompts": [
+    "A stream inserts ordered IDs into a search tree. Keep its height logarithmic after each insert.",
+    "Repair a height-balanced index when a new key lands on the inner side of its heavy child."
+  ],
+  "invariant": "Each cached height is one plus the taller child height, and child heights differ by at most one.",
+  "mantra": "Repair the inner bend, then rotate the root.",
+  "pitfalls": [
+    "Update the demoted node before computing the promoted node’s height."
+  ],
+  "anchors": [
+    {
+      "name": "Balanced Binary Tree",
+      "trick": "Check the height difference recursively after rotations."
+    }
+  ],
+  "keyLineIndices": [
+    38,
+    41,
+    45
+  ],
+  "scaffoldLineIndices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27
+  ],
+  "complexity": {
+    "time": "O(log n) per insertion",
+    "space": "O(log n) call stack"
+  },
+  "mutations": [
+    {
+      "line": 39,
+      "replacement": "    if balance > 2:",
+      "explanation": "Allows an unbalanced left-heavy subtree to survive insertion."
+    }
+  ],
+  "test": [
+    "def verify(node, low, high):",
+    "    if node is None:",
+    "        return 0",
+    "    assert low < node.key < high",
+    "    left = verify(node.left, low, node.key)",
+    "    right = verify(node.right, node.key, high)",
+    "    assert abs(left - right) <= 1 and node.height == 1 + max(left, right)",
+    "    return node.height",
+    "for keys in ([3, 2, 1], [3, 1, 2], [1, 2, 3], [1, 3, 2], list(range(40)) + [10]):",
+    "    root = None",
+    "    for key in keys:",
+    "        root = insert(root, key)",
+    "        verify(root, float('-inf'), float('inf'))",
+    "    def ordered(node):",
+    "        return ordered(node.left) + [node.key] + ordered(node.right) if node else []",
+    "    assert ordered(root) == sorted(set(keys))"
+  ],
+  "order": 9
+}

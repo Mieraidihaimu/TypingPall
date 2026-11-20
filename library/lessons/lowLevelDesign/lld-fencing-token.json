@@ -1,0 +1,85 @@
+{
+  "id": "lld-fencing-token",
+  "title": "Fencing tokens for lease holders",
+  "category": "Reliable components",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Reject stale lease holders at the resource by checking a monotonically increasing token with each write.",
+  "code": [
+    "from threading import Lock",
+    "",
+    "class FencedRegister:",
+    "    def __init__(self):",
+    "        self._lock = Lock()",
+    "        self._token = 0",
+    "        self._value = None",
+    "",
+    "    def write(self, token, value):",
+    "        if token <= 0:",
+    "            raise ValueError(\"token must be positive\")",
+    "        with self._lock:",
+    "            if token < self._token:",
+    "                return False",
+    "            self._token = token",
+    "            self._value = value",
+    "            return True",
+    "",
+    "    def read(self):",
+    "        with self._lock:",
+    "            return self._value"
+  ],
+  "family": "fencing-token",
+  "triggers": [
+    "expired lease holder resumes after another worker takes ownership",
+    "resource must reject stale writes from older lease epochs"
+  ],
+  "prompts": [
+    "A worker pauses and loses its lease. Keep its late write from overwriting a newer worker’s committed result.",
+    "Let the current worker write several times during the same lease while rejecting writers from earlier leases."
+  ],
+  "invariant": "The resource compares and updates its highest seen token and value atomically. A rejected write leaves both untouched.",
+  "mantra": "Fence at the resource, on every write.",
+  "pitfalls": [
+    "The lease service must issue increasing tokens in the resource’s scope; random tokens do not establish order.",
+    "The check must be atomic with the write, and the resource must persist the highest token if the guard must survive restarts.",
+    "The register cannot infer lease expiry. It rejects an old holder only after seeing a higher token."
+  ],
+  "keyLineIndices": [
+    12,
+    14,
+    15
+  ],
+  "anchors": [
+    {
+      "name": "Paused lease holder",
+      "trick": "A client-side expiry check cannot rule out a pause between that check and the write."
+    },
+    {
+      "name": "One token per lease",
+      "trick": "Equal tokens represent writes in the same lease; strictly smaller tokens are stale."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 12,
+      "replacement": "            if token <= self._token:",
+      "explanation": "This also rejects writes from the current lease. Equality does not make the token stale."
+    }
+  ],
+  "test": [
+    "register = FencedRegister()",
+    "assert register.write(1, \"first holder\")",
+    "assert register.write(2, \"new holder\")",
+    "assert not register.write(1, \"late old write\")",
+    "assert register.read() == \"new holder\"",
+    "assert register.write(2, \"same lease, next write\")",
+    "assert register.read() == \"same lease, next write\"",
+    "try:",
+    "    register.write(0, \"invalid\")",
+    "except ValueError:",
+    "    pass",
+    "else:",
+    "    raise AssertionError(\"Invalid token accepted\")"
+  ],
+  "order": 2
+}

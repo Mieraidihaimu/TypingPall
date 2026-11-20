@@ -162,7 +162,8 @@ final class LibrarySectionTests: XCTestCase {
         let tracks = LessonTrack.allCases.map { PracticeCatalog.categories(of: catalog, in: $0) }
         XCTAssertEqual(tracks.joined().count, PracticeCatalog.categories(of: catalog).count)
         XCTAssertEqual(PracticeCatalog.categories(of: catalog, in: .lowLevelDesign),
-                       ["Creational patterns", "Structural patterns", "Behavioral patterns", "Design building blocks"])
+                       ["Creational patterns", "Structural patterns", "Behavioral patterns", "Design building blocks",
+                        "Reliable components"])
     }
 }
 

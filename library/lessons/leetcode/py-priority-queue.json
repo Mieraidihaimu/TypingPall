@@ -1,0 +1,73 @@
+{
+  "id": "py-priority-queue",
+  "title": "Max-priority queue with FIFO ties",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Use a min-heap of negated priorities to schedule the highest priority first. An arrival counter breaks ties before Python compares job payloads.",
+  "code": [
+    "import heapq",
+    "from itertools import count",
+    "",
+    "class JobQueue:",
+    "    def __init__(self):",
+    "        self.heap = []",
+    "        self.arrivals = count()",
+    "",
+    "    def push(self, priority, job):",
+    "        entry = (-priority, next(self.arrivals), job)",
+    "        heapq.heappush(self.heap, entry)",
+    "",
+    "    def peek(self):",
+    "        return self.heap[0][2]",
+    "",
+    "    def pop(self):",
+    "        return heapq.heappop(self.heap)[2]"
+  ],
+  "family": "heap",
+  "triggers": [
+    "schedule jobs by highest priority",
+    "equal priorities must keep arrival order"
+  ],
+  "prompts": [
+    "Dispatch the most urgent support ticket and break ties by submission time.",
+    "Schedule rendering jobs with priorities while preserving the order of equally urgent jobs."
+  ],
+  "invariant": "The smallest tuple has the highest priority and the earliest arrival at that priority.",
+  "mantra": "Negate priority and break ties with the arrival number.",
+  "pitfalls": [
+    "A tie on priority alone could force Python to compare unorderable job objects."
+  ],
+  "anchors": [
+    {
+      "name": "Single-Threaded CPU",
+      "trick": "Use an explicit tie-break field in heap entries."
+    }
+  ],
+  "keyLineIndices": [
+    9,
+    13,
+    16
+  ],
+  "complexity": {
+    "time": "O(log n) push and pop, O(1) peek",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "        entry = (priority, next(self.arrivals), job)",
+      "explanation": "Schedules the lowest priority first."
+    }
+  ],
+  "test": [
+    "jobs = JobQueue()",
+    "a, b, c = {}, {}, {}",
+    "jobs.push(-1, a)",
+    "jobs.push(5, b)",
+    "jobs.push(5, c)",
+    "assert jobs.peek() is b and jobs.pop() is b",
+    "assert jobs.pop() is c and jobs.pop() is a"
+  ],
+  "order": 14
+}

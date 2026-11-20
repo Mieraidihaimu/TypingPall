@@ -1,0 +1,59 @@
+{
+  "id": "py-stable-deduplication",
+  "title": "Hash set: keep first occurrences",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Deduplicate hashable values from a stream in encounter order. Yield a value only when it first enters the seen set.",
+  "code": [
+    "def first_occurrences(items):",
+    "    seen = set()",
+    "    for item in items:",
+    "        if item in seen:",
+    "            continue",
+    "        seen.add(item)",
+    "        yield item"
+  ],
+  "family": "hashing",
+  "triggers": [
+    "unique items in original order",
+    "deduplicate a stream without sorting it"
+  ],
+  "prompts": [
+    "Emit the first check-in for each badge ID in a day’s event stream.",
+    "Remove repeated package names while keeping the first appearance of each name."
+  ],
+  "invariant": "The set contains exactly the distinct items consumed so far.",
+  "mantra": "Remember the key before yielding it.",
+  "pitfalls": [
+    "Iterating the set at the end would lose the encounter order."
+  ],
+  "anchors": [
+    {
+      "name": "Contains Duplicate",
+      "trick": "A membership check reveals when a value has already appeared."
+    }
+  ],
+  "keyLineIndices": [
+    3,
+    5,
+    6
+  ],
+  "complexity": {
+    "time": "O(n) expected",
+    "space": "O(u) for u distinct values"
+  },
+  "mutations": [
+    {
+      "line": 5,
+      "replacement": "        seen.discard(item)",
+      "explanation": "Never records a first occurrence, so duplicates pass through."
+    }
+  ],
+  "test": [
+    "assert list(first_occurrences(iter([3, 1, 3, 2, 1]))) == [3, 1, 2]",
+    "assert list(first_occurrences([])) == []",
+    "assert list(first_occurrences([None, None])) == [None]"
+  ],
+  "order": 31
+}

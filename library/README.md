@@ -135,10 +135,10 @@ Each lesson is stored as `library/lessons/<track>/<id>.json`:
 
 ## Swift lessons
 
-The catalog includes 36 original Swift examples authored for TypingPall: 24 in
-**Swift fundamentals**, 6 in **Swift concurrency**, and 6 in **Swift interview patterns**
-under the LeetCode track. These practice examples were generated with Codex for this
-catalog and validated locally. Language semantics follow
+The catalog includes 37 original Swift examples authored for TypingPall: 24 in
+**Swift fundamentals**, 6 in **Swift concurrency**, 1 in **Advanced concurrency**, and
+6 in **Swift interview patterns** under the LeetCode track. These examples were generated
+with Codex for this catalog and validated locally. Language semantics follow
 [The Swift Programming Language](https://docs.swift.org/swift-book/documentation/the-swift-programming-language/),
 including its chapters on
 [generics](https://github.com/swiftlang/swift-book/blob/main/TSPL.docc/LanguageGuide/Generics.md)
@@ -153,6 +153,19 @@ examples can use the same test format. Swift examples use local data and require
 network access. Cached checks include the test code, so changing an assertion forces
 revalidation. Swift execution is reported as skipped when `swiftc` is unavailable;
 `--require-all` makes missing compilers an error.
+
+## Senior practice
+
+**Advanced concurrency** follows the language-specific basics with exercises on lock ordering,
+queue shutdown, shared requests, cancellable fan-in, stale actor results, and memory ordering.
+For the language rules behind the examples, see Python's [`asyncio.shield`](https://docs.python.org/3/library/asyncio-task.html#asyncio.shield),
+[Go pipeline cancellation](https://go.dev/blog/pipelines),
+[Swift actor reentrancy](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0306-actors.md#actor-reentrancy),
+and [C++ atomic ordering](https://eel.is/c++draft/atomics.order).
+
+**Reliable components** covers idempotency keys, lease fencing, and retries within a deadline.
+These are small in-process examples. The recall notes call out what changes when state needs to
+survive a restart or a service has multiple instances. See also [making retries safe with idempotent APIs](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/).
 
 ## CLI Commands
 

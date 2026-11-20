@@ -12,7 +12,7 @@ fi
 xcodebuild -project TypingPall.xcodeproj -scheme TypingPall \
   -configuration Release -destination 'generic/platform=macOS' \
   -archivePath "$archive_path" -derivedDataPath "$PWD/build/ReleaseDerivedData" \
-  ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO \
+  ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
   DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" CODE_SIGN_STYLE=Manual \
   CODE_SIGN_IDENTITY="$SIGNING_IDENTITY" ENABLE_HARDENED_RUNTIME=YES \
   OTHER_CODE_SIGN_FLAGS=--timestamp archive

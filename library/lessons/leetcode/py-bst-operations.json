@@ -1,0 +1,99 @@
+{
+  "id": "py-bst-operations",
+  "title": "Binary search tree: find, insert and delete",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Maintain a BST of distinct keys. Insertion and deletion return the new subtree root, including when the root itself changes.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, key):",
+    "        self.key = key",
+    "        self.left = self.right = None",
+    "",
+    "def find(root, key):",
+    "    while root and root.key != key:",
+    "        root = root.left if key < root.key else root.right",
+    "    return root",
+    "",
+    "def insert(root, key):",
+    "    if root is None:",
+    "        return Node(key)",
+    "    if key < root.key:",
+    "        root.left = insert(root.left, key)",
+    "    elif key > root.key:",
+    "        root.right = insert(root.right, key)",
+    "    return root",
+    "",
+    "def delete(root, key):",
+    "    if root is None:",
+    "        return None",
+    "    if key < root.key:",
+    "        root.left = delete(root.left, key)",
+    "    elif key > root.key:",
+    "        root.right = delete(root.right, key)",
+    "    else:",
+    "        if root.left is None or root.right is None:",
+    "            return root.left or root.right",
+    "        successor = root.right",
+    "        while successor.left:",
+    "            successor = successor.left",
+    "        root.key = successor.key",
+    "        root.right = delete(root.right, successor.key)",
+    "    return root"
+  ],
+  "family": "binary-search-tree",
+  "triggers": [
+    "ordered keys stored in a branching search structure",
+    "remove a node that may have two children"
+  ],
+  "prompts": [
+    "Keep unique timestamps in a search tree as events arrive and expire.",
+    "Delete an internal key from an ordered index and keep all remaining keys searchable."
+  ],
+  "invariant": "Every left descendant has a smaller key and every right descendant has a larger key.",
+  "mantra": "Return the replacement root at every level.",
+  "pitfalls": [
+    "After copying the inorder successor, delete its original node from the right subtree."
+  ],
+  "anchors": [
+    {
+      "name": "Delete Node in a BST",
+      "trick": "The smallest node in the right subtree can replace a deleted key."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    28,
+    33
+  ],
+  "scaffoldLineIndices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "complexity": {
+    "time": "O(h) per operation for tree height h",
+    "space": "O(h) recursive updates, O(1) search"
+  },
+  "mutations": [
+    {
+      "line": 33,
+      "replacement": "        root.right = delete(root.right, key)",
+      "explanation": "Leaves a duplicate copy of the successor in the right subtree."
+    }
+  ],
+  "test": [
+    "def inorder(node):",
+    "    return inorder(node.left) + [node.key] + inorder(node.right) if node else []",
+    "root = None",
+    "for key in [5, 3, 8, 6, 9, 7, 3]:",
+    "    root = insert(root, key)",
+    "assert find(root, 7).key == 7 and find(root, 4) is None",
+    "for key, expected in [(5, [3, 6, 7, 8, 9]), (8, [3, 6, 7, 9]), (4, [3, 6, 7, 9]), (3, [6, 7, 9]), (6, [7, 9]), (9, [7]), (7, [])]:",
+    "    root = delete(root, key)",
+    "    assert inorder(root) == expected"
+  ],
+  "order": 8
+}

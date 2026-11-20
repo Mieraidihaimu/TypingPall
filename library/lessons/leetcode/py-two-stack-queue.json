@@ -1,0 +1,81 @@
+{
+  "id": "py-two-stack-queue",
+  "title": "FIFO queue using two LIFO stacks",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Build a simple queue using Python lists as stacks. Push and pop at the end of a list, and peek at its last element without removing it.",
+  "code": [
+    "class Queue:",
+    "    def __init__(self):",
+    "        self.incoming = []",
+    "        self.outgoing = []",
+    "",
+    "    def enqueue(self, value):",
+    "        self.incoming.append(value)",
+    "",
+    "    def _prepare_front(self):",
+    "        if not self.outgoing:",
+    "            while self.incoming:",
+    "                self.outgoing.append(self.incoming.pop())",
+    "",
+    "    def peek(self):",
+    "        self._prepare_front()",
+    "        return self.outgoing[-1]",
+    "",
+    "    def dequeue(self):",
+    "        self._prepare_front()",
+    "        return self.outgoing.pop()"
+  ],
+  "family": "queue",
+  "triggers": [
+    "implement a linear queue with stack operations",
+    "defer reversing a batch until the output stack is empty"
+  ],
+  "prompts": [
+    "Serve print jobs in arrival order using storage that only allows access to the top.",
+    "Implement a waiting line whose front can be inspected repeatedly without removing anyone."
+  ],
+  "invariant": "The queue reads from the top of outgoing down, then from the bottom of incoming up.",
+  "mantra": "Transfer only when the output stack is empty.",
+  "pitfalls": [
+    "Refilling a nonempty output stack lets newer arrivals jump ahead of older ones."
+  ],
+  "anchors": [
+    {
+      "name": "Implement Queue using Stacks",
+      "trick": "Each item moves between stacks at most once."
+    }
+  ],
+  "keyLineIndices": [
+    9,
+    11,
+    15
+  ],
+  "complexity": {
+    "time": "O(1) amortized per operation, O(n) for a transfer",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "        if self.incoming:",
+      "explanation": "Transfers new arrivals on top of items that were already waiting to leave."
+    }
+  ],
+  "test": [
+    "q = Queue()",
+    "q.enqueue(1)",
+    "q.enqueue(2)",
+    "assert q.peek() == q.peek() == 1",
+    "q.enqueue(3)",
+    "assert [q.dequeue(), q.dequeue(), q.dequeue()] == [1, 2, 3]",
+    "for operation in [q.peek, q.dequeue]:",
+    "    try:",
+    "        operation()",
+    "    except IndexError:",
+    "        continue",
+    "    raise AssertionError(\"empty queue returned an item\")"
+  ],
+  "order": 15
+}

@@ -1,0 +1,117 @@
+{
+  "id": "lld-retry-deadline",
+  "title": "Retries with a shared deadline",
+  "category": "Reliable components",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Retry transient failures with capped backoff while passing each attempt the remaining time from one budget.",
+  "code": [
+    "class TransientError(Exception):",
+    "    pass",
+    "",
+    "def retry(operation, *, attempts, budget, clock, sleep):",
+    "    if attempts < 1 or budget <= 0:",
+    "        raise ValueError(\"positive attempt and time budgets required\")",
+    "    deadline = clock() + budget",
+    "    delay = 0.05",
+    "",
+    "    for attempt in range(1, attempts + 1):",
+    "        remaining = deadline - clock()",
+    "        if remaining <= 0:",
+    "            raise TimeoutError(\"retry deadline elapsed\")",
+    "        try:",
+    "            return operation(remaining)",
+    "        except TransientError:",
+    "            if attempt == attempts or delay >= deadline - clock():",
+    "                raise",
+    "        sleep(delay)",
+    "        delay = min(delay * 2, 0.5)"
+  ],
+  "family": "retry-deadline",
+  "triggers": [
+    "retry transient failures within a total latency budget",
+    "cap exponential backoff and avoid starting retries after a deadline"
+  ],
+  "prompts": [
+    "Give a dependency several chances within one caller deadline and pass each attempt its own remaining timeout.",
+    "Stop retrying when the next backoff would spend all of the remaining time, even if attempts remain."
+  ],
+  "invariant": "All attempts share one monotonic deadline. A retry starts only if time and attempts remain, and only transient failures can trigger it.",
+  "mantra": "One deadline; spend it across every attempt and wait.",
+  "pitfalls": [
+    "Starting a fresh timeout for every attempt can exceed the caller’s total budget. The operation must enforce the timeout it receives.",
+    "A timeout does not tell you whether a write took effect. Retry only safe operations or use an idempotency key.",
+    "This example uses deterministic delays. Add jitter when many clients can retry at the same time."
+  ],
+  "keyLineIndices": [
+    6,
+    10,
+    14,
+    16,
+    19
+  ],
+  "anchors": [
+    {
+      "name": "Shared deadline",
+      "trick": "Subtract the current monotonic time before each attempt and after each failure."
+    },
+    {
+      "name": "Retry amplification",
+      "trick": "Limit retries at one layer so nested retries do not multiply work."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 16,
+      "replacement": "            if attempt == attempts or delay > deadline - clock():",
+      "explanation": "Sleeping exactly until the deadline leaves no time for another attempt and loses the original error."
+    }
+  ],
+  "test": [
+    "import math",
+    "",
+    "now, delays, timeouts = [0.0], [], []",
+    "def sleep(delay):",
+    "    delays.append(delay)",
+    "    now[0] += delay",
+    "",
+    "def flaky(timeout):",
+    "    timeouts.append(timeout)",
+    "    now[0] += 0.1  # The attempt itself spends part of the budget.",
+    "    if len(timeouts) <= 2:",
+    "        raise TransientError(\"try again\")",
+    "    return \"ok\"",
+    "",
+    "assert retry(flaky, attempts=3, budget=1, clock=lambda: now[0], sleep=sleep) == \"ok\"",
+    "assert delays == [0.05, 0.1]",
+    "assert all(math.isclose(actual, expected)",
+    "           for actual, expected in zip(timeouts, [1, 0.85, 0.65]))",
+    "",
+    "def unavailable(timeout):",
+    "    raise TransientError(\"unavailable\")",
+    "",
+    "for attempts, budget in [(3, 0.05), (1, 1)]:",
+    "    now[0] = 0.0",
+    "    delays.clear()",
+    "    try:",
+    "        retry(unavailable, attempts=attempts, budget=budget,",
+    "              clock=lambda: now[0], sleep=sleep)",
+    "    except TransientError:",
+    "        pass",
+    "    else:",
+    "        raise AssertionError(\"Expected the transient failure\")",
+    "    assert delays == []",
+    "",
+    "def invalid(timeout):",
+    "    raise ValueError(\"permanent error\")",
+    "",
+    "try:",
+    "    retry(invalid, attempts=3, budget=1, clock=lambda: now[0], sleep=sleep)",
+    "except ValueError:",
+    "    pass",
+    "else:",
+    "    raise AssertionError(\"Expected the permanent failure\")",
+    "assert delays == []"
+  ],
+  "order": 3
+}

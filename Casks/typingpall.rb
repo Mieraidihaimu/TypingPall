@@ -1,8 +1,8 @@
 cask "typingpall" do
-  version "1.1.0"
-  sha256 "6a5d49646b6e407704e60f98eaa75ec0ff1f33d732ef6cc378295818bc495b96"
+  version "1.2.0"
+  sha256 "708e9d33b5cf0cfa8749936833117571185d3a730e07926e65fb1830a03791b3"
 
-  url "https://github.com/Mieraidihaimu/TypingPall/releases/download/v#{version}/TypingPall-v#{version}.zip"
+  url "https://github.com/Mieraidihaimu/TypingPall/releases/download/v#{version}/TypingPall-v#{version}-arm64.zip"
   name "TypingPall"
   desc "Make code patterns familiar, one line at a time"
   homepage "https://typingpall.pages.dev/"
@@ -12,7 +12,8 @@ cask "typingpall" do
     strategy :github_latest
   end
 
-  depends_on macos: ">= :monterey"
+  depends_on arch: :arm64
+  depends_on macos: :sonoma
 
   app "TypingPall.app"
 

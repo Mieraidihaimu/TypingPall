@@ -1,0 +1,76 @@
+{
+  "id": "py-word-search",
+  "title": "Grid backtracking: word search",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Trace a word through orthogonally adjacent cells of a rectangular board. Track the cells used by the current path so each may be used once.",
+  "code": [
+    "def has_word(board, word):",
+    "    if not word:",
+    "        return True",
+    "    if not board or not board[0]:",
+    "        return False",
+    "    rows, cols = len(board), len(board[0])",
+    "    used = set()",
+    "    steps = [(1, 0), (-1, 0), (0, 1), (0, -1)]",
+    "",
+    "    def visit(r, c, i):",
+    "        if not (0 <= r < rows and 0 <= c < cols):",
+    "            return False",
+    "        if (r, c) in used or board[r][c] != word[i]:",
+    "            return False",
+    "        if i + 1 == len(word):",
+    "            return True",
+    "        used.add((r, c))",
+    "        found = any(visit(r + dr, c + dc, i + 1) for dr, dc in steps)",
+    "        used.remove((r, c))",
+    "        return found",
+    "",
+    "    return any(visit(r, c, 0) for r in range(rows) for c in range(cols))"
+  ],
+  "family": "backtracking",
+  "triggers": [
+    "spell a word along neighboring cells",
+    "a grid cell can be reused in another branch"
+  ],
+  "prompts": [
+    "Can a sequence of letters be traced on adjacent tiles without touching any tile twice?",
+    "Check whether a robot can follow a given sequence of labels on an orthogonal grid without revisiting a position."
+  ],
+  "invariant": "The used set contains exactly the earlier cells of the active candidate path.",
+  "mantra": "Mark on entry and unmark when the branch ends.",
+  "pitfalls": [
+    "A global visited set blocks valid paths that reach a cell by a different route."
+  ],
+  "anchors": [
+    {
+      "name": "Word Search",
+      "trick": "Track visited positions for each candidate path."
+    }
+  ],
+  "keyLineIndices": [
+    12,
+    16,
+    18
+  ],
+  "complexity": {
+    "time": "O(R × C × 4^L) upper bound for word length L",
+    "space": "O(min(L, R × C)) for a nonempty board and word"
+  },
+  "mutations": [
+    {
+      "line": 18,
+      "replacement": "        pass",
+      "explanation": "Retains cells from failed attempts and can block the only successful path."
+    }
+  ],
+  "test": [
+    "assert has_word(['AAB', 'AXX'], 'AAAB')",
+    "assert has_word(['AB', 'DC'], 'ABCD')",
+    "assert not has_word(['AB'], 'ABA')",
+    "assert not has_word(['AX', 'XB'], 'AB')",
+    "assert has_word([], '') and not has_word([], 'A')"
+  ],
+  "order": 35
+}

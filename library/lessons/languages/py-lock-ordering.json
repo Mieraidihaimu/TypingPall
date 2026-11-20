@@ -1,0 +1,92 @@
+{
+  "id": "py-lock-ordering",
+  "title": "Deadlock prevention with lock ordering",
+  "category": "Advanced concurrency",
+  "track": "languages",
+  "language": "python",
+  "summary": "Acquire both account locks in a consistent order so opposite transfers cannot form a wait cycle.",
+  "code": [
+    "from threading import Lock",
+    "",
+    "class Account:",
+    "    def __init__(self, balance):",
+    "        self._balance = balance",
+    "        self._lock = Lock()",
+    "",
+    "    @property",
+    "    def balance(self):",
+    "        with self._lock:",
+    "            return self._balance",
+    "",
+    "def transfer(source, target, amount):",
+    "    if amount <= 0:",
+    "        raise ValueError(\"amount must be positive\")",
+    "    if source is target:",
+    "        return",
+    "    first, second = sorted((source, target), key=id)",
+    "    with first._lock, second._lock:",
+    "        if source._balance < amount:",
+    "            raise ValueError(\"insufficient funds\")",
+    "        source._balance -= amount",
+    "        target._balance += amount"
+  ],
+  "family": "lock-ordering",
+  "triggers": [
+    "opposite transfers acquire multiple mutexes",
+    "prevent deadlock when updating two shared objects"
+  ],
+  "prompts": [
+    "Move funds between two accounts while other threads may transfer in either direction.",
+    "Handle a transfer to the same account without acquiring a non-reentrant lock twice."
+  ],
+  "invariant": "Every transfer between distinct accounts acquires the locks in increasing object identity order and checks funds while holding both.",
+  "mantra": "Sort the locks; keep the business direction.",
+  "pitfalls": [
+    "Acquiring the source lock first creates a cycle when two transfers run in opposite directions.",
+    "Checking funds before locking lets two transfers spend the same balance.",
+    "Object identity is a lock rank within one process; it is not a persistent account ID."
+  ],
+  "keyLineIndices": [
+    15,
+    17,
+    18,
+    19
+  ],
+  "mutations": [
+    {
+      "line": 19,
+      "replacement": "        if source._balance <= amount:",
+      "explanation": "A transfer equal to the balance should succeed; only an overdraft is rejected."
+    }
+  ],
+  "test": [
+    "from threading import Barrier, Thread",
+    "",
+    "a, b = Account(500), Account(500)",
+    "start = Barrier(2, timeout=2)",
+    "def move(source, target, count):",
+    "    start.wait()",
+    "    for _ in range(count):",
+    "        transfer(source, target, 1)",
+    "",
+    "workers = [Thread(target=move, args=args, daemon=True)",
+    "           for args in ((a, b, 300), (b, a, 200))]",
+    "for worker in workers:",
+    "    worker.start()",
+    "for worker in workers:",
+    "    worker.join(timeout=2)",
+    "    assert not worker.is_alive(), \"Transfer did not finish\"",
+    "assert (a.balance, b.balance) == (400, 600)",
+    "transfer(a, a, 400)",
+    "try:",
+    "    transfer(a, b, 401)",
+    "except ValueError:",
+    "    pass",
+    "else:",
+    "    raise AssertionError(\"Overdraft was accepted\")",
+    "assert (a.balance, b.balance) == (400, 600)",
+    "transfer(a, b, 400)",
+    "assert (a.balance, b.balance) == (0, 1000)"
+  ],
+  "order": 1
+}

@@ -1,0 +1,93 @@
+{
+  "id": "py-hash-map",
+  "title": "Hash map with collision chains",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Build a fixed-bucket hash map with insert, lookup and delete. Each bucket is a list of key-value pairs.",
+  "code": [
+    "class HashMap:",
+    "    def __init__(self, buckets):",
+    "        if buckets < 1:",
+    "            raise ValueError(\"need at least one bucket\")",
+    "        self.buckets = [[] for _ in range(buckets)]",
+    "",
+    "    def locate(self, key):",
+    "        bucket = self.buckets[hash(key) % len(self.buckets)]",
+    "        for index, (stored, _) in enumerate(bucket):",
+    "            if stored == key:",
+    "                return bucket, index",
+    "        return bucket, None",
+    "",
+    "    def put(self, key, value):",
+    "        bucket, index = self.locate(key)",
+    "        if index is None:",
+    "            bucket.append((key, value))",
+    "        else:",
+    "            bucket[index] = (key, value)",
+    "",
+    "    def get(self, key):",
+    "        bucket, index = self.locate(key)",
+    "        if index is None:",
+    "            raise KeyError(key)",
+    "        return bucket[index][1]",
+    "",
+    "    def delete(self, key):",
+    "        bucket, index = self.locate(key)",
+    "        if index is None:",
+    "            raise KeyError(key)",
+    "        bucket.pop(index)"
+  ],
+  "family": "hash-map",
+  "triggers": [
+    "distinct keys land in the same hash bucket",
+    "update a key without duplicating it"
+  ],
+  "prompts": [
+    "Two badge IDs land in the same storage bucket. Retrieve each badge owner independently.",
+    "Maintain a small keyed index whose entries can be updated and withdrawn."
+  ],
+  "invariant": "Each key appears once in the bucket chosen by its hash.",
+  "mantra": "Hash to a bucket, then compare keys.",
+  "pitfalls": [
+    "A fixed bucket count allows chains to grow. Resize a production table to keep its load factor bounded."
+  ],
+  "anchors": [
+    {
+      "name": "Design HashMap",
+      "trick": "Separate chaining preserves keys that collide."
+    }
+  ],
+  "keyLineIndices": [
+    7,
+    9,
+    18
+  ],
+  "complexity": {
+    "time": "Expected O(1 + n/b) for n keys in b buckets under uniform hashing, O(n) worst case",
+    "space": "O(n + b)"
+  },
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "            if stored != key:",
+      "explanation": "Confuses two different keys in the same bucket."
+    }
+  ],
+  "test": [
+    "table = HashMap(1)",
+    "table.put('a', 2)",
+    "table.put('b', 4)",
+    "table.put('a', 3)",
+    "assert (table.get('a'), table.get('b')) == (3, 4)",
+    "table.delete('a')",
+    "assert table.get('b') == 4",
+    "for operation in [table.get, table.delete]:",
+    "    try:",
+    "        operation('a')",
+    "    except KeyError:",
+    "        continue",
+    "    raise AssertionError(\"absent key found\")"
+  ],
+  "order": 6
+}

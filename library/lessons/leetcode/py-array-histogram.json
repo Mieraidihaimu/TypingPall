@@ -1,0 +1,67 @@
+{
+  "id": "py-array-histogram",
+  "title": "Fixed-size array of counters",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Allocate one unsigned integer per possible label and count occurrences by index. Labels must be integers in range and counts must fit in a slot.",
+  "code": [
+    "from array import array",
+    "",
+    "def histogram(labels, slots):",
+    "    if slots < 0:",
+    "        raise ValueError(\"negative slot count\")",
+    "    counts = array(\"Q\", [0]) * slots",
+    "    for label in labels:",
+    "        if not 0 <= label < slots:",
+    "            raise ValueError(\"label outside array\")",
+    "        counts[label] += 1",
+    "    return counts"
+  ],
+  "family": "array",
+  "triggers": [
+    "dense integer keys from zero to a known bound",
+    "one numeric slot per possible label"
+  ],
+  "prompts": [
+    "Tally votes for numbered candidates, including those with zero votes.",
+    "Each sensor reports a small integer status. Build a histogram in status order."
+  ],
+  "invariant": "After each label, its slot holds the number of occurrences seen so far.",
+  "mantra": "Use the label as its own index.",
+  "pitfalls": [
+    "Check the lower bound because Python accepts negative indices."
+  ],
+  "anchors": [
+    {
+      "name": "Sort Colors",
+      "trick": "A fixed set of labels fits in a small counter array."
+    }
+  ],
+  "keyLineIndices": [
+    5,
+    9
+  ],
+  "complexity": {
+    "time": "O(n + k) for n labels and k slots",
+    "space": "O(k)"
+  },
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "        counts[label] = 1",
+      "explanation": "Overwrites the count when a label appears again."
+    }
+  ],
+  "test": [
+    "assert list(histogram([2, 0, 2], 4)) == [1, 0, 2, 0]",
+    "assert list(histogram([], 0)) == []",
+    "for labels, slots in [([-1], 2), ([2], 2), ([], -1)]:",
+    "    try:",
+    "        histogram(labels, slots)",
+    "    except ValueError:",
+    "        continue",
+    "    raise AssertionError(\"invalid histogram input accepted\")"
+  ],
+  "order": 1
+}

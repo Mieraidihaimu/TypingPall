@@ -1,0 +1,70 @@
+{
+  "id": "py-connected-components",
+  "title": "DFS across connected components",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Group every vertex of an undirected graph using a fresh stack per component and one shared visited set. Supply neighbors for every vertex, including isolated ones.",
+  "code": [
+    "def components(neighbors):",
+    "    seen = set()",
+    "    groups = []",
+    "    for start in neighbors:",
+    "        if start in seen:",
+    "            continue",
+    "        group = []",
+    "        stack = [start]",
+    "        seen.add(start)",
+    "        while stack:",
+    "            node = stack.pop()",
+    "            group.append(node)",
+    "            for other in neighbors[node]:",
+    "                if other not in seen:",
+    "                    seen.add(other)",
+    "                    stack.append(other)",
+    "        groups.append(group)",
+    "    return groups"
+  ],
+  "family": "dfs",
+  "triggers": [
+    "partition an undirected graph into reachable groups",
+    "count disconnected groups including isolated vertices"
+  ],
+  "prompts": [
+    "Group machines into islands using only their direct cable connections.",
+    "A map lists all towns and two-way roads. Which groups can trade without crossing water?"
+  ],
+  "invariant": "Every vertex marked during one stack traversal belongs to the same component.",
+  "mantra": "Start from each unseen vertex and finish its component.",
+  "pitfalls": [
+    "Directed edges require a choice of weak or strong connectivity before applying a component algorithm."
+  ],
+  "anchors": [
+    {
+      "name": "Number of Provinces",
+      "trick": "Count the traversal starts needed to reach all vertices."
+    }
+  ],
+  "keyLineIndices": [
+    4,
+    14,
+    16
+  ],
+  "complexity": {
+    "time": "O(V + E) expected",
+    "space": "O(V) including output"
+  },
+  "mutations": [
+    {
+      "line": 4,
+      "replacement": "        if start not in seen:",
+      "explanation": "Skips every new component before its first traversal can begin."
+    }
+  ],
+  "test": [
+    "graph = {0: [1, 2], 1: [0, 2], 2: [1, 0], 3: [], 4: [5], 5: [4]}",
+    "assert sorted(sorted(group) for group in components(graph)) == [[0, 1, 2], [3], [4, 5]]",
+    "assert components({}) == []"
+  ],
+  "order": 32
+}

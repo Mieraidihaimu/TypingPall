@@ -39,6 +39,10 @@ To check whether you can spot a pattern before writing it, press **⇧⌘D**: th
 
 ## Get started
 
+### Download for macOS
+
+Download the DMG from [GitHub Releases](https://github.com/Mieraidihaimu/TypingPall/releases/latest), then drag **TypingPall** into **Applications**. The download requires an Apple Silicon Mac with macOS 14 or later.
+
 ### Install via Homebrew
 
 ```sh
@@ -55,7 +59,7 @@ cd TypingPall
 open TypingPall.xcodeproj
 ```
 
-Select the **TypingPall** scheme, choose **My Mac**, and press **⌘R**. The app targets macOS 12 or later; use a current Xcode to build it. If Xcode requests signing configuration, choose your development team under Signing & Capabilities.
+Select the **TypingPall** scheme, choose **My Mac**, and press **⌘R**. The app targets macOS 14 or later. If Xcode requests signing configuration, choose your development team under Signing & Capabilities.
 
 Start with the C++ binary-search exercise, or press **⌘L** to pick a lesson. To practice your own code, use **Add Script** or **⌘O** to import a UTF-8 source file.
 
@@ -71,10 +75,12 @@ In Xcode, use **Product → Test** with the TypingPallPad scheme to run the shar
 
 | Track | Collection | Examples |
 | --- | --- | --- |
-| LeetCode | Python interview patterns | Sliding window, two pointers, binary search, BFS, DFS, tree and grid traversal, topological sort, backtracking, union-find, knapsack and other dynamic programming |
+| LeetCode | Python interview patterns | Merge sort, quicksort, heap sort, sliding windows, two pointers, binary search, graph traversal, backtracking, greedy packing, merging sorted streams, union-find and dynamic programming |
+| LeetCode | Python data structures | Fixed-size arrays, linked lists, queues, deques, hash maps, search trees (BST, AVL and red-black), N-ary trees, tries, priority queues, graph adjacency lists and matrices |
 | LeetCode | Swift interview patterns | Lower-bound binary search, Unicode sliding window, interval merging, BFS, bracket matching, coin-change dynamic programming |
 | Low-level design | Creational, structural and behavioral patterns | Factory, builder, singleton, adapter, decorator, composite, strategy, state, observer, command, chain of responsibility |
 | Low-level design | Design building blocks | LRU cache, token-bucket rate limiter |
+| Low-level design | Reliable components | Idempotent reservations, fencing tokens for lease holders, retries with a shared deadline |
 | Languages & syntax | Terminal commands | File search, text pipelines, process inspection, git workflows, archiving |
 | Languages & syntax | Python fundamentals | Comprehensions, collections, generators, dataclasses, context managers, decorators, itertools, protocols |
 | Languages & syntax | Ruby fundamentals | Blocks and enumeration, classes and mixins, keyword arguments, exceptions, procs, regex |
@@ -84,6 +90,9 @@ In Xcode, use **Product → Test** with the TypingPallPad scheme to run the shar
 | Languages & syntax | Swift fundamentals | Optionals, enums, value semantics, closures, collections, Unicode strings, protocols, generics, errors, Codable, key paths, property wrappers, ARC, sequences |
 | Languages & syntax | Swift concurrency | Async/await, async let, task groups, actors, cooperative cancellation, AsyncStream |
 | Languages & syntax | Concurrency across four languages | Thread pools, async tasks, mutexes, condition variables, channels |
+| Languages & syntax | Advanced concurrency | Lock ordering, bounded queues and shutdown, async request coalescing, cancellable channel fan-in, actor reentrancy, acquire/release memory ordering |
+
+For senior practice, try **Advanced concurrency** and **Reliable components**. The Python and C++ exercises cover bounded submission, resource leases, deadlines, and safe updates to shared state. Use the recall prompts to explain which rule keeps the code correct under contention, cancellation, or retries, then type the key lines.
 
 ![The lesson library with a sliding-window Python example, searchable topics, and a code preview](screenshots/library.jpg)
 

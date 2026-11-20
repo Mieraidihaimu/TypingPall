@@ -1,0 +1,72 @@
+{
+  "id": "py-doubly-linked-list",
+  "title": "Doubly linked list with a sentinel",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Insert after a known node and unlink a known data node. An empty list is a sentinel whose two links point to itself.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, value=None):",
+    "        self.value = value",
+    "        self.prev = self.next = self",
+    "",
+    "def insert_after(left, value):",
+    "    right = left.next",
+    "    node = Node(value)",
+    "    node.prev, node.next = left, right",
+    "    left.next = right.prev = node",
+    "    return node",
+    "",
+    "def unlink(node):",
+    "    node.prev.next = node.next",
+    "    node.next.prev = node.prev",
+    "    node.prev = node.next = node",
+    "    return node.value"
+  ],
+  "family": "linked-list",
+  "triggers": [
+    "remove a known node in constant time",
+    "traverse a linked sequence in both directions"
+  ],
+  "prompts": [
+    "A playlist editor has a handle to the current track. Insert another track immediately after it.",
+    "An editor keeps a handle to each open tab. Unlink a tab without scanning from the first."
+  ],
+  "invariant": "Each live link has a matching reverse link, including the links through the sentinel.",
+  "mantra": "Join the new neighbors in both directions.",
+  "pitfalls": [
+    "Only unlink a data node that currently belongs to the list."
+  ],
+  "anchors": [
+    {
+      "name": "Design Linked List",
+      "trick": "A sentinel lets the same four assignments insert at either end."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    9,
+    14
+  ],
+  "complexity": {
+    "time": "O(1) per insertion or removal given the node",
+    "space": "O(1) per operation"
+  },
+  "mutations": [
+    {
+      "line": 14,
+      "replacement": "    node.next.prev = node",
+      "explanation": "Leaves the successor pointing backward at the removed node."
+    }
+  ],
+  "test": [
+    "head = Node()",
+    "last = insert_after(head, 2)",
+    "first = insert_after(head, 1)",
+    "assert head.next is first and last.prev is first and head.prev is last",
+    "assert unlink(first) == 1 and last.prev is head and head.next is last",
+    "assert unlink(last) == 2 and head.next is head and head.prev is head"
+  ],
+  "order": 2
+}

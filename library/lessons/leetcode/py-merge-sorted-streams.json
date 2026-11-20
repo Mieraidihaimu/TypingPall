@@ -1,0 +1,69 @@
+{
+  "id": "py-merge-sorted-streams",
+  "title": "Heap: merge sorted streams",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Merge ascending input streams lazily. Keep one candidate per nonempty stream and replenish only the stream that supplied the previous result.",
+  "code": [
+    "import heapq",
+    "",
+    "def merge_streams(streams):",
+    "    heap = []",
+    "    for index, stream in enumerate(streams):",
+    "        source = iter(stream)",
+    "        for first in source:",
+    "            heap.append((first, index, source))",
+    "            break",
+    "    heapq.heapify(heap)",
+    "    while heap:",
+    "        value, index, source = heapq.heappop(heap)",
+    "        yield value",
+    "        for following in source:",
+    "            heapq.heappush(heap, (following, index, source))",
+    "            break"
+  ],
+  "family": "heap",
+  "triggers": [
+    "many sorted inputs must be merged",
+    "stream sorted results without collecting all items"
+  ],
+  "prompts": [
+    "Merge timestamped logs from several servers without loading them all into memory.",
+    "Combine several sorted shipment feeds so the earliest pending arrival is emitted next."
+  ],
+  "invariant": "The heap holds the next unconsumed value from each active stream at the start of every iteration.",
+  "mantra": "Emit the smallest head and advance that stream.",
+  "pitfalls": [
+    "The unique stream index breaks equal-value ties before Python compares iterators."
+  ],
+  "anchors": [
+    {
+      "name": "Merge k Sorted Lists",
+      "trick": "Advance only the source of the item removed from the heap."
+    }
+  ],
+  "keyLineIndices": [
+    9,
+    11,
+    14
+  ],
+  "complexity": {
+    "time": "O(k + N log(k + 1)) for N values across k streams",
+    "space": "O(k)"
+  },
+  "mutations": [
+    {
+      "line": 14,
+      "replacement": "            heapq.heappush(heap, (value, index, source))",
+      "explanation": "Reinserts the value just emitted and drops its successor."
+    }
+  ],
+  "test": [
+    "from itertools import count, islice",
+    "assert list(merge_streams([iter([1, 4]), [], iter([1, 2, 5]), [-2]])) == [-2, 1, 1, 2, 4, 5]",
+    "assert list(merge_streams([])) == []",
+    "assert list(islice(merge_streams([count(0, 2), count(1, 2)]), 6)) == list(range(6))"
+  ],
+  "order": 37
+}

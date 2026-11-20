@@ -1,0 +1,67 @@
+{
+  "id": "py-fixed-window",
+  "title": "Fixed-size sliding window",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Find the largest sum of exactly k consecutive values. Update the sum by adding the entering value and subtracting the leaving value.",
+  "code": [
+    "def best_window_sum(values, k):",
+    "    if not 1 <= k <= len(values):",
+    "        raise ValueError(\"window must fit\")",
+    "    total = sum(values[i] for i in range(k))",
+    "    best = total",
+    "    for right in range(k, len(values)):",
+    "        total += values[right] - values[right - k]",
+    "        best = max(best, total)",
+    "    return best"
+  ],
+  "family": "sliding-window",
+  "triggers": [
+    "best total over exactly k consecutive items",
+    "neighboring windows differ by one item at each end"
+  ],
+  "prompts": [
+    "Find the busiest stretch of exactly seven days in a list of daily totals.",
+    "Find the best net return over a fixed number of consecutive trades, including losses."
+  ],
+  "invariant": "Each candidate total covers exactly k items ending at the current index.",
+  "mantra": "Add the entrant, subtract the item k steps back.",
+  "pitfalls": [
+    "Initialize best from the first full window so all-negative values are handled."
+  ],
+  "anchors": [
+    {
+      "name": "Maximum Average Subarray I",
+      "trick": "Maximize the fixed-length sum before dividing by k."
+    }
+  ],
+  "keyLineIndices": [
+    4,
+    6,
+    7
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1) auxiliary"
+  },
+  "mutations": [
+    {
+      "line": 4,
+      "replacement": "    best = 0",
+      "explanation": "Invents a zero-sum candidate for an all-negative input."
+    }
+  ],
+  "test": [
+    "assert best_window_sum([-8, -3, -1, -5], 2) == -4",
+    "assert best_window_sum([1, 7, 3], 1) == 7",
+    "assert best_window_sum([1, 7, 3], 3) == 11",
+    "for k in [0, 4]:",
+    "    try:",
+    "        best_window_sum([1, 2, 3], k)",
+    "    except ValueError:",
+    "        continue",
+    "    raise AssertionError(\"invalid window accepted\")"
+  ],
+  "order": 30
+}

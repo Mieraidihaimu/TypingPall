@@ -1,0 +1,100 @@
+{
+  "id": "lld-idempotency-key",
+  "title": "Idempotent reservation requests",
+  "category": "Reliable components",
+  "track": "lowLevelDesign",
+  "language": "python",
+  "summary": "Store each request’s input and outcome in the same critical section as the seat allocation.",
+  "code": [
+    "from threading import Lock",
+    "",
+    "class Reservations:",
+    "    def __init__(self, capacity):",
+    "        self._remaining = capacity",
+    "        self._receipts = {}",
+    "        self._lock = Lock()",
+    "",
+    "    def reserve(self, key, seats):",
+    "        if seats <= 0:",
+    "            raise ValueError(\"seats must be positive\")",
+    "        with self._lock:",
+    "            if key in self._receipts:",
+    "                previous, receipt = self._receipts[key]",
+    "                if previous != seats:",
+    "                    raise ValueError(\"key reused with different seats\")",
+    "                return receipt",
+    "",
+    "            receipt = None  # Sold out is also an outcome.",
+    "            if seats <= self._remaining:",
+    "                receipt = len(self._receipts) + 1",
+    "                self._remaining -= seats",
+    "            self._receipts[key] = (seats, receipt)",
+    "            return receipt"
+  ],
+  "family": "idempotency-key",
+  "triggers": [
+    "client retries a write after losing the response",
+    "idempotency key must bind to the original request payload"
+  ],
+  "prompts": [
+    "A reservation succeeded, but the response was lost. Make its retry return the original receipt without taking more seats.",
+    "Reject a retry that uses the same key with a different seat count, even when there is enough capacity."
+  ],
+  "invariant": "Each key stores one seat count and outcome. Looking up the key, allocating seats, and saving the result are one locked operation.",
+  "mantra": "Look up, verify, apply once, replay.",
+  "pitfalls": [
+    "Checking capacity before replay can reject a duplicate of the request that filled the venue.",
+    "A lock only protects this process. Persist both the effect and the outcome in one transaction to survive restarts or multiple processes.",
+    "A real service needs a retention policy and should scope keys to the caller and operation."
+  ],
+  "keyLineIndices": [
+    11,
+    12,
+    14,
+    21,
+    22
+  ],
+  "anchors": [
+    {
+      "name": "Lost response",
+      "trick": "Replay the saved outcome before evaluating current capacity."
+    },
+    {
+      "name": "Concurrent duplicates",
+      "trick": "The duplicate must observe either the whole committed result or no record."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 12,
+      "replacement": "            if key in self._receipts and seats <= self._remaining:",
+      "explanation": "Replay now depends on current capacity, so a retry can lose its original receipt."
+    }
+  ],
+  "test": [
+    "from concurrent.futures import ThreadPoolExecutor",
+    "from threading import Barrier",
+    "",
+    "reservations = Reservations(3)",
+    "start = Barrier(2, timeout=2)",
+    "def duplicate():",
+    "    start.wait()",
+    "    return reservations.reserve(\"booking-a\", 2)",
+    "",
+    "with ThreadPoolExecutor(max_workers=2) as pool:",
+    "    first, second = pool.submit(duplicate), pool.submit(duplicate)",
+    "    assert first.result() == second.result() == 1",
+    "assert reservations.reserve(\"booking-b\", 1) == 2",
+    "assert reservations.reserve(\"booking-a\", 2) == 1",
+    "assert reservations.reserve(\"booking-c\", 1) is None",
+    "assert reservations.reserve(\"booking-c\", 1) is None",
+    "for key in (\"booking-a\", \"booking-c\"):",
+    "    try:",
+    "        reservations.reserve(key, 3)",
+    "    except ValueError:",
+    "        pass",
+    "    else:",
+    "        raise AssertionError(\"A different payload reused a key\")"
+  ],
+  "order": 1
+}

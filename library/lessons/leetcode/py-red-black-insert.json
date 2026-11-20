@@ -1,0 +1,133 @@
+{
+  "id": "py-red-black-insert",
+  "title": "Left-leaning red-black tree insertion",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Maintain an ordered set with colored links. Rotations move red links into position and a color flip splits a node with two red children.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, key):",
+    "        self.key = key",
+    "        self.red = True",
+    "        self.left = self.right = None",
+    "",
+    "def red(node):",
+    "    return node is not None and node.red",
+    "",
+    "def rotate_left(root):",
+    "    top = root.right",
+    "    root.right, top.left = top.left, root",
+    "    top.red, root.red = root.red, True",
+    "    return top",
+    "",
+    "def rotate_right(root):",
+    "    top = root.left",
+    "    root.left, top.right = top.right, root",
+    "    top.red, root.red = root.red, True",
+    "    return top",
+    "",
+    "def insert(root, key):",
+    "    def place(node):",
+    "        if node is None:",
+    "            return Node(key)",
+    "        if key < node.key:",
+    "            node.left = place(node.left)",
+    "        elif key > node.key:",
+    "            node.right = place(node.right)",
+    "        if red(node.right) and not red(node.left):",
+    "            node = rotate_left(node)",
+    "        if red(node.left) and red(node.left.left):",
+    "            node = rotate_right(node)",
+    "        if red(node.left) and red(node.right):",
+    "            node.red = True",
+    "            node.left.red = node.right.red = False",
+    "        return node",
+    "",
+    "    root = place(root)",
+    "    root.red = False",
+    "    return root"
+  ],
+  "family": "red-black-tree",
+  "triggers": [
+    "balanced search tree using a color bit per node",
+    "equal black height on every path to a missing child"
+  ],
+  "prompts": [
+    "Maintain an ordered set whose balance is encoded with red and black links.",
+    "Repair a balanced index after insertion creates two consecutive red links."
+  ],
+  "invariant": "The root is black, red links lean left, no red links are consecutive, and all root-to-null paths have equal black height.",
+  "mantra": "Lean left, break a red chain, then split a pair.",
+  "pitfalls": [
+    "A promoted node inherits the old root color during rotation."
+  ],
+  "anchors": [
+    {
+      "name": "Validate Binary Search Tree",
+      "trick": "Validate strict key ordering alongside the color rules."
+    }
+  ],
+  "keyLineIndices": [
+    30,
+    32,
+    35,
+    39
+  ],
+  "scaffoldLineIndices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "complexity": {
+    "time": "O(log n) per insertion",
+    "space": "O(log n) call stack"
+  },
+  "mutations": [
+    {
+      "line": 35,
+      "replacement": "            node.left.red = node.right.red = True",
+      "explanation": "Retains red children when the split should pass the red link upward."
+    }
+  ],
+  "test": [
+    "def verify(node, keys):",
+    "    if node is None:",
+    "        return 0",
+    "    assert not red(node.right)",
+    "    assert not (red(node) and red(node.left))",
+    "    left = verify(node.left, keys)",
+    "    keys.append(node.key)",
+    "    right = verify(node.right, keys)",
+    "    assert left == right",
+    "    return left + int(not node.red)",
+    "for sequence in [range(40), reversed(range(40)), [4, 2, 9, 1, 7, 6, 3, 4, 2]]:",
+    "    root = None",
+    "    seen = set()",
+    "    for key in sequence:",
+    "        root = insert(root, key)",
+    "        seen.add(key)",
+    "        keys = []",
+    "        verify(root, keys)",
+    "        assert keys == sorted(seen) and not root.red"
+  ],
+  "order": 10
+}

@@ -796,9 +796,13 @@ def check_mutations():
 EXPECTED = {
     'cpp-vectors':'2 3', 'cpp-map':'2 1', 'cpp-raii':'10 20', 'cpp-lambda':'a b c',
     'cpp-lock':'200', 'cpp-condition':'42', 'cpp-future':'55',
+    'cpp-acquire-release':'42',
+    'cpp-timed-slot':'PASS', 'cpp-atomic-capacity':'PASS',
+    'cpp-immutable-snapshot':'PASS', 'cpp-call-once-retry':'PASS',
     'go-slices':'2', 'go-errors':'8080', 'go-methods':'3', 'go-interfaces':'task: practice', 'go-channels':'1\n4\n9',
     'go-defer-recover':'recovered: division by zero', 'go-generics':'3 2',
     'go-json-tags':'localhost:8080', 'go-select-timeout':'data-ready',
+    'go-cancellable-fan-in':'12 2',
     'rust-borrow':'practice\npractice patterns', 'rust-result':'[1, 2, 3]',
     'rust-iterators':'[4, 16]', 'rust-enums':'0', 'rust-shared-state':'4',
 }

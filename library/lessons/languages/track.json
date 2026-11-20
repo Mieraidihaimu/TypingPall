@@ -12,6 +12,7 @@
     "Go concurrency",
     "Rust concurrency",
     "Swift fundamentals",
-    "Swift concurrency"
+    "Swift concurrency",
+    "Advanced concurrency"
   ]
 }

@@ -1,0 +1,89 @@
+{
+  "id": "py-ring-queue",
+  "title": "Circular queue in a fixed buffer",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Enqueue at the logical back and dequeue from the front. Track the size so a capacity-one queue can distinguish full from empty.",
+  "code": [
+    "class RingQueue:",
+    "    def __init__(self, capacity):",
+    "        if capacity < 1:",
+    "            raise ValueError(\"capacity must be positive\")",
+    "        self.slots = [None] * capacity",
+    "        self.head = self.size = 0",
+    "",
+    "    def enqueue(self, value):",
+    "        if self.size == len(self.slots):",
+    "            raise OverflowError(\"full queue\")",
+    "        tail = (self.head + self.size) % len(self.slots)",
+    "        self.slots[tail] = value",
+    "        self.size += 1",
+    "",
+    "    def dequeue(self):",
+    "        if self.size == 0:",
+    "            raise IndexError(\"empty queue\")",
+    "        value = self.slots[self.head]",
+    "        self.slots[self.head] = None",
+    "        self.head = (self.head + 1) % len(self.slots)",
+    "        self.size -= 1",
+    "        return value"
+  ],
+  "family": "queue",
+  "triggers": [
+    "bounded FIFO queue with reusable slots",
+    "front and back wrap around a fixed buffer"
+  ],
+  "prompts": [
+    "A sensor has room for a fixed number of pending readings. Reject writes while it is full.",
+    "Implement a bounded event queue whose oldest slot can be reused after a read."
+  ],
+  "invariant": "The next write goes size positions after head, modulo capacity.",
+  "mantra": "Wrap the index and count the live entries.",
+  "pitfalls": [
+    "A stored None is a valid item. Test size to detect an empty queue."
+  ],
+  "anchors": [
+    {
+      "name": "Design Circular Queue",
+      "trick": "Compute the tail from the head and size."
+    }
+  ],
+  "keyLineIndices": [
+    10,
+    19,
+    20
+  ],
+  "complexity": {
+    "time": "O(1) per operation after initialization",
+    "space": "O(capacity)"
+  },
+  "mutations": [
+    {
+      "line": 10,
+      "replacement": "        tail = self.size % len(self.slots)",
+      "explanation": "Ignores the moved head and overwrites a live entry after a dequeue."
+    }
+  ],
+  "test": [
+    "q = RingQueue(2)",
+    "q.enqueue(1)",
+    "q.enqueue(None)",
+    "try:",
+    "    q.enqueue(3)",
+    "except OverflowError:",
+    "    pass",
+    "else:",
+    "    raise AssertionError(\"accepted an extra entry\")",
+    "assert q.dequeue() == 1",
+    "q.enqueue(3)",
+    "assert [q.dequeue(), q.dequeue()] == [None, 3]",
+    "try:",
+    "    q.dequeue()",
+    "except IndexError:",
+    "    pass",
+    "else:",
+    "    raise AssertionError(\"removed from an empty queue\")"
+  ],
+  "order": 4
+}

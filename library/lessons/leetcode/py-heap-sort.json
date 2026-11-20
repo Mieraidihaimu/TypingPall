@@ -1,0 +1,72 @@
+{
+  "id": "py-heap-sort",
+  "title": "Heap sort in place",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Build a max-heap bottom up. Swap the maximum into the sorted suffix, then restore the heap within its new boundary.",
+  "code": [
+    "def heap_sort(values):",
+    "    def sift(root, end):",
+    "        child = 2 * root + 1",
+    "        while child < end:",
+    "            if child + 1 < end and values[child] < values[child + 1]:",
+    "                child += 1",
+    "            if values[root] >= values[child]:",
+    "                break",
+    "            values[root], values[child] = values[child], values[root]",
+    "            root = child",
+    "            child = 2 * root + 1",
+    "",
+    "    for root in range(len(values) // 2 - 1, -1, -1):",
+    "        sift(root, len(values))",
+    "    for end in range(len(values) - 1, 0, -1):",
+    "        values[0], values[end] = values[end], values[0]",
+    "        sift(0, end)"
+  ],
+  "family": "heap-sort",
+  "triggers": [
+    "in-place sorting with a worst-case time bound",
+    "repeatedly move the maximum to the end"
+  ],
+  "prompts": [
+    "Sort a fixed buffer of scores with constant auxiliary storage.",
+    "Produce ascending ranks by repeatedly moving the current winner out of a binary heap."
+  ],
+  "invariant": "The active prefix is a max-heap before each extraction, and the suffix is already sorted.",
+  "mantra": "Choose the larger child and shrink the heap after each swap.",
+  "pitfalls": [
+    "Use the active end when checking for a right child. The sorted suffix is off limits."
+  ],
+  "anchors": [
+    {
+      "name": "Sort an Array",
+      "trick": "Heapify bottom up and extract into the same array."
+    }
+  ],
+  "keyLineIndices": [
+    4,
+    12,
+    16
+  ],
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(1) auxiliary"
+  },
+  "mutations": [
+    {
+      "line": 16,
+      "replacement": "        sift(0, end + 1)",
+      "explanation": "Pulls the extracted maximum back into the active heap."
+    }
+  ],
+  "test": [
+    "from itertools import product",
+    "for length in range(6):",
+    "    for items in product(range(-1, 2), repeat=length):",
+    "        values = list(items)",
+    "        heap_sort(values)",
+    "        assert values == sorted(items)"
+  ],
+  "order": 29
+}

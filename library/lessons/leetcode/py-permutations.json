@@ -1,0 +1,67 @@
+{
+  "id": "py-permutations",
+  "title": "Backtracking: permutations",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Enumerate orderings of distinct values by swapping a candidate into the next open slot. Undo each swap after exploring that branch.",
+  "code": [
+    "def permutations(values):",
+    "    work = list(values)",
+    "    result = []",
+    "    def visit(start):",
+    "        if start == len(work):",
+    "            result.append(work.copy())",
+    "            return",
+    "        for i in range(start, len(work)):",
+    "            work[start], work[i] = work[i], work[start]",
+    "            visit(start + 1)",
+    "            work[i], work[start] = work[start], work[i]",
+    "    visit(0)",
+    "    return result"
+  ],
+  "family": "backtracking",
+  "triggers": [
+    "generate all orderings of distinct items",
+    "fix a prefix and rearrange the remaining positions"
+  ],
+  "prompts": [
+    "List every possible batting order for a small team.",
+    "Generate all distinct orders in which a technician could visit a handful of different stops."
+  ],
+  "invariant": "Slots before start form the fixed prefix and the suffix contains all remaining candidates.",
+  "mantra": "Swap into place, explore, swap back.",
+  "pitfalls": [
+    "Copy the completed arrangement because the working list is reused."
+  ],
+  "anchors": [
+    {
+      "name": "Permutations",
+      "trick": "Choose a different remaining element at each depth."
+    }
+  ],
+  "keyLineIndices": [
+    5,
+    9,
+    10
+  ],
+  "complexity": {
+    "time": "O(n × n!) for nonempty input",
+    "space": "O(n) besides output"
+  },
+  "mutations": [
+    {
+      "line": 10,
+      "replacement": "            pass",
+      "explanation": "Leaves one branch’s choices in the array when the next branch starts."
+    }
+  ],
+  "test": [
+    "from itertools import permutations as expected",
+    "for items in [[], [3], [1, 2, 3, 4]]:",
+    "    original = items.copy()",
+    "    assert sorted(map(tuple, permutations(items))) == sorted(expected(items))",
+    "    assert items == original"
+  ],
+  "order": 33
+}

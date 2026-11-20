@@ -1,0 +1,59 @@
+{
+  "id": "py-adjacency-list",
+  "title": "Build a graph adjacency list",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Represent an unweighted graph on vertices 0 through n−1 with one neighbor set per vertex. Directed edges go one way and undirected edges go both ways.",
+  "code": [
+    "def adjacency_list(n, edges, directed=False):",
+    "    neighbors = [set() for _ in range(n)]",
+    "    for source, target in edges:",
+    "        neighbors[source].add(target)",
+    "        if not directed:",
+    "            neighbors[target].add(source)",
+    "    return neighbors"
+  ],
+  "family": "graph-representation",
+  "triggers": [
+    "sparse graph given as an edge list",
+    "iterate only over neighbors of the current vertex"
+  ],
+  "prompts": [
+    "Build a neighbor index for a set of one-way cycle lanes.",
+    "Record friendships so every person, including someone with no friends, has a neighbor entry."
+  ],
+  "invariant": "Each set contains exactly the vertices reachable by one outgoing edge.",
+  "mantra": "Create every vertex, then add its outgoing edges.",
+  "pitfalls": [
+    "Allocate an independent set for each vertex. Repeating a single set aliases every row."
+  ],
+  "anchors": [
+    {
+      "name": "Find if Path Exists in Graph",
+      "trick": "Build neighbor collections before starting the traversal."
+    }
+  ],
+  "keyLineIndices": [
+    1,
+    5
+  ],
+  "complexity": {
+    "time": "O(V + E) expected",
+    "space": "O(V + E)"
+  },
+  "mutations": [
+    {
+      "line": 4,
+      "replacement": "        if directed:",
+      "explanation": "Reverses the rule for mirroring an edge."
+    }
+  ],
+  "test": [
+    "edges = [(0, 1), (0, 1), (1, 1)]",
+    "assert adjacency_list(3, edges) == [{1}, {0, 1}, set()]",
+    "assert adjacency_list(3, edges, directed=True) == [{1}, {1}, set()]",
+    "assert adjacency_list(0, []) == []"
+  ],
+  "order": 12
+}

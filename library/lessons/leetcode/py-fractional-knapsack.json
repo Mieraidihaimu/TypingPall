@@ -1,0 +1,64 @@
+{
+  "id": "py-fractional-knapsack",
+  "title": "Greedy packing: fractional knapsack",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Maximize value in a weight-limited bag when items can be divided. Supply nonnegative values, positive weights and nonnegative capacity.",
+  "code": [
+    "def fractional_value(items, capacity):",
+    "    ranked = sorted(items, key=lambda item: item[0] / item[1], reverse=True)",
+    "    total = 0.0",
+    "    for value, weight in ranked:",
+    "        if capacity == 0:",
+    "            break",
+    "        taken = min(capacity, weight)",
+    "        total += value * (taken / weight)",
+    "        capacity -= taken",
+    "    return total"
+  ],
+  "family": "greedy",
+  "triggers": [
+    "divisible items under a weight budget",
+    "each unit of an item has the same marginal value"
+  ],
+  "prompts": [
+    "Fill a tanker from divisible lots of oil with different values per litre.",
+    "A recycler can take fractions of material batches. Maximize the value within the truck’s weight limit."
+  ],
+  "invariant": "Each unit taken has at least as much value as any unit still available.",
+  "mantra": "Sort by value per unit and fill from the richest lot.",
+  "pitfalls": [
+    "The greedy choice relies on the ability to split the last item. Whole-item packing requires a different argument."
+  ],
+  "anchors": [
+    {
+      "name": "Fractional Knapsack",
+      "trick": "A unit of a higher-density item can replace a lower-density unit at the same weight."
+    }
+  ],
+  "keyLineIndices": [
+    1,
+    6,
+    8
+  ],
+  "complexity": {
+    "time": "O(n log n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 6,
+      "replacement": "        taken = weight",
+      "explanation": "Packs a whole item even when only a fraction fits."
+    }
+  ],
+  "test": [
+    "items = [(120, 30), (60, 10), (100, 20)]",
+    "assert fractional_value(items, 50) == 240",
+    "assert fractional_value(items, 5) == 30",
+    "assert fractional_value(items, 100) == 280",
+    "assert fractional_value(items, 0) == fractional_value([], 5) == 0"
+  ],
+  "order": 36
+}

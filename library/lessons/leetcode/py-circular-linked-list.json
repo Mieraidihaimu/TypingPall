@@ -1,0 +1,77 @@
+{
+  "id": "py-circular-linked-list",
+  "title": "Circular singly linked list",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Keep a tail pointer for a ring. Append in constant time and visit each value once by stopping when traversal returns to the head.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, value):",
+    "        self.value = value",
+    "        self.next = self",
+    "",
+    "def append(tail, value):",
+    "    node = Node(value)",
+    "    if tail is not None:",
+    "        node.next = tail.next",
+    "        tail.next = node",
+    "    return node",
+    "",
+    "def one_lap(tail):",
+    "    if tail is None:",
+    "        return",
+    "    head = tail.next",
+    "    node = head",
+    "    while True:",
+    "        yield node.value",
+    "        node = node.next",
+    "        if node is head:",
+    "            return"
+  ],
+  "family": "linked-list",
+  "triggers": [
+    "the last node links back to the first",
+    "round-robin traversal with no null terminator"
+  ],
+  "prompts": [
+    "A turn manager adds a new player at the end of a seating circle.",
+    "Read one full lap of checkpoints from a circular route."
+  ],
+  "invariant": "In a nonempty ring, tail.next is the head.",
+  "mantra": "Splice after the tail, then advance the tail.",
+  "pitfalls": [
+    "Compare node identity when detecting a full lap because values can repeat."
+  ],
+  "anchors": [
+    {
+      "name": "Insert into a Sorted Circular Linked List",
+      "trick": "Returning to the starting node marks a complete lap."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    9,
+    20
+  ],
+  "complexity": {
+    "time": "O(1) append, O(n) for one lap",
+    "space": "O(1) auxiliary"
+  },
+  "mutations": [
+    {
+      "line": 20,
+      "replacement": "        if node.value == head.value:",
+      "explanation": "Equal values can occur before the traversal has completed a lap."
+    }
+  ],
+  "test": [
+    "assert list(one_lap(None)) == []",
+    "tail = append(None, 5)",
+    "assert tail.next is tail",
+    "for value in [5, 8]:",
+    "    tail = append(tail, value)",
+    "assert list(one_lap(tail)) == [5, 5, 8]"
+  ],
+  "order": 3
+}

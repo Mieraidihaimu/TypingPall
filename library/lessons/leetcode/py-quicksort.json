@@ -1,0 +1,72 @@
+{
+  "id": "py-quicksort",
+  "title": "Quicksort with a pivot partition",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Partition a list in place around its final element. Recurse on the smaller partition and iterate over the larger one to bound stack use.",
+  "code": [
+    "def quicksort(values):",
+    "    def sort(lo, hi):",
+    "        while lo < hi:",
+    "            pivot = values[hi]",
+    "            split = lo",
+    "            for scan in range(lo, hi):",
+    "                if values[scan] < pivot:",
+    "                    values[split], values[scan] = values[scan], values[split]",
+    "                    split += 1",
+    "            values[split], values[hi] = values[hi], values[split]",
+    "            if split - lo < hi - split:",
+    "                sort(lo, split - 1)",
+    "                lo = split + 1",
+    "            else:",
+    "                sort(split + 1, hi)",
+    "                hi = split - 1",
+    "    sort(0, len(values) - 1)"
+  ],
+  "family": "quicksort",
+  "triggers": [
+    "in-place comparison sort around a pivot",
+    "partition values into smaller and larger ranges"
+  ],
+  "prompts": [
+    "Reorder a buffer of numeric readings in place using a pivot.",
+    "Implement a partition sort whose call stack stays small even when partitions are uneven."
+  ],
+  "invariant": "During partition, values before split are smaller than the pivot and values from split up to scan are at least the pivot.",
+  "mantra": "Place the pivot, then exclude it from both subproblems.",
+  "pitfalls": [
+    "A fixed final pivot can lead to quadratic time on ordered or all-equal input."
+  ],
+  "anchors": [
+    {
+      "name": "Sort an Array",
+      "trick": "Partition in place and sort both sides of the settled pivot."
+    }
+  ],
+  "keyLineIndices": [
+    6,
+    9,
+    10
+  ],
+  "complexity": {
+    "time": "O(n log n) average for random distinct input, O(n²) worst case",
+    "space": "O(log n) stack"
+  },
+  "mutations": [
+    {
+      "line": 12,
+      "replacement": "                lo = split + 2",
+      "explanation": "Skips the first element of the remaining partition."
+    }
+  ],
+  "test": [
+    "from itertools import product",
+    "for length in range(6):",
+    "    for items in product(range(3), repeat=length):",
+    "        values = list(items)",
+    "        quicksort(values)",
+    "        assert values == sorted(items)"
+  ],
+  "order": 28
+}

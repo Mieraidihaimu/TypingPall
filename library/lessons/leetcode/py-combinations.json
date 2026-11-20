@@ -1,0 +1,65 @@
+{
+  "id": "py-combinations",
+  "title": "Backtracking: choose exactly k",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Yield k-element selections of distinct input values in input order. Skip branches that lack enough remaining candidates.",
+  "code": [
+    "def combinations(values, k):",
+    "    path = []",
+    "    def visit(start, needed):",
+    "        if needed == 0:",
+    "            yield tuple(path)",
+    "            return",
+    "        for i in range(start, len(values) - needed + 1):",
+    "            path.append(values[i])",
+    "            yield from visit(i + 1, needed - 1)",
+    "            path.pop()",
+    "    if 0 <= k <= len(values):",
+    "        yield from visit(0, k)"
+  ],
+  "family": "backtracking",
+  "triggers": [
+    "choose exactly k distinct positions",
+    "generate teams where selection order does not matter"
+  ],
+  "prompts": [
+    "List every panel of three reviewers from a larger roster.",
+    "Generate every pair of different instruments available for a duet."
+  ],
+  "invariant": "Chosen indices increase, and a branch starts only when enough values remain.",
+  "mantra": "Recurse past the chosen index and reserve space for the rest.",
+  "pitfalls": [
+    "Include the final viable starting index or the last combination disappears."
+  ],
+  "anchors": [
+    {
+      "name": "Combinations",
+      "trick": "Use the remaining number of slots to bound the next index."
+    }
+  ],
+  "keyLineIndices": [
+    6,
+    8,
+    9
+  ],
+  "complexity": {
+    "time": "O((k + 1) × C(n,k)) for 0 ≤ k ≤ n",
+    "space": "O(k) auxiliary"
+  },
+  "mutations": [
+    {
+      "line": 6,
+      "replacement": "        for i in range(start, len(values) - needed):",
+      "explanation": "Drops the last feasible choice at every level."
+    }
+  ],
+  "test": [
+    "from itertools import combinations as expected",
+    "for k in range(6):",
+    "    assert list(combinations('abcd', k)) == list(expected('abcd', k))",
+    "assert list(combinations([], 0)) == [()] and list(combinations('a', -1)) == []"
+  ],
+  "order": 34
+}

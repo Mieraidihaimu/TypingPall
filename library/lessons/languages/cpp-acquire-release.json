@@ -1,0 +1,55 @@
+{
+  "id": "cpp-acquire-release",
+  "title": "Acquire and release publication",
+  "category": "Advanced concurrency",
+  "track": "languages",
+  "language": "cpp",
+  "summary": "Publish a payload once using a release store and an acquire load on a readiness flag.",
+  "code": [
+    "#include <atomic>",
+    "#include <iostream>",
+    "#include <thread>",
+    "",
+    "int main() {",
+    "    int payload = 0;",
+    "    std::atomic<bool> ready{false};",
+    "",
+    "    std::thread producer([&] {",
+    "        payload = 42;",
+    "        ready.store(true, std::memory_order_release);",
+    "    });",
+    "",
+    "    while (!ready.load(std::memory_order_acquire)) {",
+    "        std::this_thread::yield();",
+    "    }",
+    "    std::cout << payload;",
+    "    producer.join();",
+    "}"
+  ],
+  "family": "acquire-release",
+  "triggers": [
+    "C++ memory ordering and happens-before for one-time publication",
+    "hand off an immutable payload via an atomic readiness flag"
+  ],
+  "prompts": [
+    "Publish a result from one thread and read the non-atomic data after observing its atomic ready flag.",
+    "Explain which operations make the payload read safe before the producer is joined."
+  ],
+  "invariant": "The producer writes the payload before the release store. A reader that observes that store with an acquire load reads afterward, and the producer never writes the payload again.",
+  "mantra": "Write the data; release the flag; acquire before reading.",
+  "pitfalls": [
+    "A relaxed load of the flag alone does not synchronize access to the payload.",
+    "Resetting the flag does not make this a reusable slot; another write could race with a reader.",
+    "This loop polls. Prefer a blocking primitive when the wait can be long. A passing run alone cannot prove memory ordering."
+  ],
+  "keyLineIndices": [
+    9,
+    10,
+    13,
+    16
+  ],
+  "contrastWith": [
+    "cpp-atomic-capacity"
+  ],
+  "order": 6
+}

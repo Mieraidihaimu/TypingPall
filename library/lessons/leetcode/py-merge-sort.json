@@ -1,0 +1,72 @@
+{
+  "id": "py-merge-sort",
+  "title": "Merge sort with two read indices",
+  "category": "Python interview patterns",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Recursively sort two halves and merge them into a fresh list. Take equal keys from the left to preserve their input order.",
+  "code": [
+    "def merge_sort(items, key=lambda item: item):",
+    "    if len(items) < 2:",
+    "        return list(items)",
+    "    mid = len(items) // 2",
+    "    left = merge_sort(items[:mid], key)",
+    "    right = merge_sort(items[mid:], key)",
+    "    merged = []",
+    "    i = j = 0",
+    "    while i < len(left) and j < len(right):",
+    "        if key(left[i]) <= key(right[j]):",
+    "            merged.append(left[i])",
+    "            i += 1",
+    "        else:",
+    "            merged.append(right[j])",
+    "            j += 1",
+    "    merged.extend(left[i:])",
+    "    merged.extend(right[j:])",
+    "    return merged"
+  ],
+  "family": "merge-sort",
+  "triggers": [
+    "stable sort by merging sorted runs",
+    "two read indices advancing through sorted halves"
+  ],
+  "prompts": [
+    "Sort transactions by timestamp while retaining input order within a timestamp.",
+    "Combine recursively sorted batches into one stable ordering of records."
+  ],
+  "invariant": "The merged prefix contains the smallest consumed items in stable order.",
+  "mantra": "Take the smaller front and append the remaining tail.",
+  "pitfalls": [
+    "Taking from the right on a tie reverses equal keys across the split."
+  ],
+  "anchors": [
+    {
+      "name": "Sort an Array",
+      "trick": "Divide the range and merge its sorted halves."
+    }
+  ],
+  "keyLineIndices": [
+    9,
+    15,
+    16
+  ],
+  "complexity": {
+    "time": "O(n log n) for constant-time keys",
+    "space": "O(n) peak auxiliary"
+  },
+  "mutations": [
+    {
+      "line": 9,
+      "replacement": "        if key(left[i]) < key(right[j]):",
+      "explanation": "Lets a later item precede an earlier item with the same key."
+    }
+  ],
+  "test": [
+    "rows = [(2, 'a'), (1, 'b'), (2, 'c'), (1, 'd')]",
+    "assert merge_sort(rows, key=lambda r: r[0]) == [(1, 'b'), (1, 'd'), (2, 'a'), (2, 'c')]",
+    "assert rows[0] == (2, 'a')",
+    "for items in [[], [5], [3, -2, 4, 1, 0]]:",
+    "    assert merge_sort(items) == sorted(items)"
+  ],
+  "order": 27
+}

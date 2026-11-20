@@ -1,41 +1,47 @@
 # Releasing TypingPall
 
-The 1.1.0 source is prepared for direct Mac distribution. Shipping requires a Developer ID Application certificate and notarization. Nothing in the build scripts uploads or publishes an app.
+The public macOS download targets Apple Silicon and requires macOS 14 or later. Use Developer ID signing and notarization when credentials are available. For an ad hoc signed build, disclose its signing status in the GitHub release notes.
 
 ## Validate
 
 Run `./scripts/check.sh` on a Mac with full Xcode selected. This runs unit and UI tests, then builds Release for Apple silicon and Intel. UI tests need a logged-in desktop with permission for the Xcode test runner to control it. To run unit tests independently, pass `-only-testing:TypingPallTests`.
 
-Before distribution, smoke-test the signed app on macOS 12 and a current macOS release, on both architectures where available. Exercise importing a UTF-8 file, line-by-line progression, repeating a line, blank lines, tab expansion, emoji, IME composition, undo/redo, window resizing, light/dark appearance, VoiceOver, persistence after relaunch, upgrading an installation with saved scripts, the target strip lining up with typed text at 12, 25 and 30 pt, and the Which pattern? drill using the keyboard only, a bug hunt with Full Keyboard Access, and a contrast pair at the minimum window width. The deployment target alone is not proof of runtime compatibility.
+Before distribution, smoke-test the app on Apple Silicon with macOS 14 and a current macOS release when available. Exercise importing a UTF-8 file, line-by-line progression, repeating a line, blank lines, tab expansion, emoji, IME composition, undo/redo, window resizing, light/dark appearance, VoiceOver, persistence after relaunch, upgrading an installation with saved scripts, the target strip lining up with typed text at 12, 25 and 30 pt, and the Which pattern? drill using the keyboard only, a bug hunt with Full Keyboard Access, and a contrast pair at the minimum window width.
 
 ## Sign and archive
 
-Set `DEVELOPMENT_TEAM` and `SIGNING_IDENTITY` to your team and installed Developer ID Application certificate, then run `./scripts/archive.sh`. It builds a universal archive with hardened runtime and verifies its code signature. It refuses to overwrite an existing archive.
+Set `DEVELOPMENT_TEAM` and `SIGNING_IDENTITY` to your team and installed Developer ID Application certificate, then run `./scripts/archive.sh`. It builds an arm64 archive with hardened runtime and verifies its code signature. It refuses to overwrite an existing archive.
 
 Open the archive in Xcode Organizer and choose the Developer ID distribution workflow. Complete notarization, export the app, and verify the exported artifact before making it available to users. Apple documents [notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution) and [custom notarization workflows](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow).
 
 Keep credentials in Keychain or CI secrets. Commit neither certificates nor credentials. Increment the marketing version and build number for subsequent releases. Include the GPL license and corresponding source when distributing binaries.
 
-## Homebrew Cask distribution
+## GitHub and Homebrew distribution
 
-The Homebrew Cask formula is maintained in [`Casks/typingpall.rb`](Casks/typingpall.rb) and distributed via personal tap `mieraidihaimu/tap`:
+Keep the ZIP asset and [`Casks/typingpall.rb`](Casks/typingpall.rb) in sync for Homebrew distribution.
 
-1. Build the universal Release binary:
+1. If distributing an ad hoc signed build, compile the arm64 release and verify its signature:
    ```sh
    xcodebuild -project TypingPall.xcodeproj -scheme TypingPall \
      -configuration Release -destination 'generic/platform=macOS' \
      -derivedDataPath "$PWD/build/ReleaseDerivedData" \
-     ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO build
+     ARCHS=arm64 ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY=- build
+   codesign --verify --deep --strict build/ReleaseDerivedData/Build/Products/Release/TypingPall.app
+   lipo -archs build/ReleaseDerivedData/Build/Products/Release/TypingPall.app/Contents/MacOS/TypingPall
    ```
-2. Compress into a release archive and compute its SHA256:
+2. Package the app and GPL license as a drag-to-Applications DMG and a ZIP. Use the marketing version in the asset names:
    ```sh
-   mkdir -p build/dist
-   ditto -c -k --sequesterRsrc --keepParent build/ReleaseDerivedData/Build/Products/Release/TypingPall.app build/dist/TypingPall-v1.1.0.zip
-   shasum -a 256 build/dist/TypingPall-v1.1.0.zip
+   tag=v1.2.0
+   mkdir -p build/dist build/package
+   ditto build/ReleaseDerivedData/Build/Products/Release/TypingPall.app build/package/TypingPall.app
+   cp LICENSE build/package/LICENSE
+   ditto -c -k --sequesterRsrc build/package "build/dist/TypingPall-${tag}-arm64.zip"
+   ln -s /Applications build/package/Applications
+   hdiutil create -srcfolder build/package -volname TypingPall -format UDZO "build/dist/TypingPall-${tag}-arm64.dmg"
+   (cd build/dist && shasum -a 256 "TypingPall-${tag}-arm64.dmg" "TypingPall-${tag}-arm64.zip" > SHA256SUMS)
    ```
-3. Attach `TypingPall-v1.1.0.zip` to the GitHub release tag `v1.1.0`.
-4. Update `version` and `sha256` in [`Casks/typingpall.rb`](Casks/typingpall.rb) (and copy into your `homebrew-tap` repository under `Casks/typingpall.rb`).
-5. Users can install directly with:
+3. Update `version` and `sha256` in [`Casks/typingpall.rb`](Casks/typingpall.rb). Tag the corresponding source commit, then publish a GitHub release with the DMG, ZIP, and `SHA256SUMS`.
+4. To distribute the same version through Homebrew, copy the cask into the `homebrew-tap` repository under `Casks/typingpall.rb`. Users can install it with:
    ```sh
    brew install --cask mieraidihaimu/tap/typingpall
    ```

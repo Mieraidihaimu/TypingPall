@@ -1,0 +1,62 @@
+{
+  "id": "py-n-ary-tree",
+  "title": "N-ary tree preorder",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Build nodes with independent child lists. Visit each parent before its children, preserving sibling order with an explicit stack.",
+  "code": [
+    "class Node:",
+    "    def __init__(self, value, *children):",
+    "        self.value = value",
+    "        self.children = list(children)",
+    "",
+    "def preorder(root):",
+    "    stack = [] if root is None else [root]",
+    "    while stack:",
+    "        node = stack.pop()",
+    "        yield node.value",
+    "        stack.extend(reversed(node.children))"
+  ],
+  "family": "tree-dfs",
+  "triggers": [
+    "each node may have any number of children",
+    "preserve sibling order in a preorder traversal"
+  ],
+  "prompts": [
+    "Print folders in outline order, with each folder followed by its contents.",
+    "Walk a menu hierarchy in display order, visiting each heading before its entries."
+  ],
+  "invariant": "The next node to visit is on top of the stack.",
+  "mantra": "Push siblings in reverse display order.",
+  "pitfalls": [
+    "Give every node its own child list to avoid sharing children between unrelated nodes."
+  ],
+  "anchors": [
+    {
+      "name": "N-ary Tree Preorder Traversal",
+      "trick": "Reverse the children on push to visit the first child next."
+    }
+  ],
+  "keyLineIndices": [
+    8,
+    10
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n) worst-case stack"
+  },
+  "mutations": [
+    {
+      "line": 10,
+      "replacement": "        stack.extend(node.children)",
+      "explanation": "The last sibling would be visited first."
+    }
+  ],
+  "test": [
+    "root = Node('A', Node('B', Node('D')), Node('C'), Node('E'))",
+    "assert list(preorder(root)) == ['A', 'B', 'D', 'C', 'E']",
+    "assert list(preorder(None)) == []"
+  ],
+  "order": 7
+}

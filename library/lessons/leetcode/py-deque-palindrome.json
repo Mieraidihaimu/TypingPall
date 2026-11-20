@@ -1,0 +1,59 @@
+{
+  "id": "py-deque-palindrome",
+  "title": "Double-ended queue: compare from both ends",
+  "category": "Python data structures",
+  "track": "leetcode",
+  "language": "python",
+  "summary": "Use a deque to test a stream of tokens for symmetry. Each comparison removes one token from each end.",
+  "code": [
+    "from collections import deque",
+    "",
+    "def symmetric(tokens):",
+    "    remaining = deque(tokens)",
+    "    while len(remaining) > 1:",
+    "        if remaining.popleft() != remaining.pop():",
+    "            return False",
+    "    return True"
+  ],
+  "family": "deque",
+  "triggers": [
+    "consume a sequence from either end",
+    "compare the first and last remaining tokens"
+  ],
+  "prompts": [
+    "Does a sequence of station calls read the same on the return trip?",
+    "Check whether a list of drum hits is symmetric around its midpoint."
+  ],
+  "invariant": "All pairs outside the deque have matched.",
+  "mantra": "Pop one from each end.",
+  "pitfalls": [
+    "Stop when fewer than two tokens remain so the center is never paired with itself."
+  ],
+  "anchors": [
+    {
+      "name": "Valid Palindrome",
+      "trick": "Normalize the tokens before comparing opposite ends."
+    }
+  ],
+  "keyLineIndices": [
+    4,
+    5
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "mutations": [
+    {
+      "line": 5,
+      "replacement": "        if remaining.popleft() != remaining.popleft():",
+      "explanation": "Pairs adjacent tokens instead of opposite ends."
+    }
+  ],
+  "test": [
+    "assert symmetric(iter([1, 2, 1]))",
+    "assert symmetric('abba') and symmetric('') and symmetric(['x'])",
+    "assert not symmetric('aabb')"
+  ],
+  "order": 5
+}
