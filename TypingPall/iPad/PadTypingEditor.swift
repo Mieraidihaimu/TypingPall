@@ -123,13 +123,16 @@ struct PadTypingEditor: UIViewRepresentable {
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
             guard let field = textView as? PracticeTextView, parent.isActive, !synchronizing else { return false }
+            // CRITICAL: Strictly guard against active IME composition (CJK, accents/dead keys)
+            // Let the input method manage composing characters without interference or validation
+            guard field.markedTextRange == nil else { return true }
+
             if text == "\n" || text == "\r" || text == "\r\n" {
-                if !field.isHandlingPhysicalReturn, field.markedTextRange == nil {
+                if !field.isHandlingPhysicalReturn {
                     submit(in: field)
                 }
                 return false
             }
-            guard field.markedTextRange == nil else { return true }
             guard let replacement = validated(text, replacing: range, in: field.text) else { return false }
             if replacement == text { return true }
             if let start = field.position(from: field.beginningOfDocument, offset: range.location),
@@ -144,7 +147,8 @@ struct PadTypingEditor: UIViewRepresentable {
         func textPasteConfigurationSupporting(_ supporting: UITextPasteConfigurationSupporting,
                                               performPasteOf attributedString: NSAttributedString,
                                               to textRange: UITextRange) -> UITextRange {
-            guard let field = supporting as? PracticeTextView, parent.isActive, parent.canEdit else { return textRange }
+            guard let field = supporting as? PracticeTextView, parent.isActive, parent.canEdit,
+                  field.markedTextRange == nil else { return textRange }
             let start = field.offset(from: field.beginningOfDocument, to: textRange.start)
             let length = field.offset(from: textRange.start, to: textRange.end)
             guard let replacement = validated(attributedString.string,
@@ -247,7 +251,7 @@ final class PracticeTextView: UITextView {
             if let key = press.key?.keyCode { composingReturns.remove(key) }
         }
         // Submit on release so holding Return can't advance into a newly focused completion action.
-        if submit && isFirstResponder { onReturn?() }
+        if submit && isFirstResponder && markedTextRange == nil { onReturn?() }
     }
 
     override func pressesCancelled(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
