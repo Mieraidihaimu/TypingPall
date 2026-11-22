@@ -1,11 +1,11 @@
 import Foundation
 
-enum PracticeMode: Int, CaseIterable, Identifiable, Comparable, Sendable {
+public enum PracticeMode: Int, CaseIterable, Identifiable, Comparable, Sendable {
     case copy, keyLines, recall
-    var id: Int { rawValue }
-    var title: String { ["Copy", "Key lines", "Recall"][rawValue] }
-    var isGraded: Bool { self != .copy }
-    static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
+    public var id: Int { rawValue }
+    public var title: String { ["Copy", "Key lines", "Recall"][rawValue] }
+    public var isGraded: Bool { self != .copy }
+    public static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
 }
 
 enum CodeTokens {
@@ -60,17 +60,17 @@ enum PracticeLineSelection {
     }
 }
 
-enum ReviewGrade: Int, CaseIterable, Comparable, Sendable {
+public enum ReviewGrade: Int, CaseIterable, Comparable, Sendable {
     case again = 1, hard, good, easy
-    var title: String { ["Forgot", "Shaky", "Solid", "Effortless"][rawValue - 1] }
-    static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
+    public var title: String { ["Forgot", "Shaky", "Solid", "Effortless"][rawValue - 1] }
+    public static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
 }
 
-enum SelfRating: Int, CaseIterable, Identifiable, Sendable {
+public enum SelfRating: Int, CaseIterable, Identifiable, Sendable {
     case forgot = 1, shaky, solid, effortless
-    var id: Int { rawValue }
-    var grade: ReviewGrade { ReviewGrade(rawValue: rawValue) ?? .good }
-    var title: String { grade.title }
+    public var id: Int { rawValue }
+    public var grade: ReviewGrade { ReviewGrade(rawValue: rawValue) ?? .good }
+    public var title: String { grade.title }
 }
 
 struct LineAttempt: Equatable, Sendable {

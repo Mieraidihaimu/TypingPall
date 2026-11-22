@@ -175,6 +175,154 @@ struct LineDiffTests {
         #expect(snapshot.size.height == 180)
         #expect(snapshot.isValid)
     }
+
+    @Test("TextKit 2 engine uses rendering attributes without mutating text storage layout")
+    @MainActor
+    func textKit2RenderingAttributesZeroLayoutInvalidation() {
+        let view = TextKit2TypingView(frame: NSRect(x: 0, y: 0, width: 400, height: 120))
+        view.configure(targetLine: "abcd", resetToken: 1, fontSize: 16, liveFeedback: true)
+
+        view.textView.string = "abxd"
+        view.textDidChange(Notification(name: NSText.didChangeNotification, object: view.textView))
+
+        // Ensure TextKit 2 rendering attributes were applied
+        let lm = view.textView.textLayoutManager
+        #expect(lm != nil)
+        if let lm = lm {
+            let docRange = lm.documentRange
+            var foundErrorAttribute = false
+            lm.enumerateRenderingAttributes(from: docRange.location, reverse: false) { _, attrs, _ in
+                if attrs[.foregroundColor] != nil || attrs[.underlineStyle] != nil {
+                    foundErrorAttribute = true
+                    return false
+                }
+                return true
+            }
+            #expect(foundErrorAttribute == true)
+        }
+
+        // TextContentStorage (raw text attributes) should remain unmutated (zero layout invalidation)
+        if let storage = view.textView.textStorage {
+            let underline = storage.attribute(.underlineStyle, at: 0, effectiveRange: nil)
+            #expect(underline == nil)
+        }
+    }
+
+    @Test("Active IME composition guards prevent premature diffing and newline submission")
+    @MainActor
+    func imeMarkedTextGuards() {
+        let view = TextKit2TypingView(frame: NSRect(x: 0, y: 0, width: 400, height: 120))
+        view.configure(targetLine: "cafe", resetToken: 1, fontSize: 16)
+
+        final class TestDelegate: TextKit2TypingViewDelegate {
+            var progressUpdates: [DiffResult] = []
+            var returnPressed = false
+            var rejectedReasons: [PracticeText.InputRejection] = []
+
+            func typingView(_ view: TextKit2TypingView, didUpdateProgress result: DiffResult) {
+                progressUpdates.append(result)
+            }
+            func typingViewDidPressReturn(_ view: TextKit2TypingView) {
+                returnPressed = true
+            }
+            func typingView(_ view: TextKit2TypingView, didRejectInput reason: PracticeText.InputRejection) {
+                rejectedReasons.append(reason)
+            }
+        }
+
+        let delegate = TestDelegate()
+        view.delegate = delegate
+
+        // Simulate marked text (active composition)
+        view.textView.setMarkedText("caf", selectedRange: NSRange(location: 3, length: 0), replacementRange: NSRange(location: 0, length: 0))
+        #expect(view.textView.hasMarkedText() == true)
+
+        // 1. textDidChange must not evaluate or notify delegate while composing
+        view.textDidChange(Notification(name: NSText.didChangeNotification, object: view.textView))
+        #expect(delegate.progressUpdates.isEmpty)
+
+        // 2. Return key during composition must not submit
+        let handledReturn = view.textView(view.textView, doCommandBy: #selector(NSResponder.insertNewline(_:)))
+        #expect(handledReturn == false)
+        #expect(delegate.returnPressed == false)
+
+        // 3. shouldChangeTextIn must allow IME changes without validation rejection
+        let allowed = view.textView(view.textView, shouldChangeTextIn: NSRange(location: 0, length: 3), replacementString: "café\n")
+        #expect(allowed == true)
+        #expect(delegate.rejectedReasons.isEmpty)
+
+        // Commit composition (unmark) - AppKit's unmarkText commits marked text and triggers textDidChange
+        delegate.progressUpdates.removeAll()
+        view.textView.unmarkText()
+        #expect(view.textView.hasMarkedText() == false)
+        #expect(delegate.progressUpdates.count == 1)
+    }
+
+    @Test("Deferred feedback suppresses live errors and reveals on Return")
+    @MainActor
+    func deferredFeedbackBehavior() {
+        let view = TextKit2TypingView(frame: NSRect(x: 0, y: 0, width: 400, height: 120))
+        view.configure(targetLine: "swift", resetToken: 1, fontSize: 16, liveFeedback: false)
+
+        view.textView.string = "swxxx"
+        view.textDidChange(Notification(name: NSText.didChangeNotification, object: view.textView))
+
+        // Rendering attributes must NOT be set during typing in deferred mode
+        if let lm = view.textView.textLayoutManager {
+            var foundError = false
+            lm.enumerateRenderingAttributes(from: lm.documentRange.location, reverse: false) { _, attrs, _ in
+                if attrs[.foregroundColor] != nil || attrs[.underlineStyle] != nil {
+                    foundError = true
+                    return false
+                }
+                return true
+            }
+            #expect(foundError == false)
+        }
+
+        // On Return, error styling is revealed
+        let handled = view.textView(view.textView, doCommandBy: #selector(NSResponder.insertNewline(_:)))
+        #expect(handled == true)
+
+        if let lm = view.textView.textLayoutManager {
+            var foundError = false
+            lm.enumerateRenderingAttributes(from: lm.documentRange.location, reverse: false) { _, attrs, _ in
+                if attrs[.foregroundColor] != nil || attrs[.underlineStyle] != nil {
+                    foundError = true
+                    return false
+                }
+                return true
+            }
+            #expect(foundError == true)
+        }
+    }
+
+    @Test("Buffer reset token clears text and rendering attributes")
+    @MainActor
+    func resetTokenBehavior() {
+        let view = TextKit2TypingView(frame: NSRect(x: 0, y: 0, width: 400, height: 120))
+        view.configure(targetLine: "hello", resetToken: 1, fontSize: 16, liveFeedback: true)
+        view.textView.string = "hex"
+        view.textDidChange(Notification(name: NSText.didChangeNotification, object: view.textView))
+
+        #expect(view.textView.string == "hex")
+
+        // Increment reset token
+        view.configure(targetLine: "world", resetToken: 2, fontSize: 16, liveFeedback: true)
+        #expect(view.textView.string == "")
+
+        if let lm = view.textView.textLayoutManager {
+            var foundError = false
+            lm.enumerateRenderingAttributes(from: lm.documentRange.location, reverse: false) { _, attrs, _ in
+                if !attrs.isEmpty {
+                    foundError = true
+                    return false
+                }
+                return true
+            }
+            #expect(foundError == false)
+        }
+    }
 }
 
 // MARK: - Headless Snapshot Testing Helper

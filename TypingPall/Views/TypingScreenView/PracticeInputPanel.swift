@@ -1,5 +1,12 @@
 import SwiftUI
 
+#if os(macOS)
+@MainActor
+private final class EditorTextHolder {
+    var text: String = ""
+}
+#endif
+
 struct PracticeInputPanel: View {
     @ObservedObject var viewModel: TypingScreenViewModel
     let fontSize: Double
@@ -7,6 +14,9 @@ struct PracticeInputPanel: View {
     let editorActive: Bool
     let focusRequest: UUID
     @State private var submitRequest: UUID?
+    #endif
+    #if os(macOS)
+    @State private var textHolder = EditorTextHolder()
     #endif
     @State private var notice: String?
     @AppStorage("ux.hasSeenPracticeTip") private var hasSeenTip = false
@@ -79,7 +89,17 @@ struct PracticeInputPanel: View {
             #endif
         }
         .onChange(of: viewModel.editorText) { notice = nil }
-        .onChange(of: viewModel.sessionID) { notice = nil }
+        .onChange(of: viewModel.sessionID) {
+            notice = nil
+            #if os(macOS)
+            textHolder.text = ""
+            #endif
+        }
+        .onChange(of: viewModel.bufferResetToken) { _ in
+            #if os(macOS)
+            textHolder.text = ""
+            #endif
+        }
     }
 
     @ViewBuilder private var editor: some View {
@@ -95,14 +115,40 @@ struct PracticeInputPanel: View {
                         }, onReject: { notice = $0.message })
             .frame(height: max(48, fontSize * 2 + 12))
         #else
-        TextKit2TypingEditor(typedText: $viewModel.editorText, targetText: .constant(viewModel.currentLine),
-                             fontSize: inputFontSize, tabSpaces: viewModel.sessionTabSpaces,
-                             diffTolerance: viewModel.diffTolerance,
-                             isEnabled: viewModel.hasPracticeLines, resetID: viewModel.sessionID,
-                             liveFeedback: !viewModel.mode.isGraded,
-                             onSubmit: { viewModel.send(.commitLineOnReturn) }, onReject: { notice = $0.message })
-            .frame(height: TextKit2TypingEditor.height(fontSize: inputFontSize,
-                                                      visibleLines: viewModel.bugHunt == nil ? 1.5 : 2.5))
+        TextKit2TypingViewWrapper(
+            targetLine: viewModel.currentLine,
+            resetToken: viewModel.bufferResetToken,
+            fontSize: inputFontSize,
+            tabSpaces: viewModel.sessionTabSpaces,
+            diffTolerance: viewModel.diffTolerance,
+            isEnabled: viewModel.hasPracticeLines,
+            liveFeedback: !viewModel.mode.isGraded,
+            onProgress: { result, typed in
+                textHolder.text = typed
+                if notice != nil { notice = nil }
+                // Keystroke input is isolated: only update SwiftUI when completion state transitions
+                if result.isComplete != viewModel.isLineMatched {
+                    if result.isComplete {
+                        viewModel.editorText = typed
+                    }
+                    viewModel.send(.editorProgressChanged(
+                        matchedCount: result.matchedTargetCharacters,
+                        errorRange: result.isComplete ? nil : result.errorUTF16Range,
+                        isComplete: result.isComplete
+                    ))
+                }
+            },
+            onReturn: { typed in
+                textHolder.text = typed
+                viewModel.editorText = typed
+                viewModel.send(.commitLineOnReturn)
+            },
+            onReject: { rejection in
+                notice = rejection.message
+            }
+        )
+        .frame(height: TextKit2TypingView.height(fontSize: inputFontSize,
+                                                 visibleLines: viewModel.bugHunt == nil ? 1.5 : 2.5))
         #endif
     }
 
@@ -114,6 +160,9 @@ struct PracticeInputPanel: View {
 
     @ViewBuilder private var actions: some View {
         Button {
+            #if os(macOS)
+            viewModel.editorText = textHolder.text
+            #endif
             viewModel.revealHint()
         } label: {
             HStack(spacing: 3) {
@@ -125,6 +174,9 @@ struct PracticeInputPanel: View {
         .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
         .accessibilityIdentifier("hintButton")
         Button {
+            #if os(macOS)
+            viewModel.editorText = textHolder.text
+            #endif
             viewModel.repeatLine()
         } label: {
             HStack(spacing: 3) {
@@ -160,6 +212,7 @@ struct PracticeInputPanel: View {
         #if os(iOS)
         submitRequest = UUID()
         #else
+        viewModel.editorText = textHolder.text
         viewModel.advanceLine()
         #endif
     }

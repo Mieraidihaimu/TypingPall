@@ -367,7 +367,8 @@ final class TypingScreenViewModel: ObservableObject {
             cleanLinesCount: summary.cleanLines.count,
             totalLinesCount: summary.lines.count,
             hintsUsed: summary.hints,
-            selfRating: selfRating
+            selfRating: selfRating,
+            wrongAttempts: summary.wrongSubmits
         )
         MasteryStore.shared.update(record: updatedRecord)
 
@@ -388,7 +389,8 @@ final class TypingScreenViewModel: ObservableObject {
                 cleanLinesCount: summary.cleanLines.count,
                 totalLinesCount: summary.lines.count,
                 hintsUsed: summary.hints,
-                selfRating: rating
+                selfRating: rating,
+                wrongAttempts: summary.wrongSubmits
             )
             MasteryStore.shared.update(record: updatedRecord)
         }
