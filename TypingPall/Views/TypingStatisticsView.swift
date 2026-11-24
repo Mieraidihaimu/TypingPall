@@ -12,12 +12,13 @@ struct TypingStatisticsView: View {
             Spacer()
             Label(statistics.isComplete ? "Practice complete" : statistics.isActive ? "In progress" : "Ready when you are",
                   systemImage: statistics.isComplete ? "checkmark.circle.fill" : "keyboard")
-                .foregroundColor(statistics.isComplete ? .green : .secondary)
+                .foregroundColor(statistics.isComplete ? TypingPalette.statusClean : .secondary)
                 .accessibilityIdentifier("sessionStatus")
         }
         .padding(16)
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(TypingPalette.codeCanvas)
         .cornerRadius(12)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(TypingPalette.subtleBorder, lineWidth: 1))
     }
 
     private func metric(_ title: String, value: String) -> some View {

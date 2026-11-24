@@ -1,6 +1,6 @@
 cask "typingpall" do
-  version "1.2.1"
-  sha256 "05e8480d2c8a6a6f33e79e11cfaeff96321223cd2dc72046c65185ac7418c29d"
+  version "1.3.0"
+  sha256 "89b383801b1156a62a93df150127aa41dbf568a521d0f73d77431e2b848ee864"
 
   url "https://github.com/Mieraidihaimu/TypingPall/releases/download/v#{version}/TypingPall-v#{version}-arm64.zip"
   name "TypingPall"

@@ -19,28 +19,36 @@ struct CompletionCard<Accessory: View>: View {
                 .foregroundColor(.secondary)
             HStack(spacing: 12) {
                 if let nextLesson {
+                    repeatButton
+                    libraryButton
+                    Spacer()
                     mainButton("Next: \(nextLesson.title)", id: "completionNext", action: onNext)
-                    repeatButton
-                    libraryButton
                 } else if isUserScript {
-                    mainButton("Repeat Pattern", id: "completionRepeat", action: onRepeat)
                     libraryButton
+                    Spacer()
+                    mainButton("Repeat Pattern", id: "completionRepeat", action: onRepeat)
                 } else {
-                    mainButton("Open Library", id: "completionLibrary", action: onLibrary)
                     repeatButton
+                    Spacer()
+                    mainButton("Open Library", id: "completionLibrary", action: onLibrary)
                 }
-                Spacer()
             }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(TypingPalette.practiceSurface)
+        .background(TypingPalette.codeCanvas)
         .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(TypingPalette.subtleBorder, lineWidth: 1)
+        )
     }
 
     @ViewBuilder private func mainButton(_ title: String, id: String, action: @escaping () -> Void) -> some View {
         if accessoryOwnsDefaultAction {
-            Button(title, action: action).accessibilityIdentifier(id)
+            Button(title, action: action)
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier(id)
         } else {
             Button(title, action: action)
                 .keyboardShortcut(.defaultAction)
@@ -50,11 +58,16 @@ struct CompletionCard<Accessory: View>: View {
     }
 
     private var repeatButton: some View {
-        Button("Repeat Pattern", action: onRepeat).accessibilityIdentifier("completionRepeat")
+        Button("Repeat Pattern", action: onRepeat)
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("completionRepeat")
     }
 
     private var libraryButton: some View {
-        Button("Library", action: onLibrary).accessibilityIdentifier("completionLibrary")
+        Button("Library", action: onLibrary)
+            .buttonStyle(.borderless)
+            .foregroundColor(.secondary)
+            .accessibilityIdentifier("completionLibrary")
     }
 }
 

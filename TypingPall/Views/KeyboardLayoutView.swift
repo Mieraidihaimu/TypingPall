@@ -15,10 +15,13 @@ struct KeyboardLayoutView: View {
             ForEach(rows, id: \.self) { row in
                 HStack {
                     ForEach(row, id: \.self) { key in
+                        let isActive = key == typedLetter?.uppercased()
                         Text(key)
                             .frame(width: 46, height: 46)
-                            .background(key == typedLetter?.uppercased() ? Color.blue : Color.gray.opacity(0.2))
+                            .foregroundColor(isActive ? .white : .primary)
+                            .background(isActive ? Color.accentColor : TypingPalette.codeCanvas)
                             .cornerRadius(6)
+                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(isActive ? Color.clear : TypingPalette.subtleBorder, lineWidth: 1))
                             .padding(1)
                     }
                 }

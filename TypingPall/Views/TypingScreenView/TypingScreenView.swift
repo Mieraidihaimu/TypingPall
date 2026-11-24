@@ -81,14 +81,16 @@ struct TypingScreenView: View {
                     .accessibilityHidden(true)
             }
         }
-        .padding(24)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 16)
+        .background(TypingPalette.windowBackground)
         .background(practiceShortcuts)
         .background {
             PracticeWindowAttachment(practiceWindows: practiceWindows, perform: openLibraryAction)
                 .frame(width: 0, height: 0)
                 .accessibilityHidden(true)
         }
-        .frame(minWidth: 760, idealWidth: 900, minHeight: 620, idealHeight: 740)
+        .frame(minWidth: 760, idealWidth: 960, minHeight: 620, idealHeight: 760)
         .navigationTitle(viewModel.lessonTitle)
         .modifier(SubtitleModifier(text: viewModel.lessonSubtitle))
         .onChange(of: viewModel.editorText) { text in
@@ -106,12 +108,12 @@ struct TypingScreenView: View {
                     do { try viewModel.loadLesson(lesson); viewModel.setMode(.recall) }
                     catch { errorMessage = error.localizedDescription }
                 }
-                .frame(minWidth: 560, minHeight: 460)
+                .frame(minWidth: 600, idealWidth: 640, minHeight: 500, idealHeight: 520)
             case .library:
                 HistoryUploadsView(onSelect: { text, language in load(text, language: language) }, onSelectLesson: loadLesson,
                                    onAddScript: { pendingLibraryAction = .addScript }, onImport: { pendingLibraryAction = .importFile },
                                    onSelectBugHunt: { startBugHunt($0) }, onSelectContrast: startContrast)
-                    .frame(minWidth: 680, idealWidth: 860, minHeight: 460, idealHeight: 600)
+                    .frame(minWidth: 740, idealWidth: 900, minHeight: 520, idealHeight: 640)
             }
         }
         .onChange(of: isImporting) { importing in
@@ -138,21 +140,24 @@ struct TypingScreenView: View {
             Button("OK", role: .cancel) { errorMessage = nil }
         } message: { Text(errorMessage ?? "") }
         .toolbar {
-            ToolbarItem(placement: .navigation) {
+            ToolbarItemGroup(placement: .navigation) {
                 Button { sheet = .search } label: { Label("Search", systemImage: "magnifyingglass") }
                     .keyboardShortcut("k", modifiers: .command)
                     .accessibilityIdentifier("quickSwitcher")
+                Button { sheet = .library } label: { Label("Library", systemImage: "books.vertical") }
+                    .accessibilityIdentifier("openLibrary")
+                    .help("Open Practice Library (⌘L)")
             }
             ToolbarItemGroup {
-                Button { isShowingOptions = true } label: { Label("Options", systemImage: "slider.horizontal.3") }
-                    .accessibilityIdentifier("practiceOptions")
-                    .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) { PracticeOptionsPopover(viewModel: viewModel) }
-                Button { viewModel.restart() } label: { Label("Repeat Pattern", systemImage: "arrow.counterclockwise") }
-                    .keyboardShortcut("r", modifiers: .command)
-                    .accessibilityIdentifier("restartPractice")
                 Button { sheet = .drill } label: { Label("Which Pattern?", systemImage: "questionmark.circle") }
                     .keyboardShortcut("d", modifiers: [.command, .shift])
                     .accessibilityIdentifier("whichPattern")
+                Button { viewModel.restart() } label: { Label("Repeat Pattern", systemImage: "arrow.counterclockwise") }
+                    .keyboardShortcut("r", modifiers: .command)
+                    .accessibilityIdentifier("restartPractice")
+                Button { isShowingOptions = true } label: { Label("Options", systemImage: "slider.horizontal.3") }
+                    .accessibilityIdentifier("practiceOptions")
+                    .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) { PracticeOptionsPopover(viewModel: viewModel) }
             }
         }
     }
@@ -199,7 +204,8 @@ struct TypingScreenView: View {
             TextEditor(text: $viewModel.temPlaceholderText)
                 .font(.system(.body, design: .monospaced))
                 .accessibilityIdentifier("scriptText")
-                .frame(height: 280)
+                .frame(minHeight: 320, idealHeight: 360)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(TypingPalette.subtleBorder, lineWidth: 1))
             if let errorMessage { Text(errorMessage).foregroundColor(.red).font(.caption) }
             HStack {
                 Button("Cancel") { sheet = nil }.keyboardShortcut(.cancelAction)
@@ -213,9 +219,10 @@ struct TypingScreenView: View {
                     }
                 }
                 .keyboardShortcut(.defaultAction)
+                .buttonStyle(.borderedProminent)
                 .disabled(viewModel.temPlaceholderText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-        }.padding(24).frame(width: 620)
+        }.padding(24).frame(minWidth: 660, idealWidth: 700)
     }
 
     private func saveAndLoad(_ text: String, language: CodeLanguage) async throws {
@@ -293,10 +300,12 @@ struct TypingScreenView: View {
                         .accessibilityIdentifier("completionContrast")
                 }
                 if let lesson = viewModel.currentLesson, (lesson.mutations?.count ?? 0) > 0 {
-                    Button("Find the Bug 🐞") { startBugHunt(lesson) }
+                    Button { startBugHunt(lesson) } label: { Label("Find the Bug", systemImage: "ladybug") }
                         .accessibilityIdentifier("completionFindBug")
                 }
             }
+            .controlSize(.small)
+            .buttonStyle(.bordered)
         }
     }
 

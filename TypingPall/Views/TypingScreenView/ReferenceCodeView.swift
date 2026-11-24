@@ -18,7 +18,7 @@ struct ReferenceCodeView: View {
     let currentIndex: Int
     let contentKey: String        // changes when a new pattern loads → scroll to top
     var onSelectRow: ((Int) -> Void)? = nil
-    var minHeight: CGFloat = 180
+    var minHeight: CGFloat = 200
 
     static func referenceFontSize(for typingSize: Double) -> Double { min(22, max(11, (typingSize * 0.7).rounded())) }
 
@@ -51,9 +51,10 @@ struct ReferenceCodeView: View {
             }
             .onChange(of: contentKey) { proxy.scrollTo(currentIndex, anchor: .top) }
         }
-        .frame(minHeight: minHeight, idealHeight: 300)
-        .background(TypingPalette.practiceSurface)
+        .frame(minHeight: minHeight, idealHeight: 320)
+        .background(TypingPalette.codeCanvas)
         .cornerRadius(12)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(TypingPalette.subtleBorder, lineWidth: 1))
     }
 
     private func content(of row: ReferenceRow) -> some View {
@@ -84,7 +85,7 @@ struct ReferenceCodeView: View {
         .foregroundColor(row.isSkipped || row.isMasked ? .secondary : .primary)
         .padding(.horizontal, 12)
         .padding(.vertical, 5)
-        .background(row.isCurrent ? Color.accentColor.opacity(0.15) : Color.clear)
+        .background(row.isCurrent ? TypingPalette.activeLine : Color.clear)
         .overlay(alignment: .leading) {
             if row.isCurrent { Rectangle().fill(Color.accentColor).frame(width: 3) }
         }

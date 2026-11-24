@@ -40,12 +40,14 @@ struct PracticeInputPanel: View {
             if !hasSeenTip {
                 HStack(alignment: .firstTextBaseline) {
                     Image(systemName: "lightbulb")
+                        .foregroundColor(.accentColor)
                     Text("Type the line shown above the input. Leading indentation is skipped; press Return when it matches.")
                     Spacer()
                     Button("Got It") { hasSeenTip = true }.accessibilityIdentifier("dismissTip")
                 }
                 .font(.callout).padding(10)
                 .background(Color.accentColor.opacity(0.08)).cornerRadius(8)
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor.opacity(0.25), lineWidth: 1))
             }
             VStack(alignment: .leading, spacing: 0) {
                 if viewModel.bugHunt == nil {
@@ -63,12 +65,16 @@ struct PracticeInputPanel: View {
                 }
                 editor
             }
-            .background(TypingPalette.practiceInputBackground)
+            .background(TypingPalette.codeCanvas)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(viewModel.isLineMatched && !viewModel.mode.isGraded ? Color.accentColor.opacity(0.6) : Color.secondary.opacity(0.25),
-                            lineWidth: viewModel.isLineMatched && !viewModel.mode.isGraded ? 1.5 : 1)
+                    .stroke(
+                        viewModel.isLineMatched && !viewModel.mode.isGraded
+                            ? TypingPalette.lineMatchedBorder
+                            : TypingPalette.subtleBorder,
+                        lineWidth: viewModel.isLineMatched && !viewModel.mode.isGraded ? 1.5 : 1
+                    )
             )
             .animation(.easeInOut(duration: 0.15), value: viewModel.isLineMatched)
             #if os(iOS)
@@ -78,7 +84,6 @@ struct PracticeInputPanel: View {
                     HStack { actions }
                     VStack(alignment: .leading) { actions }
                 }
-                .buttonStyle(.bordered)
             }
             #else
             HStack {
@@ -170,6 +175,7 @@ struct PracticeInputPanel: View {
                 Text("⌘'").font(.caption2).foregroundColor(.secondary)
             }
         }
+        .buttonStyle(.bordered)
         .keyboardShortcut("'", modifiers: .command)
         .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
         .accessibilityIdentifier("hintButton")
@@ -183,29 +189,35 @@ struct PracticeInputPanel: View {
                 Text("Repeat Line")
             }
         }
+        .buttonStyle(.borderless)
+        .foregroundColor(.secondary)
         .disabled(!viewModel.hasPracticeLines || viewModel.isComplete)
         .accessibilityIdentifier("repeatLine")
         if primaryEnabled && !viewModel.isComplete {
-            Button {
-                submit()
-            } label: {
+            primaryButton {
                 HStack(spacing: 4) {
                     Text(primaryTitle)
                     Text("↵").font(.caption).fontWeight(.semibold)
                 }
             }
             .buttonStyle(.borderedProminent)
-            .disabled(!primaryEnabled || viewModel.isComplete)
-            .accessibilityIdentifier("nextLine")
         } else {
-            Button {
-                submit()
-            } label: {
+            primaryButton {
                 Text(primaryTitle)
             }
-            .disabled(!primaryEnabled || viewModel.isComplete)
-            .accessibilityIdentifier("nextLine")
+            .buttonStyle(.bordered)
         }
+    }
+
+    private func primaryButton<Label: View>(@ViewBuilder label: () -> Label) -> some View {
+        Button {
+            submit()
+        } label: {
+            label()
+                .frame(minWidth: 96)
+        }
+        .disabled(!primaryEnabled || viewModel.isComplete)
+        .accessibilityIdentifier("nextLine")
     }
 
     private func submit() {

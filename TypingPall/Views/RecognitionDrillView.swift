@@ -49,9 +49,13 @@ struct RecognitionDrillView: View {
                         Text(lesson(id)?.title ?? id)
                         Spacer()
                         if drill.currentChoice != nil && id == question.lessonID {
-                            Image(systemName: "checkmark.circle").accessibilityLabel("Answer")
+                            Image(systemName: "checkmark.circle")
+                                .foregroundColor(TypingPalette.statusClean)
+                                .accessibilityLabel("Answer")
                         } else if drill.currentChoice == id {
-                            Image(systemName: "xmark.circle").accessibilityLabel("Your choice")
+                            Image(systemName: "xmark.circle")
+                                .foregroundColor(TypingPalette.statusError)
+                                .accessibilityLabel("Your choice")
                         }
                         Text("\(index + 1)").foregroundColor(.secondary).accessibilityHidden(true)
                     }
@@ -83,9 +87,14 @@ struct RecognitionDrillView: View {
                 Text(mantra).font(.headline).accessibilityIdentifier("drillMantra")
             }
             HStack {
-                Button("Practice from Memory") { onPractice(answer); dismiss() }.accessibilityIdentifier("drillPractice")
+                Button("Practice from Memory") { onPractice(answer); dismiss() }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("drillPractice")
                 Spacer()
-                Button("Next") { drill.advance() }.keyboardShortcut(.defaultAction).accessibilityIdentifier("drillNext")
+                Button("Next") { drill.advance() }
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("drillNext")
             }
         }
         .accessibilityElement(children: .contain)
@@ -106,6 +115,7 @@ struct RecognitionDrillView: View {
             }
             Button("New Round") { drill = RecognitionDrill(lessons: lessons, seed: .random(in: .min ... .max)) }
                 .keyboardShortcut(.defaultAction)
+                .buttonStyle(.borderedProminent)
                 .accessibilityIdentifier("drillNewRound")
         }
     }

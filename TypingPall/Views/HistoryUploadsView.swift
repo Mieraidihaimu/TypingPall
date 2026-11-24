@@ -44,10 +44,22 @@ struct HistoryUploadsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
+            HStack(spacing: 8) {
                 Text("Practice library").font(.title2).fontWeight(.semibold)
                 Spacer()
-                Button("Done") { dismiss() }.keyboardShortcut(.cancelAction)
+                Menu {
+                    Button("Add Script…") { onAddScript(); dismiss() }
+                    Button("Import File…") { onImport(); dismiss() }
+                } label: {
+                    Label("Add", systemImage: "plus")
+                        .labelStyle(.iconOnly)
+                }
+                .buttonStyle(.bordered)
+                .help("Add Script or Import File")
+                .accessibilityIdentifier("libraryAddMenu")
+                Button("Done") { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                    .buttonStyle(.bordered)
             }
             Picker("Library", selection: $shelf) {
                 Text("All lessons").tag(Shelf.lessons(nil))
@@ -103,7 +115,7 @@ struct HistoryUploadsView: View {
                 Picker("Topic", selection: $category) {
                     Text("All topics").tag(String?.none)
                     ForEach(PracticeCatalog.categories(of: PracticeCatalog.lessons, in: track), id: \.self) { Text($0).tag(String?.some($0)) }
-                }.frame(width: 220)
+                }.frame(width: 200)
                 Toggle("Due for recall", isOn: $dueForRecallOnly)
             }
             HStack(spacing: 16) {
@@ -120,12 +132,12 @@ struct HistoryUploadsView: View {
                                         if !(lesson.mutations ?? []).isEmpty {
                                             Image(systemName: "ladybug")
                                                 .font(.caption2)
-                                                .foregroundColor(.orange)
+                                                .foregroundColor(TypingPalette.statusCorrected)
                                         }
                                         if !(lesson.contrastWith ?? []).isEmpty {
                                             Image(systemName: "arrow.left.arrow.right")
                                                 .font(.caption2)
-                                                .foregroundColor(.blue)
+                                                .foregroundColor(Color.accentColor)
                                         }
                                     }
                                     Text(lesson.language.title).font(.caption).foregroundColor(.secondary)
@@ -135,7 +147,7 @@ struct HistoryUploadsView: View {
                             }
                         }
                     }
-                }.frame(width: 250)
+                }.frame(width: 270)
                 if let lesson = selectedLesson {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(lesson.title).font(.title3).fontWeight(.semibold)
@@ -148,14 +160,19 @@ struct HistoryUploadsView: View {
                         ScrollView {
                             LessonNotesView(lesson: lesson, onContrast: { onSelectContrast($0); dismiss() })
                         }
-                        HStack {
+                        HStack(spacing: 10) {
+                            Spacer()
+                            if !(lesson.mutations ?? []).isEmpty {
+                                Button { onSelectBugHunt(lesson); dismiss() } label: {
+                                    Label("Find the Bug", systemImage: "ladybug")
+                                }
+                                .buttonStyle(.bordered)
+                                .accessibilityIdentifier("findBug")
+                            }
                             Button("Practice Lesson") { onSelectLesson(lesson); dismiss() }
                                 .keyboardShortcut(.defaultAction)
+                                .buttonStyle(.borderedProminent)
                                 .accessibilityIdentifier("practiceLesson")
-                            if !(lesson.mutations ?? []).isEmpty {
-                                Button("Find the Bug") { onSelectBugHunt(lesson); dismiss() }
-                                    .accessibilityIdentifier("findBug")
-                            }
                         }
                     }
                 } else if PracticeCatalog.lessons.isEmpty {
@@ -285,7 +302,7 @@ struct QuickSwitcherPaletteView: View {
                     .cornerRadius(4)
             }
             .padding(16)
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(TypingPalette.windowBackground)
 
             Divider()
 
@@ -319,13 +336,13 @@ struct QuickSwitcherPaletteView: View {
                                 if !(lesson.mutations ?? []).isEmpty {
                                     Image(systemName: "ladybug")
                                         .font(.caption2)
-                                        .foregroundColor(.orange)
+                                        .foregroundColor(TypingPalette.statusCorrected)
                                         .help("Bug hunt available")
                                 }
                                 if !(lesson.contrastWith ?? []).isEmpty {
                                     Image(systemName: "arrow.left.arrow.right")
                                         .font(.caption2)
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(Color.accentColor)
                                         .help("Contrast pair available")
                                 }
                                 Text(lesson.language.title)
@@ -358,7 +375,7 @@ struct QuickSwitcherPaletteView: View {
             .labelStyle(.titleAndIcon)
             .padding(12)
         }
-        .frame(width: 580, height: 380)
+        .frame(width: 600, height: 420)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 isSearchFocused = true

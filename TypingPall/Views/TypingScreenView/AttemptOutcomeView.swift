@@ -12,19 +12,41 @@ struct AttemptOutcomeView: View {
                         .font(.headline)
                         .accessibilityIdentifier("attemptSummary")
                     Text("How did that feel?").foregroundColor(.secondary)
-                    HStack {
+                    HStack(spacing: 8) {
                         ForEach(SelfRating.allCases) { rating in
+                            let isSelected = viewModel.selfRating == rating
+                            let tint = ratingTint(for: rating)
                             Button { viewModel.rate(rating) } label: {
-                                if viewModel.selfRating == rating { Label(rating.title, systemImage: "checkmark") } else { Text(rating.title) }
+                                Group {
+                                    if isSelected {
+                                        Label(rating.title, systemImage: "checkmark")
+                                    } else {
+                                        Text(rating.title)
+                                    }
+                                }
+                                .font(.subheadline.weight(isSelected ? .semibold : .regular))
+                                .foregroundColor(isSelected ? tint : .primary)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(tint.opacity(isSelected ? 0.20 : 0.08))
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(tint.opacity(isSelected ? 0.9 : 0.28), lineWidth: isSelected ? 1.5 : 1)
+                                )
+                                .contentShape(RoundedRectangle(cornerRadius: 8))
                             }
+                            .buttonStyle(.plain)
                             .accessibilityIdentifier("rate\(rating.title)")
-                            .accessibilityAddTraits(viewModel.selfRating == rating ? .isSelected : [])
+                            .accessibilityAddTraits(isSelected ? .isSelected : [])
                         }
                     }
                 }
             }
 
             if !viewModel.practiceLines.isEmpty {
+                let allClean = cleanLineCount == viewModel.practiceLines.count
+                let pillColor = allClean ? TypingPalette.statusClean : TypingPalette.statusCorrected
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text("LINE RETENTION")
@@ -33,16 +55,20 @@ struct AttemptOutcomeView: View {
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(cleanLineCountText)
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .font(.caption2.weight(.medium))
+                            .foregroundColor(pillColor)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(pillColor.opacity(0.14))
+                            .cornerRadius(6)
                     }
                     HStack(spacing: 3) {
                         ForEach(viewModel.practiceLines, id: \.sourceIndex) { line in
                             let attempt = viewModel.lineAttempts[line.sourceIndex]
-                            let isClean = (attempt?.hints ?? 0) == 0 && (attempt?.wrongSubmits ?? 0) == 0 && !(attempt?.repeated ?? false)
+                            let isClean = isLineClean(line)
                             let usedHint = (attempt?.hints ?? 0) > 0
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(isClean ? Color.green.opacity(0.8) : (usedHint ? Color.orange.opacity(0.8) : Color.yellow.opacity(0.8)))
+                                .fill(isClean ? TypingPalette.statusClean : (usedHint ? TypingPalette.statusHinted : TypingPalette.statusCorrected))
                                 .frame(height: 6)
                                 .frame(maxWidth: 32)
                                 .help("Line \(line.sourceIndex + 1): \(isClean ? "Clean" : usedHint ? "Hint used" : "Needed correction")")
@@ -53,37 +79,23 @@ struct AttemptOutcomeView: View {
             }
 
             if viewModel.mode == .copy {
-                HStack(spacing: 8) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .foregroundColor(.accentColor)
-                    Text("Ready to test recall? Key lines will be hidden.")
-                        .font(.callout)
-                    Spacer()
-                    Button("Practice Key Lines (⌘2)") {
-                        viewModel.setMode(.keyLines)
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityIdentifier("levelUpKeyLines")
+                levelUpCard(
+                    icon: "arrow.up.circle.fill",
+                    message: "Ready to test recall? Key lines will be hidden.",
+                    buttonTitle: "Practice Key Lines (⌘2)",
+                    id: "levelUpKeyLines"
+                ) {
+                    viewModel.setMode(.keyLines)
                 }
-                .padding(10)
-                .background(Color.accentColor.opacity(0.08))
-                .cornerRadius(8)
             } else if viewModel.mode == .keyLines {
-                HStack(spacing: 8) {
-                    Image(systemName: "brain.head.profile")
-                        .foregroundColor(.accentColor)
-                    Text("Take the final step: Recall the full pattern.")
-                        .font(.callout)
-                    Spacer()
-                    Button("Practice Recall (⌘3)") {
-                        viewModel.setMode(.recall)
-                    }
-                    .buttonStyle(.bordered)
-                    .accessibilityIdentifier("levelUpRecall")
+                levelUpCard(
+                    icon: "brain.head.profile",
+                    message: "Take the final step: Recall the full pattern.",
+                    buttonTitle: "Practice Recall (⌘3)",
+                    id: "levelUpRecall"
+                ) {
+                    viewModel.setMode(.recall)
                 }
-                .padding(10)
-                .background(Color.accentColor.opacity(0.08))
-                .cornerRadius(8)
             }
 
             if let summary = viewModel.lastSummary, !summary.weakLines.isEmpty {
@@ -101,17 +113,61 @@ struct AttemptOutcomeView: View {
                     .accessibilityIdentifier("drillShakyLines")
                 }
                 .padding(10)
-                .background(TypingPalette.statusCorrected.opacity(0.12))
+                .background(TypingPalette.statusCorrected.opacity(0.10))
                 .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(TypingPalette.statusCorrected.opacity(0.25), lineWidth: 1)
+                )
             }
         }
     }
 
+    private func ratingTint(for rating: SelfRating) -> Color {
+        switch rating {
+        case .forgot: TypingPalette.statusError
+        case .shaky: TypingPalette.statusCorrected
+        case .solid: .accentColor
+        case .effortless: TypingPalette.statusClean
+        }
+    }
+
+    private func levelUpCard(
+        icon: String,
+        message: String,
+        buttonTitle: String,
+        id: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .foregroundColor(TypingPalette.statusClean)
+            Text(message)
+                .font(.callout)
+            Spacer()
+            Button(buttonTitle, action: action)
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier(id)
+        }
+        .padding(10)
+        .background(TypingPalette.statusClean.opacity(0.08))
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(TypingPalette.statusClean.opacity(0.25), lineWidth: 1)
+        )
+    }
+
+    private func isLineClean(_ line: PracticeLine) -> Bool {
+        let attempt = viewModel.lineAttempts[line.sourceIndex]
+        return (attempt?.hints ?? 0) == 0 && (attempt?.wrongSubmits ?? 0) == 0 && !(attempt?.repeated ?? false)
+    }
+
+    private var cleanLineCount: Int {
+        viewModel.practiceLines.filter(isLineClean).count
+    }
+
     private var cleanLineCountText: String {
-        let clean = viewModel.practiceLines.filter { line in
-            let att = viewModel.lineAttempts[line.sourceIndex]
-            return (att?.hints ?? 0) == 0 && (att?.wrongSubmits ?? 0) == 0 && !(att?.repeated ?? false)
-        }.count
-        return "\(clean)/\(viewModel.practiceLines.count) clean"
+        "\(cleanLineCount)/\(viewModel.practiceLines.count) clean"
     }
 }

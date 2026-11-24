@@ -16,7 +16,7 @@ final class TypingPallUITests: XCTestCase {
         let search = app.buttons["quickSwitcher"]
         XCTAssertTrue(search.waitForExistence(timeout: 10))
         search.click()
-        let action = app.buttons[title]
+        let action = app.sheets.firstMatch.buttons[title]
         XCTAssertTrue(action.waitForExistence(timeout: 5))
         action.click()
     }

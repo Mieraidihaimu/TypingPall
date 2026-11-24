@@ -12,10 +12,10 @@ struct ContrastReferenceView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            if proxy.size.width < 900 {
-                VStack(spacing: 12) { base(minHeight: 90); variant(minHeight: 90) }
+            if proxy.size.width < 780 {
+                VStack(spacing: 12) { base(minHeight: 100); variant(minHeight: 100) }
             } else {
-                HStack(spacing: 12) { base(minHeight: 180); variant(minHeight: 180) }
+                HStack(spacing: 12) { base(minHeight: 200); variant(minHeight: 200) }
             }
         }
         .frame(minHeight: 240)
