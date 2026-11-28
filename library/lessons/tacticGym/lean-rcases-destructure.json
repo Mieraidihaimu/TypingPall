@@ -1,0 +1,53 @@
+{
+  "id": "lean-rcases-destructure",
+  "title": "Destructure hypotheses with rcases",
+  "category": "Lean 4 tactics",
+  "track": "tacticGym",
+  "language": "lean4",
+  "summary": "Unpack nested existential and conjunction hypotheses into named bindings in one line.",
+  "code": [
+    "theorem exists_and_swap (P Q : Nat -> Prop) (h : exists n, P n /\\ Q n) : exists n, Q n /\\ P n := by",
+    "    rcases h with ⟨n, hp, hq⟩",
+    "    exact ⟨n, hq, hp⟩"
+  ],
+  "family": "lean-elimination",
+  "triggers": [
+    "unpack an existential witness and multiple conjunctions in one pattern",
+    "destruct nested structures or sum types in a single tactic"
+  ],
+  "prompts": [
+    "A hypothesis asserts there exists n such that P n and Q n, and you need to swap the conjuncts.",
+    "You want to bind the witness and both proof terms of a sigma/exists hypothesis cleanly."
+  ],
+  "invariant": "rcases recursively applies elimination rules matching the anonymous constructor pattern.",
+  "mantra": "Unpack nested hypotheses with rcases, repack with exact ⟨...⟩.",
+  "pitfalls": [
+    "Using ⟨a, b⟩ with only two binders when three fields exist leaves a conjunction unsplit.",
+    "Forgetting exact before ⟨...⟩ fails because ⟨...⟩ alone is a term, not a tactic."
+  ],
+  "keyLineIndices": [
+    1,
+    2
+  ],
+  "scaffoldLineIndices": [
+    0
+  ],
+  "contrastWith": [
+    "lean-cases-enum",
+    "lean-have-chain"
+  ],
+  "anchors": [
+    {
+      "name": "Recursive pattern match",
+      "trick": "Use ⟨n, hp, hq⟩ to flatten nested exists and /\\ in one step."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 2,
+      "replacement": "    exact ⟨n, hp, hq⟩",
+      "explanation": "Swapping hp and hq is required to match Q n /\\ P n."
+    }
+  ],
+  "order": 20
+}

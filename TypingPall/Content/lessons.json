@@ -7032,5 +7032,294 @@
       45,
       46
     ]
+  },
+  {
+    "id": "lean-omega-bounds",
+    "title": "Linear arithmetic with omega",
+    "category": "Lean 4 tactics",
+    "track": "tacticGym",
+    "language": "lean4",
+    "summary": "Close linear integer and natural-number inequalities in one step using omega.",
+    "code": "theorem nat_sandwich (a b : Nat) (h1 : a <= b) (h2 : b <= a) : a = b := by\n    omega",
+    "family": "lean-arithmetic",
+    "triggers": [
+      "prove an equality or inequality over Nat or Int from linear hypotheses",
+      "discharge arithmetic side conditions after splitting cases"
+    ],
+    "prompts": [
+      "You have a <= b and b <= a on natural numbers and need to conclude a = b.",
+      "Two linear bounds on Nat indices imply equality without manual Nat.le_antisymm."
+    ],
+    "invariant": "omega decides quantifier-free Presburger arithmetic over Nat and Int.",
+    "mantra": "Linear Nat or Int bounds in context? Reach for omega first.",
+    "pitfalls": [
+      "omega does not unfold custom definitions unless you have already dsimp or simp them.",
+      "Non-linear multiplication between variables requires nlinarith or ring, not omega."
+    ],
+    "keyLineIndices": [
+      1
+    ],
+    "scaffoldLineIndices": [
+      0
+    ],
+    "contrastWith": [
+      "lean-simp-rewriting",
+      "lean-have-chain"
+    ],
+    "anchors": [
+      {
+        "name": "Presburger decision",
+        "trick": "Let omega combine linear inequalities and antisymmetry automatically."
+      }
+    ],
+    "mutations": [
+      {
+        "line": 1,
+        "replacement": "    rfl",
+        "explanation": "rfl only closes definitional equalities, not propositional antisymmetry."
+      }
+    ]
+  },
+  {
+    "id": "lean-rcases-destructure",
+    "title": "Destructure hypotheses with rcases",
+    "category": "Lean 4 tactics",
+    "track": "tacticGym",
+    "language": "lean4",
+    "summary": "Unpack nested existential and conjunction hypotheses into named bindings in one line.",
+    "code": "theorem exists_and_swap (P Q : Nat -> Prop) (h : exists n, P n /\\ Q n) : exists n, Q n /\\ P n := by\n    rcases h with ⟨n, hp, hq⟩\n    exact ⟨n, hq, hp⟩",
+    "family": "lean-elimination",
+    "triggers": [
+      "unpack an existential witness and multiple conjunctions in one pattern",
+      "destruct nested structures or sum types in a single tactic"
+    ],
+    "prompts": [
+      "A hypothesis asserts there exists n such that P n and Q n, and you need to swap the conjuncts.",
+      "You want to bind the witness and both proof terms of a sigma/exists hypothesis cleanly."
+    ],
+    "invariant": "rcases recursively applies elimination rules matching the anonymous constructor pattern.",
+    "mantra": "Unpack nested hypotheses with rcases, repack with exact ⟨...⟩.",
+    "pitfalls": [
+      "Using ⟨a, b⟩ with only two binders when three fields exist leaves a conjunction unsplit.",
+      "Forgetting exact before ⟨...⟩ fails because ⟨...⟩ alone is a term, not a tactic."
+    ],
+    "keyLineIndices": [
+      1,
+      2
+    ],
+    "scaffoldLineIndices": [
+      0
+    ],
+    "contrastWith": [
+      "lean-cases-enum",
+      "lean-have-chain"
+    ],
+    "anchors": [
+      {
+        "name": "Recursive pattern match",
+        "trick": "Use ⟨n, hp, hq⟩ to flatten nested exists and /\\ in one step."
+      }
+    ],
+    "mutations": [
+      {
+        "line": 2,
+        "replacement": "    exact ⟨n, hp, hq⟩",
+        "explanation": "Swapping hp and hq is required to match Q n /\\ P n."
+      }
+    ]
+  },
+  {
+    "id": "lean-induction-nat",
+    "title": "Structural induction on Nat",
+    "category": "Lean 4 tactics",
+    "track": "tacticGym",
+    "language": "lean4",
+    "summary": "Prove a recursive natural-number identity by splitting into zero and successor cases.",
+    "code": "theorem add_zero_right (n : Nat) : n + 0 = n := by\n    induction n with\n    | zero => rfl\n    | succ k ih => rw [Nat.add_succ, ih]",
+    "family": "lean-induction",
+    "triggers": [
+      "prove a property for all natural numbers using an inductive hypothesis",
+      "reason over recursive definitions on Nat or List"
+    ],
+    "prompts": [
+      "Prove n + 0 = n by induction on n rather than relying on a library lemma.",
+      "Split a Nat goal into base case zero and inductive step succ k ih."
+    ],
+    "invariant": "Each constructor of an inductive type produces a subgoal with inductive hypotheses for recursive fields.",
+    "mantra": "Match the inductive constructors: base case first, then rewrite with ih.",
+    "pitfalls": [
+      "Using cases instead of induction omits the inductive hypothesis ih.",
+      "Forgetting Nat.add_succ leaves (k + 1) + 0 unsimplified."
+    ],
+    "keyLineIndices": [
+      1,
+      3
+    ],
+    "scaffoldLineIndices": [
+      0
+    ],
+    "contrastWith": [
+      "lean-cases-enum",
+      "lean-simp-rewriting"
+    ],
+    "anchors": [
+      {
+        "name": "Structured induction",
+        "trick": "Use | zero => ... and | succ k ih => ... to keep subgoals explicit."
+      }
+    ],
+    "mutations": [
+      {
+        "line": 1,
+        "replacement": "    cases n with",
+        "explanation": "cases does not provide the inductive hypothesis ih needed in the succ branch."
+      }
+    ]
+  },
+  {
+    "id": "lean-cases-enum",
+    "title": "Exhaustive case split on enum",
+    "category": "Lean 4 tactics",
+    "track": "tacticGym",
+    "language": "lean4",
+    "summary": "Prove injectivity of a rank function on an inductive status enum by exhaustive case analysis.",
+    "code": "inductive MemberStatus | alive | suspect | dead\ndef statusRank : MemberStatus -> Nat | .alive => 0 | .suspect => 1 | .dead => 2\ntheorem statusRank_inj {s1 s2 : MemberStatus} (h : statusRank s1 = statusRank s2) : s1 = s2 := by\n    cases s1 <;> cases s2 <;> first | rfl | contradiction",
+    "family": "lean-case-split",
+    "triggers": [
+      "prove injectivity or exhaustiveness over a finite inductive enum",
+      "combine <;> combinators with first | rfl | contradiction"
+    ],
+    "prompts": [
+      "Given a 3-variant MemberStatus enum and a rank function, prove two statuses with equal rank are equal.",
+      "Discharge all 9 pairs of a finite enum in one combinator line."
+    ],
+    "invariant": "Finite inductive types reduce to a fixed grid of constructor pairs where mismatched ranks are contradictory.",
+    "mantra": "Cartesian split with <;>, then close each cell with first | rfl | contradiction.",
+    "pitfalls": [
+      "Using rfl alone fails on off-diagonal branches where constructors differ.",
+      "Forgetting contradiction leaves contradictory hypotheses like 0 = 1 open."
+    ],
+    "keyLineIndices": [
+      3
+    ],
+    "scaffoldLineIndices": [
+      0,
+      1,
+      2
+    ],
+    "contrastWith": [
+      "lean-induction-nat",
+      "lean-rcases-destructure"
+    ],
+    "anchors": [
+      {
+        "name": "SWIM statusRank injectivity",
+        "trick": "Chain cases s1 <;> cases s2 with first | rfl | contradiction."
+      }
+    ],
+    "mutations": [
+      {
+        "line": 3,
+        "replacement": "    cases s1 <;> cases s2 <;> rfl",
+        "explanation": "Off-diagonal branches have unequal constructors and require contradiction."
+      }
+    ]
+  },
+  {
+    "id": "lean-simp-rewriting",
+    "title": "Goal simplification with simp",
+    "category": "Lean 4 tactics",
+    "track": "tacticGym",
+    "language": "lean4",
+    "summary": "Normalize list length expressions using targeted @[simp] lemmas.",
+    "code": "theorem list_append_len (xs ys : List Nat) : (xs ++ ys).length = ys.length + xs.length := by\n    simp [List.length_append, Nat.add_comm]",
+    "family": "lean-simplification",
+    "triggers": [
+      "normalize algebraic or container expressions using rewrite rules",
+      "supply extra lemmas like Nat.add_comm to simp"
+    ],
+    "prompts": [
+      "Prove that (xs ++ ys).length equals ys.length + xs.length.",
+      "Simplify a list length goal and commute addition in a single simp call."
+    ],
+    "invariant": "simp rewrites the goal using @[simp] lemmas plus any explicitly listed lemmas.",
+    "mantra": "Feed simp the exact bridge lemmas it lacks instead of rewriting step by step.",
+    "pitfalls": [
+      "Bare simp without Nat.add_comm stops at xs.length + ys.length.",
+      "Adding non-terminating rewrite rules to simp can cause a maxHeartbeats loop."
+    ],
+    "keyLineIndices": [
+      1
+    ],
+    "scaffoldLineIndices": [
+      0
+    ],
+    "contrastWith": [
+      "lean-omega-bounds",
+      "lean-induction-nat",
+      "lean-have-chain"
+    ],
+    "anchors": [
+      {
+        "name": "Targeted simp",
+        "trick": "Pass List.length_append and Nat.add_comm directly inside simp [...]."
+      }
+    ],
+    "mutations": [
+      {
+        "line": 1,
+        "replacement": "    simp [List.length_append]",
+        "explanation": "Without Nat.add_comm, xs.length + ys.length does not match ys.length + xs.length."
+      }
+    ]
+  },
+  {
+    "id": "lean-have-chain",
+    "title": "Forward reasoning with have",
+    "category": "Lean 4 tactics",
+    "track": "tacticGym",
+    "language": "lean4",
+    "summary": "Introduce an intermediate fact with have and close the goal with exact.",
+    "code": "theorem modus_ponens_chain {P Q R : Prop} (hp : P) (hpq : P -> Q) (hqr : Q -> R) : R := by\n    have hq : Q := hpq hp\n    exact hqr hq",
+    "family": "lean-forward",
+    "triggers": [
+      "build an intermediate lemma inside a proof with have",
+      "chain implications forward before closing with exact"
+    ],
+    "prompts": [
+      "Given P, P -> Q, and Q -> R, derive R using an explicit intermediate fact for Q.",
+      "Use forward reasoning with have and exact rather than backward apply."
+    ],
+    "invariant": "have introduces a proven local hypothesis into the context for subsequent steps.",
+    "mantra": "Name the stepping-stone fact with have, then finish with exact.",
+    "pitfalls": [
+      "Applying hqr directly to hp fails because hp has type P, not Q.",
+      "Omitting exact on the final term leaves an unused expression instead of closing the goal."
+    ],
+    "keyLineIndices": [
+      1,
+      2
+    ],
+    "scaffoldLineIndices": [
+      0
+    ],
+    "contrastWith": [
+      "lean-rcases-destructure",
+      "lean-omega-bounds",
+      "lean-simp-rewriting"
+    ],
+    "anchors": [
+      {
+        "name": "Forward have step",
+        "trick": "Bind hq : Q := hpq hp, then pass hq to hqr."
+      }
+    ],
+    "mutations": [
+      {
+        "line": 2,
+        "replacement": "    exact hqr hp",
+        "explanation": "hqr expects Q, but hp has type P."
+      }
+    ]
   }
 ]

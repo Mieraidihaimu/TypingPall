@@ -23,10 +23,10 @@ MANIFEST_PATH = LIBRARY_DIR / "manifest.json"
 
 SUPPORTED_LANGUAGES = [
     "python", "cpp", "rust", "go", "ruby", "shell",
-    "swift", "javascript", "typescript", "sql", "java", "kotlin", "plainText"
+    "swift", "javascript", "typescript", "sql", "java", "kotlin", "lean4", "plainText"
 ]
 
-DEFAULT_TRACKS = ["leetcode", "lowLevelDesign", "languages"]
+DEFAULT_TRACKS = ["leetcode", "lowLevelDesign", "languages", "tacticGym"]
 
 
 def get_indentation(line: str) -> str:
@@ -36,7 +36,7 @@ def get_indentation(line: str) -> str:
 def comment_prefix_for(language: str) -> str:
     if language in ("python", "ruby", "shell"):
         return "#"
-    elif language == "sql":
+    elif language in ("sql", "lean4"):
         return "--"
     return "//"
 

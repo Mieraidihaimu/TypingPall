@@ -2,7 +2,8 @@
   "tracks": [
     "leetcode",
     "lowLevelDesign",
-    "languages"
+    "languages",
+    "tacticGym"
   ],
   "description": "TypingPall practice lessons modular catalog manifest"
 }

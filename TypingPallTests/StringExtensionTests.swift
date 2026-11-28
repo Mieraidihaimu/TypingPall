@@ -388,7 +388,50 @@ final class CommentSkippingTests: XCTestCase {
         XCTAssertEqual(CodeLanguage.from(fileExtension: "sh"), .shell)
         XCTAssertEqual(CodeLanguage.from(fileExtension: "bash"), .shell)
         XCTAssertEqual(CodeLanguage.from(fileExtension: "zsh"), .shell)
+        XCTAssertEqual(CodeLanguage.from(fileExtension: "lean"), .lean4)
     }
+
+    func testLean4CommentsAndHighlighting() {
+        let source = [
+            "-- header comment",
+            "/- nested /- block -/ comment -/",
+            "theorem t (n : Nat) : n = n := by -- inline",
+            "    rfl"
+        ]
+        let filtered = CommentFilter.lines(source, language: .lean4)
+        XCTAssertEqual(filtered.map(\.sourceIndex), [2, 3])
+        XCTAssertEqual(filtered.map(\.text), ["theorem t (n : Nat) : n = n := by", "    rfl"])
+        let highlighted = CodeHighlighter.highlight(source, language: .lean4)
+        XCTAssertEqual(highlighted.count, 4)
+    }
+
+    #if os(macOS)
+    func testLeanVerifierChecksSnippetsWhenToolchainPresent() throws {
+        XCTAssertEqual(LeanVerifier.verify("theorem ok : True := trivial\n", executablePath: nil), .toolchainUnavailable)
+        XCTAssertEqual(LeanVerifier.interpretOutput(status: 0, stdout: "", stderr: ""), .passed)
+        XCTAssertEqual(
+            LeanVerifier.interpretOutput(status: 0, stdout: "", stderr: "warning: declaration uses 'sorry'"),
+            .failed(diagnostics: "warning: declaration uses 'sorry'")
+        )
+        XCTAssertEqual(
+            LeanVerifier.interpretOutput(status: 1, stdout: "<stdin>:1:1: error: unsolved goals", stderr: ""),
+            .failed(diagnostics: "<stdin>:1:1: error: unsolved goals")
+        )
+        guard let leanPath = LeanVerifier.resolveLeanExecutable() else {
+            throw XCTSkip("Lean 4 toolchain unavailable in sandboxed test host")
+        }
+        XCTAssertEqual(
+            LeanVerifier.verify("theorem ok (n : Nat) : n + 0 = n := by rfl\n", executablePath: leanPath),
+            .passed
+        )
+        let bad = LeanVerifier.verify("theorem bad (n : Nat) : n = n + 1 := by rfl\n", executablePath: leanPath)
+        if case .failed(let diagnostics) = bad {
+            XCTAssertFalse(diagnostics.isEmpty)
+        } else {
+            XCTFail("Expected LeanVerifier to fail on invalid proof, got \(bad)")
+        }
+    }
+    #endif
 
     func testCommentsAreSkippedEvenWithTheOldPreferenceDisabled() throws {
         let defaults = makeDefaults()

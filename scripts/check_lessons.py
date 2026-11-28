@@ -22,7 +22,7 @@ import types
 ROOT = Path(__file__).resolve().parents[1]
 LESSONS = json.loads((ROOT / 'TypingPall/Content/lessons.json').read_text())
 LESSONS_BY_ID = {lesson['id']: lesson for lesson in LESSONS}
-TRACKS = {'leetcode', 'lowLevelDesign', 'languages'}
+TRACKS = {'leetcode', 'lowLevelDesign', 'languages', 'tacticGym'}
 CHECKS = {}
 MUTATION_TIMEOUT_SECONDS = 3
 

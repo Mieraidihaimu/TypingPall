@@ -1,0 +1,54 @@
+{
+  "id": "lean-have-chain",
+  "title": "Forward reasoning with have",
+  "category": "Lean 4 tactics",
+  "track": "tacticGym",
+  "language": "lean4",
+  "summary": "Introduce an intermediate fact with have and close the goal with exact.",
+  "code": [
+    "theorem modus_ponens_chain {P Q R : Prop} (hp : P) (hpq : P -> Q) (hqr : Q -> R) : R := by",
+    "    have hq : Q := hpq hp",
+    "    exact hqr hq"
+  ],
+  "family": "lean-forward",
+  "triggers": [
+    "build an intermediate lemma inside a proof with have",
+    "chain implications forward before closing with exact"
+  ],
+  "prompts": [
+    "Given P, P -> Q, and Q -> R, derive R using an explicit intermediate fact for Q.",
+    "Use forward reasoning with have and exact rather than backward apply."
+  ],
+  "invariant": "have introduces a proven local hypothesis into the context for subsequent steps.",
+  "mantra": "Name the stepping-stone fact with have, then finish with exact.",
+  "pitfalls": [
+    "Applying hqr directly to hp fails because hp has type P, not Q.",
+    "Omitting exact on the final term leaves an unused expression instead of closing the goal."
+  ],
+  "keyLineIndices": [
+    1,
+    2
+  ],
+  "scaffoldLineIndices": [
+    0
+  ],
+  "contrastWith": [
+    "lean-rcases-destructure",
+    "lean-omega-bounds",
+    "lean-simp-rewriting"
+  ],
+  "anchors": [
+    {
+      "name": "Forward have step",
+      "trick": "Bind hq : Q := hpq hp, then pass hq to hqr."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 2,
+      "replacement": "    exact hqr hp",
+      "explanation": "hqr expects Q, but hp has type P."
+    }
+  ],
+  "order": 60
+}

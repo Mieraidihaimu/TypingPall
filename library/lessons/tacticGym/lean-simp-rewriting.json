@@ -1,0 +1,52 @@
+{
+  "id": "lean-simp-rewriting",
+  "title": "Goal simplification with simp",
+  "category": "Lean 4 tactics",
+  "track": "tacticGym",
+  "language": "lean4",
+  "summary": "Normalize list length expressions using targeted @[simp] lemmas.",
+  "code": [
+    "theorem list_append_len (xs ys : List Nat) : (xs ++ ys).length = ys.length + xs.length := by",
+    "    simp [List.length_append, Nat.add_comm]"
+  ],
+  "family": "lean-simplification",
+  "triggers": [
+    "normalize algebraic or container expressions using rewrite rules",
+    "supply extra lemmas like Nat.add_comm to simp"
+  ],
+  "prompts": [
+    "Prove that (xs ++ ys).length equals ys.length + xs.length.",
+    "Simplify a list length goal and commute addition in a single simp call."
+  ],
+  "invariant": "simp rewrites the goal using @[simp] lemmas plus any explicitly listed lemmas.",
+  "mantra": "Feed simp the exact bridge lemmas it lacks instead of rewriting step by step.",
+  "pitfalls": [
+    "Bare simp without Nat.add_comm stops at xs.length + ys.length.",
+    "Adding non-terminating rewrite rules to simp can cause a maxHeartbeats loop."
+  ],
+  "keyLineIndices": [
+    1
+  ],
+  "scaffoldLineIndices": [
+    0
+  ],
+  "contrastWith": [
+    "lean-omega-bounds",
+    "lean-induction-nat",
+    "lean-have-chain"
+  ],
+  "anchors": [
+    {
+      "name": "Targeted simp",
+      "trick": "Pass List.length_append and Nat.add_comm directly inside simp [...]."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 1,
+      "replacement": "    simp [List.length_append]",
+      "explanation": "Without Nat.add_comm, xs.length + ys.length does not match ys.length + xs.length."
+    }
+  ],
+  "order": 50
+}
