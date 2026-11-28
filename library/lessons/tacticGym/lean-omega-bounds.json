@@ -1,0 +1,51 @@
+{
+  "id": "lean-omega-bounds",
+  "title": "Linear arithmetic with omega",
+  "category": "Lean 4 tactics",
+  "track": "tacticGym",
+  "language": "lean4",
+  "summary": "Close linear integer and natural-number inequalities in one step using omega.",
+  "code": [
+    "theorem nat_sandwich (a b : Nat) (h1 : a <= b) (h2 : b <= a) : a = b := by",
+    "    omega"
+  ],
+  "family": "lean-arithmetic",
+  "triggers": [
+    "prove an equality or inequality over Nat or Int from linear hypotheses",
+    "discharge arithmetic side conditions after splitting cases"
+  ],
+  "prompts": [
+    "You have a <= b and b <= a on natural numbers and need to conclude a = b.",
+    "Two linear bounds on Nat indices imply equality without manual Nat.le_antisymm."
+  ],
+  "invariant": "omega decides quantifier-free Presburger arithmetic over Nat and Int.",
+  "mantra": "Linear Nat or Int bounds in context? Reach for omega first.",
+  "pitfalls": [
+    "omega does not unfold custom definitions unless you have already dsimp or simp them.",
+    "Non-linear multiplication between variables requires nlinarith or ring, not omega."
+  ],
+  "keyLineIndices": [
+    1
+  ],
+  "scaffoldLineIndices": [
+    0
+  ],
+  "contrastWith": [
+    "lean-simp-rewriting",
+    "lean-have-chain"
+  ],
+  "anchors": [
+    {
+      "name": "Presburger decision",
+      "trick": "Let omega combine linear inequalities and antisymmetry automatically."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 1,
+      "replacement": "    rfl",
+      "explanation": "rfl only closes definitional equalities, not propositional antisymmetry."
+    }
+  ],
+  "order": 10
+}

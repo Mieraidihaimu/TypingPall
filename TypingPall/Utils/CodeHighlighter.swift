@@ -50,11 +50,15 @@ enum CodeHighlighter {
             let lineComment: String
             switch language {
             case .python, .ruby, .shell: lineComment = "#"
-            case .sql: lineComment = "--"
+            case .sql, .lean4: lineComment = "--"
             default: lineComment = "//"
             }
             var comments = lineComment + #"[^\n]*"#
-            if lineComment != "#" { comments += #"|/\*[\s\S]*?(?:\*/|\z)"# }
+            if language == .lean4 {
+                comments += #"|/-[\s\S]*?(?:-/|\z)"#
+            } else if lineComment != "#" {
+                comments += #"|/\*[\s\S]*?(?:\*/|\z)"#
+            }
 
             var strings = [Self.quoted("\""), Self.quoted("'")]
             var directives: [String] = []
@@ -149,6 +153,8 @@ enum CodeHighlighter {
             return ["public", "private", "protected", "class", "interface", "extends", "implements", "static", "final", "void", "return", "if", "else", "while", "for", "switch", "case", "default", "break", "continue", "new", "this", "super", "try", "catch", "finally", "throw", "throws", "import", "package", "true", "false", "null"]
         case .kotlin:
             return ["fun", "val", "var", "class", "interface", "object", "return", "if", "else", "while", "for", "in", "when", "is", "as", "break", "continue", "package", "import", "public", "private", "protected", "internal", "override", "open", "data", "sealed", "suspend", "this", "super", "null", "true", "false"]
+        case .lean4:
+            return ["theorem", "lemma", "def", "structure", "inductive", "class", "instance", "where", "by", "let", "have", "show", "fun", "match", "with", "if", "then", "else", "do", "return", "forall", "exists", "import", "open", "namespace", "section", "end", "private", "protected", "noncomputable", "deriving", "Prop", "Type", "Sort", "true", "false"]
         case .plainText:
             return []
         }
@@ -174,6 +180,8 @@ enum CodeHighlighter {
             return ["Int", "Long", "Float", "Double", "Boolean", "Char", "Byte", "Short", "String", "List", "Map", "Set", "Array"]
         case .sql:
             return ["INT", "INTEGER", "BIGINT", "VARCHAR", "TEXT", "BOOLEAN", "DATE", "TIMESTAMP", "FLOAT", "DECIMAL", "NUMERIC"]
+        case .lean4:
+            return ["Nat", "Int", "Bool", "String", "List", "Option", "Array", "ByteArray", "UInt32", "UInt64", "BitVec", "Fin", "PMF", "omega", "simp", "rcases", "rfl", "decide", "induction", "cases", "intro", "intros", "apply", "exact", "rw", "refine", "constructor", "split", "contradiction", "subst", "dsimp", "linarith", "ring", "positivity", "gcongr", "aesop", "norm_num"]
         default:
             return []
         }

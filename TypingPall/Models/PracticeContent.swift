@@ -1,7 +1,7 @@
 import Foundation
 
 enum CodeLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
-    case plainText, python, cpp, rust, go, ruby, shell, swift, javascript, typescript, sql, java, kotlin
+    case plainText, python, cpp, rust, go, ruby, shell, swift, javascript, typescript, sql, java, kotlin, lean4
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -18,6 +18,7 @@ enum CodeLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
         case .sql: return "SQL"
         case .java: return "Java"
         case .kotlin: return "Kotlin"
+        case .lean4: return "Lean 4"
         }
     }
     static func from(fileExtension: String) -> CodeLanguage {
@@ -34,6 +35,7 @@ enum CodeLanguage: String, Codable, CaseIterable, Identifiable, Sendable {
         case "sql": return .sql
         case "java": return .java
         case "kt", "kts": return .kotlin
+        case "lean": return .lean4
         default: return .plainText
         }
     }
@@ -54,6 +56,7 @@ struct LessonTrack: RawRepresentable, Codable, CaseIterable, Identifiable, Hasha
     static let leetcode = LessonTrack(rawValue: "leetcode")
     static let lowLevelDesign = LessonTrack(rawValue: "lowLevelDesign")
     static let languages = LessonTrack(rawValue: "languages")
+    static let tacticGym = LessonTrack(rawValue: "tacticGym")
     static let algorithms = LessonTrack(rawValue: "algorithms")
     static let systemDesign = LessonTrack(rawValue: "systemDesign")
 
@@ -62,6 +65,7 @@ struct LessonTrack: RawRepresentable, Codable, CaseIterable, Identifiable, Hasha
         case "leetcode": return "LeetCode"
         case "lowLevelDesign": return "Low-level design"
         case "languages": return "Languages & syntax"
+        case "tacticGym": return "TacticGym (Lean 4)"
         case "algorithms": return "Algorithms"
         case "systemDesign": return "System design"
         default:
@@ -77,7 +81,7 @@ struct LessonTrack: RawRepresentable, Codable, CaseIterable, Identifiable, Hasha
     }
 
     static var allCases: [LessonTrack] {
-        var result: [LessonTrack] = [.leetcode, .lowLevelDesign, .languages]
+        var result: [LessonTrack] = [.leetcode, .lowLevelDesign, .languages, .tacticGym]
         for lesson in PracticeCatalog.lessons {
             if !result.contains(lesson.track) {
                 result.append(lesson.track)
@@ -187,10 +191,12 @@ enum CommentFilter {
             while index < chars.count {
                 if blockDepth > 0 {
                     hadComment = true
-                    if matches("*/", at: index) {
+                    let blockClose = language == .lean4 ? "-/" : "*/"
+                    let blockOpen = language == .lean4 ? "/-" : "/*"
+                    if matches(blockClose, at: index) {
                         blockDepth -= 1
                         index += 2
-                    } else if language == .rust && matches("/*", at: index) {
+                    } else if (language == .rust || language == .lean4) && matches(blockOpen, at: index) {
                         blockDepth += 1
                         index += 2
                     } else { index += 1 }
@@ -209,14 +215,15 @@ enum CommentFilter {
                     continue
                 }
                 let isHashComment = (language == .python || language == .ruby || language == .shell)
-                let isDashComment = (language == .sql)
+                let isDashComment = (language == .sql || language == .lean4)
                 if (isHashComment && chars[index] == "#") ||
                     (isDashComment && matches("--", at: index)) ||
                     (!isHashComment && !isDashComment && matches("//", at: index)) {
                     hadComment = true
                     break
                 }
-                if !isHashComment && matches("/*", at: index) {
+                let blockStart = language == .lean4 ? "/-" : "/*"
+                if !isHashComment && matches(blockStart, at: index) {
                     hadComment = true
                     blockDepth = 1
                     // Preserve token separation in expressions such as a/* note */+b.

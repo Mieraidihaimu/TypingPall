@@ -1,0 +1,55 @@
+{
+  "id": "lean-cases-enum",
+  "title": "Exhaustive case split on enum",
+  "category": "Lean 4 tactics",
+  "track": "tacticGym",
+  "language": "lean4",
+  "summary": "Prove injectivity of a rank function on an inductive status enum by exhaustive case analysis.",
+  "code": [
+    "inductive MemberStatus | alive | suspect | dead",
+    "def statusRank : MemberStatus -> Nat | .alive => 0 | .suspect => 1 | .dead => 2",
+    "theorem statusRank_inj {s1 s2 : MemberStatus} (h : statusRank s1 = statusRank s2) : s1 = s2 := by",
+    "    cases s1 <;> cases s2 <;> first | rfl | contradiction"
+  ],
+  "family": "lean-case-split",
+  "triggers": [
+    "prove injectivity or exhaustiveness over a finite inductive enum",
+    "combine <;> combinators with first | rfl | contradiction"
+  ],
+  "prompts": [
+    "Given a 3-variant MemberStatus enum and a rank function, prove two statuses with equal rank are equal.",
+    "Discharge all 9 pairs of a finite enum in one combinator line."
+  ],
+  "invariant": "Finite inductive types reduce to a fixed grid of constructor pairs where mismatched ranks are contradictory.",
+  "mantra": "Cartesian split with <;>, then close each cell with first | rfl | contradiction.",
+  "pitfalls": [
+    "Using rfl alone fails on off-diagonal branches where constructors differ.",
+    "Forgetting contradiction leaves contradictory hypotheses like 0 = 1 open."
+  ],
+  "keyLineIndices": [
+    3
+  ],
+  "scaffoldLineIndices": [
+    0,
+    1,
+    2
+  ],
+  "contrastWith": [
+    "lean-induction-nat",
+    "lean-rcases-destructure"
+  ],
+  "anchors": [
+    {
+      "name": "SWIM statusRank injectivity",
+      "trick": "Chain cases s1 <;> cases s2 with first | rfl | contradiction."
+    }
+  ],
+  "mutations": [
+    {
+      "line": 3,
+      "replacement": "    cases s1 <;> cases s2 <;> rfl",
+      "explanation": "Off-diagonal branches have unequal constructors and require contradiction."
+    }
+  ],
+  "order": 40
+}

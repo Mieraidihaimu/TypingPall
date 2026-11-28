@@ -24,6 +24,8 @@
 		7DCAA2B42A60024A00AFC118 /* String+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCAA2B32A60024A00AFC118 /* String+Utils.swift */; };
 		9595215C2EB49A4F00216F1E /* TextKit2TypingEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9595215A2EB49A4F00216F1E /* TextKit2TypingEditor.swift */; };
 		9595215D2EB49A4F00216F1E /* TextKit2TypingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9595215B2EB49A4F00216F1E /* TextKit2TypingView.swift */; };
+		A90000000000000000000001 /* TypingPall/Models/LeanVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000002 /* TypingPall/Models/LeanVerifier.swift */; };
+		A90000000000000000000003 /* TypingPall/Models/LeanVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000002 /* TypingPall/Models/LeanVerifier.swift */; };
 		B20000000000000000000001 /* TypingPall/Models/PracticeContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* TypingPall/Models/PracticeContent.swift */; };
 		B20000000000000000000003 /* TypingPall/Content/lessons.json in Resources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* TypingPall/Content/lessons.json */; };
 		C10000000000000000000002 /* TypingPall/Models/LineDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001 /* TypingPall/Models/LineDiff.swift */; };
@@ -147,6 +149,7 @@
 		9595215B2EB49A4F00216F1E /* TextKit2TypingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextKit2TypingView.swift; sourceTree = "<group>"; };
 		A10000000000000000000002 /* TypingPall/Models/TypingStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/TypingStatistics.swift; sourceTree = SOURCE_ROOT; };
 		A10000000000000000000004 /* TypingPall/Views/TypingStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Views/TypingStatisticsView.swift; sourceTree = SOURCE_ROOT; };
+		A90000000000000000000002 /* TypingPall/Models/LeanVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/LeanVerifier.swift; sourceTree = SOURCE_ROOT; };
 		B20000000000000000000002 /* TypingPall/Models/PracticeContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingPall/Models/PracticeContent.swift; sourceTree = SOURCE_ROOT; };
 		B20000000000000000000004 /* TypingPall/Content/lessons.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TypingPall/Content/lessons.json; sourceTree = SOURCE_ROOT; };
 		B20000000000000000000005 /* TypingPallV2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TypingPallV2.xcdatamodel; sourceTree = "<group>"; };
@@ -307,6 +310,7 @@
 				7DCAA27A2A5F33D700AFC118 /* Assets.xcassets */,
 				7DCAA27F2A5F33D700AFC118 /* Persistence.swift */,
 				B20000000000000000000004 /* TypingPall/Content/lessons.json */,
+				A90000000000000000000002 /* TypingPall/Models/LeanVerifier.swift */,
 				B20000000000000000000002 /* TypingPall/Models/PracticeContent.swift */,
 				C30000000000000000000001 /* TypingPall/Models/LessonMetadata.swift */,
 				C30000000000000000000007 /* TypingPall/Models/RecognitionDrill.swift */,
@@ -608,6 +612,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7DCAA2802A5F33D700AFC118 /* Persistence.swift in Sources */,
+				A90000000000000000000001 /* TypingPall/Models/LeanVerifier.swift in Sources */,
 				B20000000000000000000001 /* TypingPall/Models/PracticeContent.swift in Sources */,
 				C30000000000000000000002 /* TypingPall/Models/LessonMetadata.swift in Sources */,
 				C30000000000000000000008 /* TypingPall/Models/RecognitionDrill.swift in Sources */,
@@ -678,6 +683,7 @@
 				F8000000000000000000000B /* PadTypingEditor.swift in Sources */,
 				F8000000000000000000000C /* PadLibraryView.swift in Sources */,
 				F8000000000000000000000D /* Persistence.swift in Sources */,
+				A90000000000000000000003 /* TypingPall/Models/LeanVerifier.swift in Sources */,
 				F8000000000000000000000E /* TypingPall/Models/PracticeContent.swift in Sources */,
 				F8000000000000000000000F /* TypingPall/Models/LessonMetadata.swift in Sources */,
 				F80000000000000000000010 /* TypingPall/Models/BugHunt.swift in Sources */,
